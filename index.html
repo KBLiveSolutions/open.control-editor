@@ -440,14 +440,20 @@
     // var layout_select_row = main_cell_table.insertRow(1);
     var layout_icon_cell = main_cell_table.insertRow(-1).insertCell(0);
     var layout_select_cell = main_cell_table.insertRow(-1).insertCell(0);
+    var layout_color_cell = main_cell_table.insertRow(-1).insertCell(0);
+    // var layout_color_cell = main_cell_table.insertRow(-1).insertCell(0);
     mainTable.className = "type1";
 
     layout_icon_cell.innerHTML = "Select Page";
     sel_layout = create_sel(90, layout_actions, 'sel', 'block');
+    layout_color_cell.innerHTML = "Page Color ";
+    sel_color = create_color_sel(90);
 
     divClass[0].appendChild(mainTable);
     main_cell.appendChild(layout_icon_cell);
     main_cell.appendChild(sel_layout);
+    main_cell.appendChild(layout_color_cell);
+    layout_color_cell.appendChild(sel_color);
     mainTable_row0.appendChild(main_cell);
     main_cell.appendChild(empty_cell);
   }
@@ -466,11 +472,6 @@
 
     mainTable.className = "type1";
 
-    var img = document.createElement('img');
-    img.src = "display.png";
-    img.height = 48;
-    img.width = 250;
-    // display_icon_cell.appendChild(img);
     display_icon_cell.innerHTML = "Display";
     sel_display = create_sel(20, display_actions, 'sel', 'block');
 
@@ -524,10 +525,16 @@
   function on_color_change(i, value, datatype) { // callback when the main sel is changed
     // var sel = document.getElementById("sel" + id);
     value = parseInt(value);
-    // console.log(sel + " " + datatype + " " + id + " " + value);
-    sendSysex(17, current_layout, i, value, 1, 16);
-    control_number[current_layout][i+12] = value;
-    control_channel[current_layout][i+12] = 10;
+     console.log( datatype + " " + i + " " + value);
+    // if data comes from Page Color Selector, sned special sysex message
+    if (i == 90){
+      sendSysex(32+current_layout, value); // send color for Page 1
+    }
+    else{
+      sendSysex(17, current_layout, i, value, 1, 16);
+      control_number[current_layout][i+12] = value;
+      control_channel[current_layout][i+12] = 10;
+    }
   }
 
   function create_main_cell_content(main_cell, i) {
@@ -1067,6 +1074,12 @@
         </tr>
     </table>
 <button onclick="uploadPreset()">Upload to Device</button>  -->
+
+<select>
+  <option value="1" style="background:red">Apple</option>
+  <option value="2" style="background:yellow">Banana</option>
+  <option value="3" style="background:purple">Grape</option>
+</select>
 
   <left>
     <table class="Top Table">
