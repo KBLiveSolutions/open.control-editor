@@ -112,7 +112,6 @@
   function sendSysex(sysex_id, layout, id, value, type, channel) {
     // Sending {240, 122, 29, 1, 19, 10, Layout Number, Button number, Note/CC Number, Type, Channel, 247} changes the corresponding button
     var sysexMessage = [240, 122, 29, 1, 19, sysex_id, layout, id, value, type, channel, 247];
-    // var output = midi.outputs.get(open_control_output_id);
     if (open_control_output_id != null) open_control_output.send(sysexMessage);
   }
 
@@ -647,6 +646,7 @@
       l.style.display = "block";
     }
 
+    snap[current_layout][id] = value;
 
   }
   function create_slider_table(div) {
@@ -823,7 +823,10 @@
         s.style.display = "block";
         if (control_type[current_layout][i] == 0 && control_channel[current_layout][i] == 16) s.value = Object.keys(button_actions).indexOf("① MIDI Map 1 (Big Button)");
         if (control_type[current_layout][i] == 0 && control_channel[current_layout][i] == 15) s.value = Object.keys(button_actions).indexOf("② MIDI Map 2 (Clear)");
-        if (control_type[current_layout][i] == 0 && control_channel[current_layout][i] == 14) s.value = Object.keys(button_actions).indexOf("③ MIDI Map 3 (Undo)");
+        if (control_type[current_layout][i] == 0 && control_channel[current_layout][i] == 14) s.value = Object.keys(button_actions).indexOf("③ MIDI Map 3 (Free)");
+        if (control_type[current_layout][i] == 0 && control_channel[current_layout][i] == 13) s.value = Object.keys(button_actions).indexOf("④ MIDI Map 4 (Free)");
+        if (control_type[current_layout][i] == 0 && control_channel[current_layout][i] == 12) s.value = Object.keys(button_actions).indexOf("⑤ MIDI Map 5 (Free)");
+        if (control_type[current_layout][i] == 0 && control_channel[current_layout][i] == 11) s.value = Object.keys(button_actions).indexOf("⑥ MIDI Map 6 (Free)");
         // if (i<=6 && control_type[current_layout][i-6] == 0 && control_channel[current_layout][i-6] == 16) {
         //   s.style.display = "none";
         // }
