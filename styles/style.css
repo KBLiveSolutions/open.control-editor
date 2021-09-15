@@ -1,0 +1,82 @@
+@font-face {
+  font-family: 'Gidole Regular';
+  font-style: normal;
+  font-weight: normal;
+  src: local('Gidole Regular'), url('Gidole-Regular.woff') format('woff');
+  }
+
+body {
+  background-color: rgb(104, 102, 100); 
+  font-family: Helvetica; 
+  font-size: 100%;
+  }
+
+table {
+  table-layout: fixed;
+  /* width: 100%; */
+  border-collapse: collapse;
+  border: 3px solid rgba(128, 0, 128, 0);
+  color: rgb(231, 231, 231);
+  font-family: Helvetica;
+  border-collapse:  separate;
+  background-color: transparent;
+}
+
+table.type1 td {
+  border-collapse:  separate;
+  background: rgb(0, 0, 0);
+  border-style: solid;
+  border: 1px solid rgb(0, 0, 0);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  border-radius: 4px;
+  /* width:inherit; */
+  width: 150px;
+  height: 28px;
+  text-align: center;
+}
+
+table.type2 td {
+  border-collapse:  separate;
+  background: rgb(60, 60, 60);
+  border-style: solid;
+  border: 0px solid rgb(0, 0, 0);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  border-radius: 0px;
+  width: 150px;
+  text-align: center;
+}
+
+table.type3 td {
+  border-collapse:  separate;
+  background: rgb(44, 43, 43);
+  border-style: solid;
+  border: 1px solid rgb(97, 94, 94);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  border-radius: 0px;
+  width: 150px;
+  text-align: center;
+}
+
+select {
+  font-family: Helvetica;
+  background: rgb(231, 230, 230);
+}
+
+.table_cell{
+  display:table-cell;
+  width: 15px;
+  border:solid black 1px;
+}
+
+.columns-container {
+  display: table-cell;
+  height: 100%;
+  width:20px;
+  text-align: center;
+}
