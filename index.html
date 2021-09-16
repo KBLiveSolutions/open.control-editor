@@ -4,7 +4,7 @@
   var control_number = [[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]];
   var control_channel = [[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]];
   var snap = [[1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1]];
-
+  var options = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
   //====================== MIDI ==========================
 
   var midi = null;
@@ -96,18 +96,22 @@
         var btn_snap = event.data[8];
         snap[rcvd_layout][num] = btn_snap;
       }
+      if (event.data[5] == 17) {
+        var rcvd_opt = event.data[7];
+        var num = event.data[6];
+        options[num] = rcvd_opt;
+    console.log("options", num, rcvd_opt);
+      }
       if (event.data[5] == 79) {
+
+      var s = document.getElementById("metro");
+      s.checked = options[0];
+      s = document.getElementById("session_box");
+      s.checked = !options[1];
         change_layout(0);
       }
     }
   }
-
-  // function sendSysex(type, layout, id, value, snap) {
-  //   // Sending {{240, 122, 29, 1, 19, type, Layout Number, Button number, Note/CC Number, Type, Channel, 247} changes the corresponding button
-  //   var sysexMessage = [240, 122, 29, 1, 19, type, layout, id, value, 1, 16, snap, 247];
-  //   // var output = midi.outputs.get(open_control_output_id);
-  //   if (open_control_output_id != null) open_control_output.send(sysexMessage);
-  // }
 
   function sendSysex(sysex_id, layout, id, value, type, channel) {
     // Sending {240, 122, 29, 1, 19, 10, Layout Number, Button number, Note/CC Number, Type, Channel, 247} changes the corresponding button
@@ -341,7 +345,7 @@
     var divClass = document.getElementsByClassName(div);
     var tempo_checkbox = document.createElement('input');
     tempo_checkbox.type = "checkbox";
-    tempo_checkbox.name = "name";
+    tempo_checkbox.id = "metro";
 
     var tempo_label = document.createElement('label');
     tempo_label.appendChild(document.createTextNode(' Metronome blinking'));
@@ -349,9 +353,11 @@
     tempo_checkbox.addEventListener('change', (event) => {
       if (event.target.checked) {
         sendRawSysex([240, 122, 29, 1, 19, 30, 1, 247]);
+        options[0] = 1;
       }
       else {
         sendRawSysex([240, 122, 29, 1, 19, 30, 0, 247]);
+        options[0] = 0;
       }
     })
     return ([tempo_checkbox, tempo_label])
@@ -361,16 +367,20 @@
     var divClass = document.getElementsByClassName(div);
     var session_box_checkbox = document.createElement('input');
     session_box_checkbox.type = "checkbox";
-    session_box_checkbox.name = "name";
+    session_box_checkbox.id = "session_box";
 
     var session_box_label = document.createElement('label');
     session_box_label.appendChild(document.createTextNode(' Create Session Box'));
 
     session_box_checkbox.addEventListener('change', (event) => {
       if (event.target.checked) {
+    console.log("off");
+        options[1] = 0;
         sendRawSysex([240, 122, 29, 1, 19, 31, 0, 247]);
       }
       else {
+    console.log("on");
+        options[1] = 1;
         sendRawSysex([240, 122, 29, 1, 19, 31, 1, 247]);
       }
     })
@@ -529,6 +539,7 @@
     // if data comes from Page Color Selector, sned special sysex message
     if (i == 90){
       sendSysex(32+current_layout, value); // send color for Page 1
+      options[2+current_layout] = value; //stores color as options 2 to 4
     }
     else{
       sendSysex(17, current_layout, i, value, 1, 16);
@@ -656,6 +667,7 @@
     snap[current_layout][id] = value;
 
   }
+  
   function create_slider_table(div) {
     // Creates a row of controls described by the name of the div, the number of controls,
     // the offset number of the first control and the type of control
@@ -823,6 +835,8 @@
 
   function change_layout(layout) { // updates all sel when a layout is changed
     current_layout = layout;
+    var s = document.getElementById("color_sel90"); // set Page color sel
+    s.value = options[2+current_layout]
     for (var i = 0; i < 21; i++) {
       if (i < 12) { // updates buttons
         var s = document.getElementById("sel" + i);
