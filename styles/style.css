@@ -31,9 +31,9 @@ table.type1 td {
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
-  border-radius: 0px;
+  border-radius: 8px;
   /* width:inherit; */
-  width: 150px;
+  width: 100px;
   height: 28px;
   text-align: center;
 }
@@ -64,6 +64,19 @@ table.type3 td {
   text-align: center;
 }
 
+table.type4 td {
+  border-collapse:  separate;
+  background: rgb(44, 43, 43);
+  border-style: solid;
+  border: 1px solid rgb(97, 94, 94);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  border-radius: 0px;
+  width: 150px;
+  text-align: right;
+}
+
 select {
   font-family: Helvetica;
   background: rgb(231, 230, 230);
@@ -76,6 +89,8 @@ select {
   width: 15px;
   border:solid black 1px;
 }
+
+
 
 .columns-container {
   display: table-cell;

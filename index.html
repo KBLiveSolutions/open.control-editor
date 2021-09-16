@@ -60,7 +60,7 @@
 
     if (!open_control_detected) {
       statusLabel.style.color = "#00FF55";
-      statusLabel.innerHTML = "<b> open· control detected</b> <br> firmware version: " + maj_ver + "." + min_ver;
+      statusLabel.innerHTML = "<b> open·control detected</b> <br> firmware version: " + maj_ver + "." + min_ver;
       var requestMessage = [240, 122, 29, 1, 19, 4, 247];
       open_control_detected = true;
       console.log("requestMessage");
@@ -1091,22 +1091,22 @@
 
 
   <left>
-    <table class="Top Table">
+    <table class="Top Table" width=1600>
       <tbody>
         <tr>
-          <td>
+          <td width=200>
             <div class="Layout">
               <script>create_layout_table("Layout")</script>
             </div>
           </td>
-          <td>
+          <td width=780>
             <div class="Options">
               <b>Options</b>
               <br>
               <script>create_options_table("Options")</script>
             </div>
           </td>
-          <td className="type2">
+          <td className="type2" width=300>
             <br>
             <div class="Connect Status">
               <br>
@@ -1114,6 +1114,23 @@
             </div>
             <br>
           </td>
+
+          <td className="type2">
+            <br>
+            <div>
+              <br>
+              <a href="https://opencontrol.me">
+              <img src="https://github.com/KBLiveSolutions/open.control/raw/gh-pages-manual/open_control_logo.png" alt="logo" width="150">
+            </a> 
+              <br>
+              <br>
+              <a href="https://kblivesolutions.com">
+              <img src="https://kblivesolutions.com/wp-content/uploads/2018/10/KB-LS-logo-transparent-White.png" alt="logo2" width="180">
+            </a>
+          </div>
+            <br>
+          </td>
+
         </tr>
       </tbody>
     </table>
