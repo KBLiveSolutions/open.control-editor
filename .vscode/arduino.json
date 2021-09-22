@@ -1,0 +1,6 @@
+{
+    "board": "arduino:avr:leonardo_opencontrol",
+    "port": "/dev/cu.usbmodemMIDI1",
+    "programmer": "arduino:avrispmkii",
+    "sketch": "../open_control_firmware/8_main.ino"
+}

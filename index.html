@@ -5,6 +5,7 @@
   var control_channel = [[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]];
   var snap = [[1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1]];
   var options = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+  var external_MIDI = [[1, 1, 1], [1, 1, 1], [1, 1, 1], [1, 1, 1], [1, 1, 1], [1, 1, 1], [1, 1, 1], [1, 1, 1]]
   //====================== MIDI ==========================
 
   var midi = null;
@@ -939,7 +940,7 @@
     var cell03 = cc_table_row0.insertCell(3);
 
     type_sel = create_cc_sel(i, type_values, 'type_select', "none", 55)
-    cell00.appendChild(type_sel);
+    if (i<NUM_BUTTONS) cell00.appendChild(type_sel);
     cc_sel = create_cc_sel(i, cc_values, 'cc_select', "none", 55)
     cell01.appendChild(cc_sel);
     ch_sel = create_cc_sel(i, ch_values, 'ch_select', "none", 55)
@@ -960,6 +961,7 @@
     select.num = num;
     select.id = id + num;
     select.onchange = function () { on_cc_change(select.num, select.value, id); };
+    
     return select
   }
 
@@ -970,16 +972,22 @@
     type_sel.value = btn_type;
     cc_sel.value = btn_num;
     ch_sel.value = btn_chnl;
-
+    external_MIDI[num] = [btn_type, btn_num, btn_chnl];
   }
 
   function on_cc_change(id, value, datatype) { // callback when the main sel is changed
     var sel = document.getElementById("sel" + id);
     value = parseInt(value);
     console.log(sel + " " + datatype + " " + id + " " + value);
-    if (datatype == "type_select") sendRawSysex([240, 122, 29, 1, 19, 15, 0, id, value - 1, 247]);
-    else if (datatype == "cc_select") sendRawSysex([240, 122, 29, 1, 19, 15, 1, id, value, 247]);
-    else if (datatype == "ch_select") sendRawSysex([240, 122, 29, 1, 19, 15, 2, id, value, 247]);
+    if (datatype == "type_select") {sendRawSysex([240, 122, 29, 1, 19, 15, 0, id, value - 1, 247]);
+      external_MIDI[id][0] = value - 1;
+    }
+    else if (datatype == "cc_select") {sendRawSysex([240, 122, 29, 1, 19, 15, 1, id, value, 247]);
+      external_MIDI[id][1] = value;
+    }
+    else if (datatype == "ch_select") {sendRawSysex([240, 122, 29, 1, 19, 15, 2, id, value, 247]);
+      external_MIDI[id][2] = value;
+    }
   }
 
   function get_index(i, action_type) {
@@ -1119,14 +1127,14 @@
             <br>
             <div>
               <br>
-              <a href="https://opencontrol.me">
+              <!-- <a href="https://opencontrol.me">
               <img src="https://github.com/KBLiveSolutions/open.control/blob/main/assets/images/open_control_logo.png" alt="logo" width="150">
-            </a> 
+            </a>  -->
               <br>
               <br>
-              <a href="https://kblivesolutions.com">
+              <!-- <a href="https://kblivesolutions.com">
               <img src="https://kblivesolutions.com/wp-content/uploads/2018/10/KB-LS-logo-transparent-White.png" alt="logo2" width="180">
-            </a>
+            </a> -->
           </div>
             <br>
           </td>
