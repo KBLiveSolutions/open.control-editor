@@ -600,29 +600,27 @@
     short_button_sel_cell[1].appendChild(snap_checkbox);
     long_button_sel_cell.appendChild(sel_long_button);
 
-    var img = document.createElement('img');
     switch (i) {
       case 0:
-        img.src = "purple_dot.png";
+    LED_icon_cell.innerHTML = "<font size=7 color=#A246FE>●</font>";
         break;
       case 1:
-        img.src = "green_dot.png";
+    LED_icon_cell.innerHTML = "<font size=7 color=#2BE1BD>●</font>";
         break;
       case 2:
-        img.src = "blue_dot.png";
+    LED_icon_cell.innerHTML = "<font size=7 color=#3882E8>●</font>";
         break;
       case 3:
-        img.src = "yellow_dot.png";
+    LED_icon_cell.innerHTML = "<font size=7 color=#F9FF33>●</font>";
         break;
       case 4:
-        img.src = "orange_dot.png";
+    LED_icon_cell.innerHTML = "<font size=7 color=#FFA233>●</font>";
         break;
       case 5:
-        img.src = "pink_dot.png";
+    LED_icon_cell.innerHTML = "<font size=7 color=#FF3390>●</font>";
         break;
     }
-    LED_icon_cell.appendChild(img);
-
+    
     var long_button_label = document.createElement('label');
     long_button_label.appendChild(document.createTextNode('Long Press'));
     long_button_label.id = "long_button_label" + i;
@@ -1075,10 +1073,113 @@
 <html>
 
 <head>
-  <link href="styles/style.css" rel="stylesheet" type="text/css">
+  <!-- <link href="styles/style.css" rel="stylesheet" type="text/css"> -->
   <link rel="icon" href="https://opencontrol.me/wp-content/uploads/2021/03/cropped-logo_small-1-192x192.png"
     sizes="192x192" />
 
+  <style>
+
+@font-face {
+  font-family: "Helvetica Neue";
+  font-style: normal;
+  font-weight: normal;
+  /* src: local('Gidole Regular'), url('Gidole-Regular.woff') format('woff'); */
+  }
+
+body {
+  background-color: rgb(104, 102, 100); 
+  font-family: Helvetica; 
+  font-size: 100%;
+  }
+
+table {
+  table-layout: fixed;
+  /* width: 100%; */
+  border-collapse: collapse;
+  border: 3px solid rgba(128, 0, 128, 0);
+  color: rgb(231, 231, 231);
+  font-family: "Helvetica Neue";
+  border-collapse:  separate;
+  background-color: transparent;
+  padding: 10px;
+}
+
+table.type1 td {
+  border-collapse:  separate;
+  background: rgb(0, 0, 0);
+  border-style: solid;
+  border: 1px solid rgb(0, 0, 0);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  border-radius: 8px;
+  /* width:inherit; */
+  width: 100px;
+  height: 28px;
+  text-align: center;
+}
+
+table.type2 td {
+  border-collapse:  separate;
+  background: rgb(60, 60, 60);
+  border-style: solid;
+  border: 0px solid rgb(0, 0, 0);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  border-radius: 0px;
+  width: 150px;
+  text-align: center;
+}
+
+table.type3 td {
+  border-collapse:  separate;
+  background: rgb(44, 43, 43);
+  border-style: solid;
+  border: 1px solid rgb(97, 94, 94);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  border-radius: 0px;
+  width: 150px;
+  text-align: center;
+}
+
+table.type4 td {
+  border-collapse:  separate;
+  background: rgb(44, 43, 43);
+  border-style: solid;
+  border: 1px solid rgb(97, 94, 94);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  border-radius: 0px;
+  width: 150px;
+  text-align: right;
+}
+
+select {
+  font-family: Helvetica;
+  background: rgb(231, 230, 230);
+  height: 30px;
+  font-weight: bold;
+}
+
+.table_cell{
+  display:table-cell;
+  width: 15px;
+  border:solid black 1px;
+}
+
+
+
+.columns-container {
+  display: table-cell;
+  height: 100%;
+  width:20px;
+  text-align: center;
+}
+  </style>
 </head>
 <title>open·control editor</title>
 <body>
