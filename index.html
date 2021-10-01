@@ -531,7 +531,7 @@
     var options_str = "";
     if (!Array.isArray(color_values)) var options_list = Object.keys(color_values);
     else options_list = color_values;
-    options_list.forEach(function (option) { options_str += '<option value=' + options_list.indexOf(option) + '>' + option + '</option>'; });
+    options_list.forEach(function (option) { options_str += '<option value=' + options_list.indexOf(option) + '><p style="color:#FF0055;">' + option + '</p></option>'; });
     select.innerHTML = options_str;
     select.num = num;
     select.id = 'color_sel' + num;
