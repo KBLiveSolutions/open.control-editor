@@ -322,6 +322,8 @@
     "① MIDI Map 1 (Big Button)": "◈ Looper State",
   };
 
+  var color_names = ["Blue", "Light Blue", "Red", "Light Red", "Green", "Light Green", "Pink", "Light Pink", "Purple", "Light Purple", "Yellow", "Light Yellow", "Orange", "Light Orange", "White", "Light White"]
+  var colors =  [23, 6, 13, 3, 18, 4, 10, 3, 23, 7, 16, 3, 0, 15, 48, 100];
   var cc_values = range(119, 1);
   cc_values.splice(0, 0, 'Num');
 
@@ -404,16 +406,75 @@
     select.num = num;
     select.id = id + num;
     select.onchange = function () { on_select_change(select.num, select.value); };
+    select.classList.add('select1');
     return select
   }
 
+  function create_color_sel(num) {
+    var select = document.createElement('select')
+    var options_str = "";
+    color_names.forEach(function (option) { options_str += '<option value=' + color_names.indexOf(option) + '>' + option + '</option>'; });
+    select.innerHTML = options_str;
+    select.num = num;
+    select.id = 'color_sel' + num;
+    select.className = 'color_select'
+    select.onchange = function () { on_color_change(select.num, select.value, num); };
+    return select
+  }
+
+  function on_color_change(i, value, datatype) { // callback when the main sel is changed
+    // var sel = document.getElementById("sel" + id);
+    value = parseInt(value);
+    value = colors[value];
+     console.log( datatype + " " + i + " " + value);
+    // if data comes from Page Color Selector, sned special sysex message
+    if (i == 90){
+      sendSysex(32+current_layout, value); // send color for Page 1
+      options[2+current_layout] = value; //stores color as options 2 to 4
+    }
+    else{
+      sendSysex(17, current_layout, i, value, 1, 16);
+      control_number[current_layout][i+12] = value;
+      control_channel[current_layout][i+12] = 10;
+    }
+  }
+
+
+  function create_layout_table(div) {
+    var divClass = document.getElementById(div);
+    var mainTable = document.createElement('table');
+    var mainTable_row0 = mainTable.insertRow(0);
+    // var mainTable_row1 = mainTable.insertRow(1);
+    var main_cell = document.createElement('td');
+    var main_cell_table = document.createElement('table');
+    var layout_icon_cell = main_cell_table.insertRow(-1).insertCell(0);
+    var layout_select_cell = main_cell_table.insertRow(-1).insertCell(0);
+    var layout_color_cell = main_cell_table.insertRow(-1).insertCell(0);
+    mainTable.className = "type_layout";
+
+    layout_icon_cell.innerHTML = "Select Page";
+    sel_layout = create_sel(90, layout_actions, 'sel', 'block');
+    layout_color_cell.innerHTML = "Page Color ";
+    sel_color = create_color_sel(90);
+    layout_icon_cell.className = "layout";
+
+    divClass.appendChild(mainTable);
+    main_cell.appendChild(layout_icon_cell);
+    main_cell.appendChild(sel_layout);
+    main_cell.appendChild(layout_color_cell);
+    layout_color_cell.appendChild(sel_color);
+    mainTable_row0.appendChild(main_cell);
+  }
+
   function create_options_table(div) {
-    // Creates a row of controls described by the name of the div, the number of controls,
-    // the offset number of the first control and the type of control
-    var divClass = document.getElementsByClassName(div);
+    var divClass = document.getElementById(div);
     var optionsTable = document.createElement('table');
+    optionsTable.className = "type_options"; 
     var optionsTable_row0 = optionsTable.insertRow(0);
     var optionsTable_row1 = optionsTable.insertRow(1);
+    var optionsTable_row2 = optionsTable.insertRow(2);
+    text_cell = document.createElement('td')
+    text_cell.innerHTML = "Options"
     var options_cell = [document.createElement('td'), document.createElement('td')];
     tempo_option = create_bpm_option("Options");
     session_box_option = create_session_box_option("Options");
@@ -421,9 +482,10 @@
     options_cell[0].appendChild(tempo_option[1]);
     options_cell[1].appendChild(session_box_option[0]);
     options_cell[1].appendChild(session_box_option[1]);
-    optionsTable_row0.appendChild(options_cell[0]);
-    optionsTable_row1.appendChild(options_cell[1]);
-    divClass[0].appendChild(optionsTable);
+    optionsTable_row0.appendChild(text_cell);
+    optionsTable_row1.appendChild(options_cell[0]);
+    optionsTable_row2.appendChild(options_cell[1]);
+    divClass.appendChild(optionsTable);
   }
 
   function create_connect_table(div) {
@@ -441,44 +503,16 @@
   function connect_label() {
     var statusLabel = document.createElement('label');
     statusLabel.id = "Status Label";
-    var statusBox = document.getElementsByClassName("Connect Status");
+    var statusBox = document.getElementsByClassName("ConnectStatus");
     statusBox[0].appendChild(statusLabel);
   }
 
-  function create_layout_table(div) {
-    var divClass = document.getElementsByClassName(div);
-    var mainTable = document.createElement('table');
-    var mainTable_row0 = mainTable.insertRow(0);
-    var mainTable_row1 = mainTable.insertRow(1);
-    var main_cell = document.createElement('td');
-    var empty_cell = document.createElement('td');
-    var main_cell_table = document.createElement('table');
-    // var layout_icon_row = main_cell_table.insertRow(-1);
-    // var layout_select_row = main_cell_table.insertRow(1);
-    var layout_icon_cell = main_cell_table.insertRow(-1).insertCell(0);
-    var layout_select_cell = main_cell_table.insertRow(-1).insertCell(0);
-    var layout_color_cell = main_cell_table.insertRow(-1).insertCell(0);
-    // var layout_color_cell = main_cell_table.insertRow(-1).insertCell(0);
-    mainTable.className = "type1";
-
-    layout_icon_cell.innerHTML = "Select Page";
-    sel_layout = create_sel(90, layout_actions, 'sel', 'block');
-    layout_color_cell.innerHTML = "Page Color ";
-    sel_color = create_color_sel(90);
-
-    divClass[0].appendChild(mainTable);
-    main_cell.appendChild(layout_icon_cell);
-    main_cell.appendChild(sel_layout);
-    main_cell.appendChild(layout_color_cell);
-    layout_color_cell.appendChild(sel_color);
-    mainTable_row0.appendChild(main_cell);
-    main_cell.appendChild(empty_cell);
-  }
 
   function create_display_table(div) {
     var divClass = document.getElementsByClassName(div);
     var mainTable = document.createElement('table');
-    // var mainRow = document.createElement("tr");
+    var mainRow = document.createElement("tr");
+    mainRow.className = "columns-container";
     let mainCell = document.createElement('td');
     var empty_cell = document.createElement('td');
 
@@ -487,10 +521,11 @@
     var display_select_row = document.createElement("tr");
     let display_select_cell = document.createElement('td');
 
-    mainTable.className = "type1";
+    mainCell.className = "type_display";
 
     display_icon_cell.innerHTML = "Display";
     sel_display = create_sel(20, display_actions, 'sel', 'block');
+    sel_display.className = 'display_select'
 
     display_select_cell.appendChild(sel_display);
 
@@ -513,7 +548,6 @@
     var divClass = document.getElementsByClassName(div);
     var mainTable = document.createElement('table');
     var mainTable_row0 = mainTable.insertRow(0);
-    mainTable.className = "type1";
 
     for (var i = 0; i < NUM_BUTTONS; i++) {
       // creates the content of each cell of the main table
@@ -521,68 +555,82 @@
       mainTable_row0.className = "columns-container";
       create_main_cell_content(main_cell, i);
       mainTable_row0.appendChild(main_cell);
+    main_cell.className = "main_cell";
     }
 
     divClass[0].appendChild(mainTable);
   }
 
-  function create_color_sel(num) {
-    var select = document.createElement('select')
-    var options_str = "";
-    if (!Array.isArray(color_values)) var options_list = Object.keys(color_values);
-    else options_list = color_values;
-    options_list.forEach(function (option) { options_str += '<option value=' + options_list.indexOf(option) + '><p style="color:#FF0055;">' + option + '</p></option>'; });
-    select.innerHTML = options_str;
-    select.num = num;
-    select.id = 'color_sel' + num;
-    select.onchange = function () { on_color_change(select.num, select.value, num); };
-    return select
-  }
-
-  function on_color_change(i, value, datatype) { // callback when the main sel is changed
-    // var sel = document.getElementById("sel" + id);
-    value = parseInt(value);
-     console.log( datatype + " " + i + " " + value);
-    // if data comes from Page Color Selector, sned special sysex message
-    if (i == 90){
-      sendSysex(32+current_layout, value); // send color for Page 1
-      options[2+current_layout] = value; //stores color as options 2 to 4
-    }
-    else{
-      sendSysex(17, current_layout, i, value, 1, 16);
-      control_number[current_layout][i+12] = value;
-      control_channel[current_layout][i+12] = 10;
-    }
-  }
-
   function create_main_cell_content(main_cell, i) {
     let main_cell_table = document.createElement('table');
-    var num_row = document.createElement("tr");
-    let num_cell = document.createElement('td');
-    var LED_icon_row = document.createElement("tr");
-    let LED_icon_cell = document.createElement('td');
-    var LED_sel_row = document.createElement("tr");
-    let LED_sel_cell = [document.createElement('td'), document.createElement('td')];
-    var short_button_icon_row = document.createElement("tr");
-    let short_button_icon_cell = [document.createElement('td'), document.createElement('td')];
-    var short_button_sel_row = document.createElement("tr");
-    let short_button_sel_cell = [document.createElement('td'), document.createElement('td')];
-    var long_button_icon_row = document.createElement("tr");
-    let long_button_icon_cell = document.createElement('td');
-    var long_button_sel_row = document.createElement("tr");
-    let long_button_sel_cell = document.createElement('td');
-    let cc_table = main_cell_table.insertRow(-1).insertCell(-1);
+    let row = [];
+    let cell = [];
+    for (var j = 0; j < 9; j++){
+      row[j] = document.createElement("tr");
+      cell[j*2] = document.createElement('td');
+      cell[j*2+1] = document.createElement('td');
+      // row[j].appendChild(cell[j*2]);
+      // row[j].appendChild(cell[j*2+1]);
+      cell[j*2].classList.add("type1");
+      cell[j*2+1].classList.add("type1");
+    }
+
+    switch (i) {
+      case 0:
+      cell[0].innerHTML = "<font size=8 color=#A246FE>●</font>";
+        break;
+      case 1:
+      cell[0].innerHTML = "<font size=8 color=#2BE1BD>●</font>";
+        break;
+      case 2:
+      cell[0].innerHTML = "<font size=8 color=#3882E8>●</font>";
+        break;
+      case 3:
+      cell[0].innerHTML = "<font size=8 color=#F9FF33>●</font>";
+        break;
+      case 4:
+      cell[0].innerHTML = "<font size=8 color=#FFA233>●</font>";
+        break;
+      case 5:
+      cell[0].innerHTML = "<font size=8 color=#FF3390>●</font>";
+        break;
+    }
+    cell[0].classList.add("type6");
+    cell[0].setAttribute("colspan", "2");
+    row[0].appendChild(cell[0]);
 
 
-    var snap_checkbox = document.createElement('input');
+    cell[2].innerHTML = "LED";
+    cell[2].setAttribute("colspan", "2");
+    row[1].appendChild(cell[2]);
+
+    sel_led = create_sel(i + 12, led_actions, 'sel', 'block');
+    cell[4].appendChild(sel_led);
+    color_sel = create_color_sel(i);
+    cell[5].appendChild(color_sel);
+    cell[5].className = "color_sel";
+    row[2].appendChild(cell[4]);
+    row[2].appendChild(cell[5]);
+
+    cell[6].innerHTML = "<font size=5>" + (i + 1).toString() + "</font>";
+    cell[6].classList.add("main_cell_text");
+    cell[6].setAttribute("colspan", "2");
+    row[3].appendChild(cell[6]);
+
+
+    cell[8].innerHTML = "Short Press";
+    cell[9].innerHTML = "Snap";
+    cell[8].classList.add("type5");
+    cell[9].classList.add("type5");
+    row[4].appendChild(cell[8]);
+    row[4].appendChild(cell[9]);
+
+    sel_short_button = create_sel(i, button_actions, 'sel', 'block');
+    cell[10].appendChild(sel_short_button);
+
+    snap_checkbox = document.createElement('input');
     snap_checkbox.type = "checkbox";
     snap_checkbox.id = "checkbox" + i;
-
-    var snap_label = document.createElement('label');
-    snap_label.appendChild(document.createTextNode('Snap'));
-
-    var color_sel = create_color_sel(i);
-
     snap_checkbox.addEventListener('change', (event) => {
       if (event.target.checked) {
         sendRawSysex([240, 122, 29, 1, 19, 16, current_layout, i, 1, 247]);
@@ -595,66 +643,20 @@
         set_snap_box(i, 0);
       }
     })
+    cell[11].appendChild(snap_checkbox);
+    row[5].appendChild(cell[10]);
+    row[5].appendChild(cell[11]);
 
-    sel_led = create_sel(i + 12, led_actions, 'sel', 'block');
-    sel_short_button = create_sel(i, button_actions, 'sel', 'block');
+    cell[12].innerHTML = "Long Press";
     sel_long_button = create_sel(i + 6, button_actions, 'sel', 'block');
-    LED_sel_cell[0].appendChild(sel_led);
-    LED_sel_cell[1].appendChild(color_sel);
-    short_button_icon_cell[1].appendChild(snap_label);
-    short_button_sel_cell[0].appendChild(sel_short_button);
-    short_button_sel_cell[1].appendChild(snap_checkbox);
-    long_button_sel_cell.appendChild(sel_long_button);
+    cell[14].appendChild(sel_long_button);
 
-    switch (i) {
-      case 0:
-    LED_icon_cell.innerHTML = "<font size=8 color=#A246FE>●</font>";
-        break;
-      case 1:
-    LED_icon_cell.innerHTML = "<font size=8 color=#2BE1BD>●</font>";
-        break;
-      case 2:
-    LED_icon_cell.innerHTML = "<font size=8 color=#3882E8>●</font>";
-        break;
-      case 3:
-    LED_icon_cell.innerHTML = "<font size=8 color=#F9FF33>●</font>";
-        break;
-      case 4:
-    LED_icon_cell.innerHTML = "<font size=8 color=#FFA233>●</font>";
-        break;
-      case 5:
-    LED_icon_cell.innerHTML = "<font size=8 color=#FF3390>●</font>";
-        break;
+    row[6].appendChild(cell[12]);
+    row[7].appendChild(cell[14]);
+
+    for (var i = 0; i < 8; i++){
+      main_cell.appendChild(row[i]);
     }
-    
-    var long_button_label = document.createElement('label');
-    long_button_label.appendChild(document.createTextNode('Long Press'));
-    long_button_label.id = "long_button_label" + i;
-    num_cell.innerHTML = "<font size=5>" + (i + 1).toString() + "</font>" + "<br><br>Led<br>";
-    short_button_icon_cell[0].innerHTML = "Short Press";
-    // long_button_icon_cell.innerHTML = "Looong Press";
-
-    LED_icon_row.appendChild(LED_icon_cell);
-    num_row.appendChild(num_cell);
-    LED_sel_row.appendChild(LED_sel_cell[0]);
-    LED_sel_row.appendChild(LED_sel_cell[1]);
-    short_button_icon_row.appendChild(short_button_icon_cell[0]);
-    short_button_icon_row.appendChild(short_button_icon_cell[1]);
-    short_button_sel_row.appendChild(short_button_sel_cell[0]);
-    short_button_sel_row.appendChild(short_button_sel_cell[1]);
-    long_button_icon_row.appendChild(long_button_label);
-    long_button_sel_row.appendChild(long_button_sel_cell);
-
-
-    main_cell.appendChild(LED_icon_row);
-    main_cell.appendChild(num_row);
-    main_cell.appendChild(LED_sel_row);
-    main_cell.appendChild(short_button_icon_row);
-    main_cell.appendChild(short_button_sel_row);
-    // main_cell.appendChild(snap_checkbox_row);
-    main_cell.appendChild(long_button_icon_row);
-    main_cell.appendChild(long_button_sel_row);
-    main_cell.appendChild(cc_table);
   }
 
   function set_snap_box(id, value) {
@@ -674,41 +676,41 @@
   }
   
   function create_slider_table(div) {
-    // Creates a row of controls described by the name of the div, the number of controls,
-    // the offset number of the first control and the type of control
+
     var divClass = document.getElementsByClassName(div);
     var mainTable = document.createElement('table');
     mainTable.className = "type1";
     var mainTable_row0 = mainTable.insertRow(0);
 
     for (var i = 0; i < NUM_SLIDERS; i++) {
-      // creates the content of each cell of the main table
-      var main_cell = document.createElement('td');
-      var main_cell_table = document.createElement('table');
-      create_slider_cell_content(main_cell, main_cell_table, i);
+      let main_cell = document.createElement('td');
+      mainTable_row0.className = "columns-container";
+      create_slider_cell_content(main_cell, i);
       mainTable_row0.appendChild(main_cell);
+    main_cell.className = "main_cell";
     }
+
     divClass[0].appendChild(mainTable);
   }
 
-  function create_slider_cell_content(main_cell, main_cell_table, i) {
-    var num_row = main_cell_table.insertRow(0);
-    var num_cell = main_cell_table.insertRow(-1).insertCell(0);
-    var cc_table_cell = main_cell_table.insertRow(-1).insertCell(0);
+  function create_slider_cell_content(main_cell, i) {
+    let main_cell_table = document.createElement('table');
+    let row = [];
+    let cell = [];
+    for (var j = 0; j < 3; j++){
+      row[j] = document.createElement("tr");
+      cell[j] = document.createElement('td');
+      row[j].appendChild(cell[j]);
+      cell[j].classList.add("type1");
+    }
 
-    sel_slider = create_sel(i + 18, slider_actions, 'sel', 'block', 180);
-    cc_tab = cc_table_constructor(i);
-    cc_table = cc_tab[0];
-    cc_select = cc_tab[1];
-    ch_select = cc_tab[2];
-    type_select = cc_tab[3];
-    num_cell.innerHTML = "Slider <br> " + (i + 1).toString() + "</font>";
+    cell[0].innerHTML = "Knob/Slider <br> " + (i + 1).toString() + "</font>";
+    sel_slider = create_sel(i + 18, slider_actions, 'sel', 'block');
+    cell[1].appendChild(sel_slider);
 
-    main_cell.appendChild(num_cell);
-    // main_cell.appendChild(slider_icon_cell);
-    main_cell.appendChild(sel_slider);
-    main_cell.appendChild(cc_table_cell);
-    // mainTable_row0.appendChild(main_cell);
+    for (var i = 0; i < 3; i++){
+      main_cell.appendChild(row[i]);
+    }
   }
 
   function on_select_change(id, value) { // callback when the main sel is changed
@@ -890,7 +892,7 @@
   function create_external_MIDI_table(div) {
     var divClass = document.getElementsByClassName(div);
     var external_MIDI_table = document.createElement('table');
-    external_MIDI_table.className = "type2";
+    external_MIDI_table.className = "external_midi_table";
     var external_MIDI_table_row0 = external_MIDI_table.insertRow(0);
     var external_MIDI_table_row1 = external_MIDI_table.insertRow(1);
     var external_MIDI_table_row2 = external_MIDI_table.insertRow(2);
@@ -912,13 +914,12 @@
 
       var external_MIDI_label = document.createElement('label');
       if (i < 6) external_MIDI_label.appendChild(document.createTextNode("Button " + (i + 1)));
-      else external_MIDI_label.appendChild(document.createTextNode("Slider " + (i - 5)));
+      else external_MIDI_label.appendChild(document.createTextNode("Knob/Slider " + (i - 5)));
       external_MIDI_cell[0].appendChild(external_MIDI_label);
 
       // creates the content of each cell of the main table
       var MIDI_cell = document.createElement('td');
       var MIDI_cell_table = document.createElement('table');
-      MIDI_cell.className = "type1";
 
       cc_tab = cc_table_constructor(i);
       cc_table = cc_tab[0];
@@ -1008,9 +1009,6 @@
   }
 
 
-
- 
-
   function saveTextAsFile(){
           var textToSave = [];
           var textToSave = [control_type[current_layout], control_number[current_layout], control_channel[current_layout]];
@@ -1084,25 +1082,23 @@
     sizes="192x192" />
 
   <style>
-
-@font-face {
-  font-family: "Helvetica Neue";
-  font-style: normal;
-  font-weight: normal;
-  /* src: local('Gidole Regular'), url('Gidole-Regular.woff') format('woff'); */
+  :root {
+    --radius: 28px;
+    --border: 1px;
+    --border_color: #f0f0f0;
   }
 
 body {
-  background-color: rgb(104, 102, 100); 
+  background-color: #777777; 
   font-family: Helvetica; 
   font-size: 100%;
   }
 
 table {
-  table-layout: fixed;
-  /* width: 100%; */
+  /* table-layout: fixed; */
+  width: 100%;
   border-collapse: collapse;
-  border: 3px solid rgba(128, 0, 128, 0);
+  border: 3px none rgb(128, 0, 128);
   color: rgb(231, 231, 231);
   font-family: "Helvetica Neue";
   border-collapse:  separate;
@@ -1110,80 +1106,191 @@ table {
   padding: 10px;
 }
 
-table.type1 td {
-  border-collapse:  separate;
-  background: rgb(0, 0, 0);
-  border-style: solid;
-  border: 1px solid rgb(0, 0, 0);
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  border-radius: 8px;
-  /* width:inherit; */
-  width: 100px;
-  height: 28px;
+td {
+  border: var(--border) none rgb(19, 170, 39);
   text-align: center;
+  width: 50%;
 }
-
-table.type2 td {
-  border-collapse:  separate;
-  background: rgb(60, 60, 60);
-  border-style: solid;
-  border: 0px solid rgb(0, 0, 0);
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  border-radius: 0px;
-  width: 150px;
-  text-align: center;
-}
-
-table.type3 td {
-  border-collapse:  separate;
-  background: rgb(44, 43, 43);
-  border-style: solid;
-  border: 1px solid rgb(97, 94, 94);
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  border-radius: 0px;
-  width: 150px;
-  text-align: center;
-}
-
-table.type4 td {
-  border-collapse:  separate;
-  background: rgb(44, 43, 43);
-  border-style: solid;
-  border: 1px solid rgb(97, 94, 94);
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  border-radius: 0px;
-  width: 150px;
-  text-align: right;
-}
-
-select {
-  font-family: Helvetica;
-  background: rgb(231, 230, 230);
-  height: 30px;
-  font-weight: bold;
-}
-
-.table_cell{
-  display:table-cell;
-  width: 15px;
-  border:solid black 1px;
-}
-
-
 
 .columns-container {
   display: table-cell;
   height: 100%;
   width:20px;
   text-align: center;
+}
+ #Options{
+   /* width: 500px; */
+    width:33%;
+   padding-left: 820px;
+   padding-top: 30px;
+ }
+ div.Sliders{
+   align-items: center;
+    width:400px;
+   padding-left: 540px;
+ }
+ div.Display{
+   /* align-items: center; */
+   padding-top: 40px;
+   padding-left: 410px;
+    width: 600px;
+    text-align: center;
+ } 
+
+ div.ConnectStatus{
+   padding-left: 500px;
+   padding-top: 40px;
+ }
+ td.type_display {
+  border-collapse:  separate;
+  background: rgb(0, 0, 0);
+  border: var(--border) solid var(--border_color);
+    border-radius: var(--radius);
+  height: 18px;
+  padding-left: 50px;
+  padding-bottom: 25px;
+  padding-top: 25px;
+}
+select.display_select {
+  color: rgb(0, 0, 0);
+  font-family: Helvetica;
+  background: rgb(255, 255, 255);
+  height: 30px;
+  width: 240px;
+  padding-left: 5%;
+  padding-right: 5%;
+  /* font-weight: bold; */
+  border-radius: 10px;
+}
+td.layout {
+  text-align: center;
+  border-collapse:  separate;
+  background: rgb(0, 0, 0);
+  border: var(--border) solid rgb(0, 0, 0);
+    border-radius: var(--radius);
+  height: 18px;
+  width: 100px;
+  padding-left: 40px;
+  padding-right: 5px;
+}
+td.type1 {
+  text-align: center;
+  border-collapse:  separate;
+  background: rgb(0, 0, 0);
+  border: var(--border) solid  rgb(0, 0, 0);
+    border-radius: var(--radius);
+  height: 18px;
+  width: 100px;
+  padding-left: 5px;
+  padding-right: 5px;
+  align-items: center;
+}
+td.main_cell {
+  text-align: center;
+  border-collapse:  separate;
+  background: rgb(0, 0, 0);
+  border: var(--border) solid var(--border_color);
+    border-radius: var(--radius);
+  height: 18px;
+  width: 100px;
+  /* padding-left: 5px;
+  padding-right: 5px; */
+  align-items: center;
+  padding-bottom: 10px;
+}
+
+td.color_sel {
+  /* text-align: center; */
+  border-collapse:  separate;
+  background: rgb(0, 0, 0);
+  /* border-style: none; */
+  border: var(--border) none rgb(252, 252, 252);
+  height: 18px;
+  width: 10px;
+  padding-left: 5px;
+  padding-right: 5px;
+  /* align-items: center; */
+}
+
+table.type_layout {
+  text-align: center;
+  float:left;
+  border-collapse:  separate;
+  background: rgb(0, 0, 0);
+  /* border-style: none; */
+  border: var(--border) solid var(--border_color);
+    border-radius: var(--radius);
+  height: 18px;
+  width: 220px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+table.type_options {
+  text-align: center;
+  float:right;
+  border-collapse:  separate;
+  background: rgb(0, 0, 0);
+  /* border-style: none; */
+  border: var(--border) solid var(--border_color);
+    border-radius: var(--radius);
+  height: 18px;
+  width: 250px;
+  padding-left: 5px;
+  padding-right: 5px;
+  align-items: center;
+}
+
+td.main_cell_text  {
+  text-align: center;
+  width: 200px;
+  background: rgb(0, 0, 0);
+  border: var(--border) none rgb(172, 4, 4);
+  column-span: 2;
+  width:120px;
+  border-radius: 20px;
+  padding-top: 15px;
+  height: 60px;
+  font-weight: bold;
+  font-size: x-large;
+  font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+}
+
+table.external_midi_table td {
+  border-collapse:  separate;
+  background: rgb(60, 60, 60);
+  border-radius: 0px;
+  text-align: center;
+  width: 500px;
+  padding-top: 5px;
+}
+
+select.select1 {
+  color: rgb(0, 0, 0);
+  font-family: Helvetica;
+  background: rgb(255, 255, 255);
+  height: 30px;
+  width: 150px;
+  /* font-weight: bold; */
+  border-radius: 10px;
+}
+
+select.color_select {
+  color: rgb(0, 0, 0);
+  font-family: Helvetica;
+  background: rgb(255, 255, 255);
+  height: 30px;
+  width: 40px;
+  padding-left: 5%;
+  padding-right: 5%;
+  /* font-weight: bold; */
+  border-radius: 10px;
+}
+div.ExternalMIDI{
+  color:rgb(231, 231, 231);
+  font-weight: bold;
+  text-align: center;
+  padding-top: 20px;
 }
   </style>
 </head>
@@ -1205,95 +1312,34 @@ select {
 <button onclick="uploadPreset()">Upload to Device</button>  -->
 
 
-  <left>
-    <table class="Top Table" width=1600>
-      <tbody>
-        <tr>
-          <td width=200>
-            <div class="Layout">
-              <script>create_layout_table("Layout")</script>
-            </div>
-          </td>
-          <td width=780>
-            <div class="Options">
-              <b>Options</b>
-              <br>
-              <script>create_options_table("Options")</script>
-            </div>
-          </td>
-          <td className="type2" width=300>
-            <br>
-            <div class="Connect Status">
-              <br>
-              <!-- <script>create_connect_table("Connect")</script> -->
-            </div>
-            <br>
-          </td>
+  <div id="Layout">
+    <script>create_layout_table("Layout")</script>
+    </div>
+  <div id="Options">
+    <script>create_options_table("Options")</script>
+    </div>
 
-          <td className="type2">
-            <br>
-            <div>
-              <br>
-              <!-- <a href="https://opencontrol.me">
-              <img src="https://github.com/KBLiveSolutions/open.control/blob/main/assets/images/open_control_logo.png" alt="logo" width="150">
-            </a>  -->
-              <br>
-              <br>
-              <!-- <a href="https://kblivesolutions.com">
-              <img src="https://kblivesolutions.com/wp-content/uploads/2018/10/KB-LS-logo-transparent-White.png" alt="logo2" width="180">
-            </a> -->
-          </div>
-            <br>
-          </td>
+    <div class="ConnectStatus">
+      </div>
 
-        </tr>
-      </tbody>
-    </table>
+
+    <div class="Display">
+    <script>create_display_table("Display")</script>
+    </div>
     <br>
-    <center>
-      <table class="Top Table">
-        <tbody>
-          <tr>
-            <td>
-              <div class="Display">
-                <center>
-                  <br>
 
-                  <script>create_display_table("Display")</script>
-                </center>
-              </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-      <center>
-
-        <div class="Buttons Short">
-          <br>
-          <script>create_main_table("Buttons Short", 0)</script>
-        </div>
-
-
-
-        <div class="Sliders">
-          <br>
-          <script>create_slider_table("Sliders")</script>
-        </div>
-
-        <hr>
-        <!-- <div class="ExternalMIDIOptions">
-          <br>
-          <script>create_external_MIDI_options_table("ExternalMIDIOptions")</script>
-        </div>     -->
-
-        <div class="ExternalMIDI">
-          External MIDI
-          <br>
-          <script>create_external_MIDI_table("ExternalMIDI")</script>
-        </div>
-        <!-- <script>change_layout(0)</script> -->
-
-        
+    <div class="main_table">
+    <script>create_main_table("main_table", 0)</script>
+    </div>
+    <br>
+    <div class="Sliders">
+    <script>create_slider_table("Sliders")</script>
+    </div>
+<hr>
+    <div class="ExternalMIDI">
+      External MIDI
+      <br>
+      <script>create_external_MIDI_table("ExternalMIDI")</script>
+    </div>
 </body>
-
 </html>
