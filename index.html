@@ -163,13 +163,18 @@
     "Off": 0,
     "--- Global ---": 0,
     "■/▶ Start/Stop": 1,
+    "Continue Playing": 0,
     "●○ Metronome": 2,
     "⤶ Undo": 4,
+    "⤷ Redo": 40,
     "▢ Capture": 5,
     "⊕ BPM +1": 28,
     "⊖ BPM -1": 29,
-    "⮂ Arr./Session Toggle": 75,
-    "Clip/Device Toggle": 76,
+    // "MIDI Recording Quantization": 0,
+    "← Re-enable Automation": 41,
+    "⇶ Back To Arrangement": 42,
+    "⮂ Arr./Session View": 75,
+    "Clip/Device View": 76,
     "--- Arrangement ---": 0,
     "↞ Jump to 1.1.1": 74,
     "⇉ Restart From Last Pos.": 103,
@@ -179,8 +184,8 @@
     "⇥ Go to Next Marker": 8,
     "⤓ Add/Delete Marker": 10,
     "⥀ Loop to Next Marker": 102,
-    "Punch In": 0,
-    "Punch Out": 0,
+    "⌉ Punch In": 38,
+    "⌈ Punch Out": 39,
     "--- Session ---": 0,
     "○ Session Rec": 11,
     "▶ Launch Scene": 13,
@@ -188,8 +193,9 @@
     "⬇ Sel Next Scene": 15,
     "⥴ Jump to Playing Scene": 16,
     "⥅ Insert Scene": 17,
+    "⇴ Capture and Insert Scene": 43,
     "⧈ Stop All Clips": 3,
-    "➟ Disable Follow Actions": 12,
+    // "➟ Disable Follow Actions": 12,
     "--- Tracks ---": 0,
     "← Sel Prev Track": 18,
     "→ Sel Next Track": 19,
@@ -227,23 +233,25 @@
     "↩︎ Recall Last Used": 72,
     "⌁ Randomize Macros": 71,
     "--- Pages ---": 0,
-    "⇆ Page 2": 50,
-    "⇆ Page 3": 51,
+    "↪ Next Page": 57,
     "↩ Prev Page": 56,
-    "↪ Next Page": 57
+    "Page 1⇆2": 50,
+    "Page 1⇆3": 51
   };
   var led_actions = {
     "Custom Color": 0,
     "--- Global ---": 0,
     "■/▶ Start/Stop": 1,
     "●○ Metronome": 2,
+    "← Re-enable Automation": 41,
+    "--- Arrangement ---": 0,
     "● Arrangement Rec": 6,
     "⥁ Arrangement Loop": 7,
-    // "⇥ Go to Next Marker": 8,
-    // "⇤ Go to Prev Marker": 9,
-    // "⤓ Add/Delete Marker": 10,
+    "⌉ Punch In": 38,
+    "⌈ Punch Out": 39,
+    "⇶ Back To Arrangement": 42,
+    "--- Session ---": 0,
     "○ Session Rec": 11,
-    "--- Scenes ---": 0,
     "▶ Selected Scene Color": 13,
     "⬆ Prev Scene Color": 14,
     "⬇ Next Scene Color": 15,
@@ -439,7 +447,6 @@
     }
   }
 
-
   function create_layout_table(div) {
     var divClass = document.getElementById(div);
     var mainTable = document.createElement('table');
@@ -506,7 +513,6 @@
     var statusBox = document.getElementsByClassName("ConnectStatus");
     statusBox[0].appendChild(statusLabel);
   }
-
 
   function create_display_table(div) {
     var divClass = document.getElementsByClassName(div);
@@ -628,21 +634,7 @@
     sel_short_button = create_sel(i, button_actions, 'sel', 'block');
     cell[10].appendChild(sel_short_button);
 
-    snap_checkbox = document.createElement('input');
-    snap_checkbox.type = "checkbox";
-    snap_checkbox.id = "checkbox" + i;
-    snap_checkbox.addEventListener('change', (event) => {
-      if (event.target.checked) {
-        sendRawSysex([240, 122, 29, 1, 19, 16, current_layout, i, 1, 247]);
-        console.log(current_layout, i, 1);
-        set_snap_box(i, 1);
-      }
-      else {
-        sendRawSysex([240, 122, 29, 1, 19, 16, current_layout, i, 0, 247]);
-        console.log(current_layout, i, 0);
-        set_snap_box(i, 0);
-      }
-    })
+    snap_checkbox = create_snap(i);
     cell[11].appendChild(snap_checkbox);
     row[5].appendChild(cell[10]);
     row[5].appendChild(cell[11]);
@@ -657,6 +649,31 @@
     for (var i = 0; i < 8; i++){
       main_cell.appendChild(row[i]);
     }
+  }
+
+  function create_snap(i) {
+    var snap = document.createElement('input');
+    snap.type = "checkbox";
+    snap.id = "checkbox" + i;
+    snap.addEventListener('change', (event) => {
+      if (event.target.checked) on_snap_changed(i, true);
+      else on_snap_changed(i, false);
+    })
+    return snap;
+  }
+
+
+  function on_snap_changed(i, val) {
+    if (val){
+        sendRawSysex([240, 122, 29, 1, 19, 16, current_layout, i, 1, 247]);
+        set_snap_box(i, 1);
+    }
+    else {
+        sendRawSysex([240, 122, 29, 1, 19, 16, current_layout, i, 0, 247]);
+        set_snap_box(i, 0);
+    }
+
+
   }
 
   function set_snap_box(id, value) {
