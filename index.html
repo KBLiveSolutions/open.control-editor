@@ -45,8 +45,7 @@
     });
   }
 
-  function sendSysexHandshakeRequest(output) {
-      console.log("OUTPUT NAME 2", output.name);
+  function sendSysexHandshakeRequest(output) {  
     if (output.name == "open·control") {
     var requestMessage = [240, 122, 29, 1, 19, 1, 247];
         open_control_output = output;
@@ -116,14 +115,14 @@
   function sendSysex(sysex_id, layout, id, value, type, channel) {
     // Sending {240, 122, 29, 1, 19, 10, Layout Number, Button number, Note/CC Number, Type, Channel, 247} changes the corresponding button
     var sysexMessage = [240, 122, 29, 1, 19, sysex_id, layout, id, value, type, channel, 247];
-    open_control_output.send(sysexMessage);
+    if (open_control_detected) open_control_output.send(sysexMessage);
   }
 
   function sendRawSysex(sysex_message) {
     // Sending {{240, 122, 29, 1, 19, 10, Layout Number, Button number, Note/CC Number, Type, Channel, 247} changes the corresponding button
     //var sysexMessage = [240, 122, 29, 1, 19, 10, layout, id, value, 1, 16, 247];
     //var output = midi.outputs.get(open_control_output_id);
-    open_control_output.send(sysex_message);
+    if (open_control_detected) open_control_output.send(sysex_message);
   }
 
   function uploadPreset() {
