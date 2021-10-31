@@ -33,9 +33,7 @@
   }
 
   function ConnectEventHandler(event) {
-    console.log("ConnectEventHandler");
     // Print information about the (dis)connected MIDI controller
-    // console.log("Ports", event.port.name, event.port.manufacturer, event.port.state, event.port.type);
     statusLabel = document.getElementById("Status Label");
     statusLabel.style.color = "red";
     statusLabel.innerHTML = "<b> Please connect open·control </b>";
@@ -69,7 +67,6 @@
     if (event.data[1] == 122 && event.data[2] == 29 && event.data[3] == 1 && event.data[4] == 19) {
       if (event.data[5] == 68) {
         console.log("open control detected");
-        console.log(event.data);
         onOpenControlDetected(event.data[6], event.data[7]);
       }
       // Receiving Data from opencontrol after a Dump request
@@ -83,7 +80,6 @@
           control_number[rcvd_layout][num] = btn_num;
           control_channel[rcvd_layout][num] = btn_chnl;
           control_type[rcvd_layout][num] = btn_type;
-          console.log("buttons recv", control_number[rcvd_layout][num], control_channel[rcvd_layout][num], control_type[rcvd_layout][num])
         }
         else {
           set_External_MIDI(num - 22, btn_num, btn_chnl, btn_type + 1);
@@ -99,7 +95,6 @@
         var rcvd_opt = event.data[7];
         var num = event.data[6];
         options[num] = rcvd_opt;
-    console.log("options", num, rcvd_opt);
       }
       if (event.data[5] == 79) {
 
@@ -131,7 +126,6 @@
       for (control = 0; control < NUM_CONTROLS - 3; control++) {
         sendSysex(layout, control, control_number[layout][control], 1, 16);
         // sel = document.getElementById("sel" + control);
-        console.log(layout, control_number[layout][control]);
         // sel.value = Object.values(button_actions).indexOf([control_number[layout][control]]);
       }
       //sendSysexHandshakeRequest();
@@ -280,6 +274,8 @@
     "◈ State (LOOPER6)": 82,
     "--- Pages ---": 0,
     "⇆ Page Color": 58,
+    "--- Custom ---": 0,
+    "Custom MIDI": 122
   };
   var slider_actions = {
     "--- Global ---": 0,
@@ -333,8 +329,8 @@
     "① MIDI Map 1 (Big Button)": "◈ Looper State",
   };
 
-  var color_names = ["Blue", "Light Blue", "Red", "Light Red", "Green", "Light Green", "Pink", "Light Pink", "Purple", "Light Purple", "Yellow", "Light Yellow", "Orange", "Light Orange", "White", "Light White"]
-  var colors =  [125, 21, 14, 56, 126, 62, 11, 42, 66, 106, 33, 4, 43, 16, 120, 49];
+  var color_names = ["Off", "Blue", "Light Blue", "Red", "Light Red", "Green", "Light Green", "Pink", "Light Pink", "Purple", "Light Purple", "Yellow", "Light Yellow", "Orange", "Light Orange", "White", "Light White"]
+  var colors =  [0, 125, 21, 14, 56, 126, 62, 11, 42, 66, 106, 33, 4, 43, 16, 120, 49];
   var cc_values = range(119, 1);
   cc_values.splice(0, 0, 'Num');
 
@@ -398,12 +394,10 @@
 
     session_box_checkbox.addEventListener('change', (event) => {
       if (event.target.checked) {
-    console.log("off");
         options[1] = 0;
         sendRawSysex([240, 122, 29, 1, 19, 31, 0, 247]);
       }
       else {
-    console.log("on");
         options[1] = 1;
         sendRawSysex([240, 122, 29, 1, 19, 31, 1, 247]);
       }
@@ -411,6 +405,46 @@
     return ([session_box_checkbox, session_box_label])
   }
 
+  function create_midi_thru_option(div) {
+    var divClass = document.getElementsByClassName(div);
+    var thru_div = document.createElement('div');
+    var usb_thru_checkbox = document.createElement('input');
+    usb_thru_checkbox.type = "checkbox";
+    usb_thru_checkbox.id = "usb_thru_box";
+    var usb_thru_label = document.createElement('label');
+    usb_thru_label.appendChild(document.createTextNode('USB   '));
+    usb_thru_checkbox.addEventListener('change', (event) => {
+      if (event.target.checked) {
+        options[1] = 0;
+        sendRawSysex([240, 122, 29, 1, 19, 25, 1, 247]);
+      }
+      else {
+        options[1] = 1;
+        sendRawSysex([240, 122, 29, 1, 19, 25, 0, 247]);
+      }
+    })
+    var midi_out_thru_checkbox = document.createElement('input');
+    midi_out_thru_checkbox.type = "checkbox";
+    midi_out_thru_checkbox.id = "usb_thru_box";
+    var midi_out_thru_label = document.createElement('label');
+    midi_out_thru_label.appendChild(document.createTextNode('MIDI Out'));
+    midi_out_thru_checkbox.addEventListener('change', (event) => {
+      if (event.target.checked) {
+        options[1] = 0;
+        sendRawSysex([240, 122, 29, 1, 19, 26, 1, 247]);
+      }
+      else {
+        options[1] = 1;
+        sendRawSysex([240, 122, 29, 1, 19, 26, 0, 247]);
+      }
+    })
+
+    thru_div.appendChild(usb_thru_checkbox);
+    thru_div.appendChild(usb_thru_label);
+    thru_div.appendChild(midi_out_thru_checkbox);
+    thru_div.appendChild(midi_out_thru_label);
+    return (thru_div)
+  }
 
   function create_led_brightness_option(div) {
     var divClass = document.getElementsByClassName(div);
@@ -447,12 +481,10 @@
   }
 
   function on_brightness_change(value){
-    console.log("on_brightness_change", value);
     sendRawSysex([240, 122, 29, 1, 19, 18, value, 247]);
   }
 
   function on_display_brightness_change(value){
-    console.log("on_brightness_change", value);
     sendRawSysex([240, 122, 29, 1, 19, 19, value, 247]);
   }
 
@@ -486,7 +518,6 @@
     // var sel = document.getElementById("sel" + id);
     value = parseInt(value);
     value = colors[value];
-     console.log( datatype + " " + i + " " + value);
     // if data comes from Page Color Selector, sned special sysex message
     if (i == 90){
       sendSysex(32+current_layout, value); // send color for Page 1
@@ -534,13 +565,16 @@
     var optionsTable_row2 = optionsTable.insertRow(2);
     var optionsTable_row3 = optionsTable.insertRow(3);
     var optionsTable_row4 = optionsTable.insertRow(4);
+    var optionsTable_row5 = optionsTable.insertRow(5);
+    var optionsTable_row6 = optionsTable.insertRow(6);
     text_cell = document.createElement('td')
     text_cell.innerHTML = "Options"
-    var options_cell = [document.createElement('td'), document.createElement('td'), document.createElement('td'), document.createElement('td')];
+    var options_cell = [document.createElement('td'), document.createElement('td'), document.createElement('td'), document.createElement('td'), document.createElement('td'), document.createElement('td')];
     tempo_option = create_bpm_option("Options");
     session_box_option = create_session_box_option("Options");
     led_brightness_option = create_led_brightness_option("Options");
     display_brightness_option = create_display_brightness_option("Options");
+    midi_thru_option = create_midi_thru_option("Options");
     options_cell[0].appendChild(tempo_option[0]);
     options_cell[0].appendChild(tempo_option[1]);
     options_cell[1].appendChild(session_box_option[0]);
@@ -549,11 +583,16 @@
     options_cell[2].appendChild(led_brightness_option[0]);
     options_cell[3].appendChild(display_brightness_option[1]);
     options_cell[3].appendChild(display_brightness_option[0]);
+    options_cell[4].innerHTML = "Forward MIDI In to:"
+    options_cell[5].appendChild(midi_thru_option);
+    
     optionsTable_row0.appendChild(text_cell);
     optionsTable_row1.appendChild(options_cell[0]);
     optionsTable_row2.appendChild(options_cell[1]);
     optionsTable_row3.appendChild(options_cell[2]);
     optionsTable_row4.appendChild(options_cell[3]);
+    optionsTable_row5.appendChild(options_cell[4]);
+    optionsTable_row6.appendChild(options_cell[5]);
     divClass.appendChild(optionsTable);
   }
 
@@ -832,7 +871,6 @@
   function on_select_change(id, value) { // callback when the main sel is changed
     var sel = document.getElementById("sel" + id);
     value = parseInt(value);
-    console.log(sel + " " + id + " " + value);
     if (id == 90) change_layout(value); //change the layout
     // else {
     if (id < 6) set_short_button(id, value); // if id<12 the sel changed is a button
@@ -884,7 +922,6 @@
       var s = document.getElementById("toggle" + id);
     s.style.visibility = "hidden";
     }
-    // console.log(current_layout + "sel " + id + " " + cc_to_send);
 
     var led_options_list = Object.keys(led_actions);
     index = led_options_list.indexOf(led_translator[options_list[value]]);
@@ -979,7 +1016,6 @@
       if (i < 12) { // updates buttons
         var s = document.getElementById("sel" + i);
         s.value = get_index(i, button_actions);
-        console.log(i, s.value, control_number[current_layout][i], control_channel[current_layout][i]);
         if (control_type[current_layout][i] == 0 && control_channel[current_layout][i] == 16) s.value = Object.keys(button_actions).indexOf("① MIDI Map 1 (Big Button)");
         if (control_type[current_layout][i] == 0 && control_channel[current_layout][i] == 15) s.value = Object.keys(button_actions).indexOf("② MIDI Map 2 (Clear)");
         if (control_type[current_layout][i] == 0 && control_channel[current_layout][i] == 14) s.value = Object.keys(button_actions).indexOf("③ MIDI Map 3 (Free)");
@@ -1113,7 +1149,6 @@
     select.innerHTML = options_str;
     select.num = num;
     select.id = source + "_" + id + num;
-    console.log( select.id)
     select.onchange = function () { on_cc_change(select.num, select.value, id, source); };
     return select
   }
@@ -1131,7 +1166,6 @@
   function on_cc_change(id, value, datatype, source) { // callback when the main sel is changed
     var sel = document.getElementById("sel" + id);
     value = parseInt(value);
-    console.log(source + " " + datatype + " " + id + " " + value);
     if (source == "external_MIDI") {
       if (datatype == "type_select") {sendRawSysex([240, 122, 29, 1, 19, 15, 0, id, value - 1, 247]);
         external_MIDI[id][0] = value - 1;
@@ -1262,7 +1296,7 @@ table {
   font-family: "Helvetica Neue";
   border-collapse:  separate;
   background-color: transparent;
-  padding: 10px;
+  padding: 0px;
 }
 
 td {
@@ -1340,8 +1374,8 @@ td.type1 {
     border-radius: var(--radius);
   height: 18px;
   width: 100px;
-  padding-left: 5px;
-  padding-right: 5px;
+  padding-left: 2px;
+  padding-right: 2px;
   align-items: center;
 }
 td.main_cell {
