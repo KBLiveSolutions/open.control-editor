@@ -18,10 +18,40 @@
 
 <script>
 
-  var control_type = [[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]];
-  var control_number = [[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]];
-  var control_channel = [[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]];
-  var snap = [[1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1]];
+  var NUM_BUTTONS = 6;
+  var NUM_LEDS = 6;
+  var NUM_SLIDERS = 2;
+  var NUM_ENCODERS = 2;
+  var NUM_LAYOUTS = 3;
+
+  var button_short_type = [...Array(NUM_LAYOUTS)].map(e => Array(NUM_BUTTONS));
+  // new Array(NUM_BUTTONS)[NUM_BUTTONS][NUM_LAYOUTS];
+  var button_short_control = [...Array(NUM_LAYOUTS)].map(e => Array(NUM_BUTTONS));
+  var button_short_channel = [...Array(NUM_LAYOUTS)].map(e => Array(NUM_BUTTONS));
+  var button_short_snap = [...Array(NUM_LAYOUTS)].map(e => Array(NUM_BUTTONS));
+console.log("length", button_short_control[1].length)
+  var button_long_type = [...Array(NUM_LAYOUTS)].map(e => Array(NUM_BUTTONS));
+  var button_long_control = [...Array(NUM_LAYOUTS)].map(e => Array(NUM_BUTTONS));
+  var button_long_channel = [...Array(NUM_LAYOUTS)].map(e => Array(NUM_BUTTONS));
+
+  var led_type = [...Array(NUM_LAYOUTS)].map(e => Array(NUM_LEDS));
+  var led_control = [...Array(NUM_LAYOUTS)].map(e => Array(NUM_LEDS));
+  var led_channel = [...Array(NUM_LAYOUTS)].map(e => Array(NUM_LEDS));
+
+  var encoder_short_press_type = [...Array(NUM_LAYOUTS)].map(e => Array(NUM_ENCODERS));
+  var encoder_short_press_control = [...Array(NUM_LAYOUTS)].map(e => Array(NUM_ENCODERS));
+  var encoder_short_press_channel = [...Array(NUM_LAYOUTS)].map(e => Array(NUM_ENCODERS));
+  var encoder_long_press_type = [...Array(NUM_LAYOUTS)].map(e => Array(NUM_ENCODERS));
+  var encoder_long_press_control = [...Array(NUM_LAYOUTS)].map(e => Array(NUM_ENCODERS));
+  var encoder_long_press_channel = [...Array(NUM_LAYOUTS)].map(e => Array(NUM_ENCODERS));
+  var encoder_control = [...Array(NUM_LAYOUTS)].map(e => Array(NUM_ENCODERS));
+  var encoder_channel = [...Array(NUM_LAYOUTS)].map(e => Array(NUM_ENCODERS));
+
+  var slider_control = [...Array(NUM_LAYOUTS)].map(e => Array(NUM_SLIDERS));
+  var slider_channel = [...Array(NUM_LAYOUTS)].map(e => Array(NUM_SLIDERS));
+
+  var display = [0, 0, 0] // = Array(NUM_LAYOUTS)
+
   var options = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
   var external_MIDI = [[1, 1, 1], [1, 1, 1], [1, 1, 1], [1, 1, 1], [1, 1, 1], [1, 1, 1], [1, 1, 1], [1, 1, 1]]
   //====================== MIDI ==========================
@@ -61,25 +91,25 @@
     });
   }
 
-  function sendSysexHandshakeRequest(output) {  
+  function sendSysexHandshakeRequest(output) {
     if (output.name == "open·control") {
-    var requestMessage = [240, 122, 29, 1, 19, 1, 247];
-        open_control_output = output;
-        open_control_output.send(requestMessage);
+      var requestMessage = [240, 122, 29, 1, 19, 1, 247];
+      open_control_output = output;
+      open_control_output.send(requestMessage);
     }
   }
 
   function onOpenControlDetected(maj_ver, min_ver) {
     midi.outputs.forEach(output => {
-    if (!open_control_detected) {
-      statusLabel.style.color = "#00FF55";
-      statusLabel.innerHTML = "<b> open·control detected</b> <br> firmware version: " + maj_ver + "." + min_ver;
-      var requestMessage = [240, 122, 29, 1, 19, 4, 247];
-      open_control_detected = true;
-      open_control_output.send(requestMessage);
-    }
-  });
-}
+      if (!open_control_detected) {
+        statusLabel.style.color = "#00FF55";
+        statusLabel.innerHTML = "<b> open·control detected</b> <br> firmware version: " + maj_ver + "." + min_ver;
+        var requestMessage = [240, 122, 29, 1, 19, 4, 247];
+        open_control_detected = true;
+        open_control_output.send(requestMessage);
+      }
+    });
+  }
 
   function MIDIMessageEventHandler(event) {
     if (event.data[1] == 122 && event.data[2] == 29 && event.data[3] == 1 && event.data[4] == 19) {
@@ -88,38 +118,102 @@
         onOpenControlDetected(event.data[6], event.data[7]);
       }
       // Receiving Data from opencontrol after a Dump request
-      if (event.data[5] == 4) {
+      if (event.data[5] == 10) {
         var rcvd_layout = event.data[6];
         var num = event.data[7];
-        var btn_num = event.data[8];
+        var btn_ctrl = event.data[8];
         var btn_chnl = event.data[9];
         var btn_type = event.data[10];
-        if (num < 22) {
-          control_number[rcvd_layout][num] = btn_num;
-          control_channel[rcvd_layout][num] = btn_chnl;
-          control_type[rcvd_layout][num] = btn_type;
+        if (num < NUM_BUTTONS) {
+          button_short_type[rcvd_layout][num] = btn_type;
+          button_short_control[rcvd_layout][num] = btn_ctrl;
+          button_short_channel[rcvd_layout][num] = btn_chnl;
         }
         else {
-          set_External_MIDI(num - 22, btn_num, btn_chnl, btn_type + 1);
+          encoder_short_press_type[rcvd_layout][num-NUM_BUTTONS] = btn_type;
+          encoder_short_press_control[rcvd_layout][num-NUM_BUTTONS] = btn_ctrl;
+          encoder_short_press_channel[rcvd_layout][num-NUM_BUTTONS] = btn_chnl;
         }
       }
-      if (event.data[5] == 16) {
+
+      else if (event.data[5] == 11) {
+        var rcvd_layout = event.data[6];
+        var num = event.data[7];
+        var btn_ctrl = event.data[8];
+        var btn_chnl = event.data[9];
+        var btn_type = event.data[10];
+        if (num < NUM_BUTTONS) {
+          button_long_type[rcvd_layout][num] = btn_type;
+          button_long_control[rcvd_layout][num] = btn_ctrl;
+          button_long_channel[rcvd_layout][num] = btn_chnl;
+        }
+        else {
+          encoder_long_press_type[rcvd_layout][num-NUM_BUTTONS] = btn_type;
+          encoder_long_press_control[rcvd_layout][num-NUM_BUTTONS] = btn_ctrl;
+          encoder_long_press_channel[rcvd_layout][num-NUM_BUTTONS] = btn_chnl;
+        }
+      }
+
+      else if (event.data[5] == 16) {
         var rcvd_layout = event.data[6];
         var num = event.data[7];
         var btn_snap = event.data[8];
-        snap[rcvd_layout][num] = btn_snap;
+        button_short_snap[rcvd_layout][num] = btn_snap;
       }
-      if (event.data[5] == 17) {
+
+      else if (event.data[5] == 12) {
+        var rcvd_layout = event.data[6];
+        var num = event.data[7];
+        var btn_ctrl = event.data[8];
+        var btn_chnl = event.data[9];
+        var btn_type = event.data[10];
+        led_type[rcvd_layout][num] = btn_type;
+        led_control[rcvd_layout][num] = btn_ctrl;
+        led_channel[rcvd_layout][num] = btn_chnl;
+      }
+
+      else if (event.data[5] == 13) {
+        var rcvd_layout = event.data[6];
+        var num = event.data[7];
+        var btn_ctrl = event.data[8];
+        var btn_chnl = event.data[9];
+        slider_control[rcvd_layout][num] = btn_ctrl;
+        slider_channel[rcvd_layout][num] = btn_chnl;
+      }
+
+      else if (event.data[5] == 14) {
+        var rcvd_layout = event.data[6];
+        var num = event.data[7];
+        var btn_ctrl = event.data[8];
+        var btn_chnl = event.data[9];
+        encoder_control[rcvd_layout][num] = btn_ctrl;
+        encoder_channel[rcvd_layout][num] = btn_chnl;
+      }
+
+      else if (event.data[5] == 15) {
+        var rcvd_layout = event.data[6];
+        var rcvd_display = event.data[8];
+        console.log("disp", rcvd_layout, rcvd_display)
+        display[rcvd_layout] = rcvd_display;
+      }
+           
+      else if (event.data[5] == 17) {
         var rcvd_opt = event.data[7];
         var num = event.data[6];
         options[num] = rcvd_opt;
       }
+
+      else if (event.data[5] == 18) {
+        set_External_MIDI(num, btn_ctrl, btn_chnl, btn_type + 1);
+      }
+
+ 
       if (event.data[5] == 79) {
 
-      var s = document.getElementById("metro");
-      s.checked = options[0];
-      s = document.getElementById("session_box");
-      s.checked = !options[1];
+        var s = document.getElementById("metro");
+        s.checked = options[0];
+        s = document.getElementById("session_box");
+        s.checked = !options[1];
         change_layout(0);
       }
     }
@@ -139,17 +233,17 @@
   }
 
   function uploadPreset() {
-    console.log("control_number2", control_number);
-    for (layout = 0; layout < 3; layout++) {
-      for (control = 0; control < NUM_CONTROLS - 3; control++) {
-        sendSysex(layout, control, control_number[layout][control], 1, 16);
-        // sel = document.getElementById("sel" + control);
-        // sel.value = Object.values(button_actions).indexOf([control_number[layout][control]]);
-      }
-      //sendSysexHandshakeRequest();
-    }
+    // console.log("control_number2", control_number);
+    // for (layout = 0; layout < 3; layout++) {
+    //   for (control = 0; control < NUM_CONTROLS - 3; control++) {
+    //     sendSysex(layout, control, control_number[layout][control], 1, 16);
+    //     // sel = document.getElementById("sel" + control);
+    //     // sel.value = Object.values(button_actions).indexOf([control_number[layout][control]]);
+    //   }
+    //   //sendSysexHandshakeRequest();
+    // }
 
-    // change_layout(0);
+    // // change_layout(0);
   }
 
 
@@ -163,17 +257,17 @@
     "Page 3": 2
   };
   var display_actions = {
-    "Scene Name": 0,
-    "Track Name": 1,
-    "Looper number": 2,
-    "Variation number / Device Name": 3,
-    "Left Marker Name": 4
+    "≡  Scene Name": 0,
+    "⦀  Track Name": 1,
+    "⊙  Looper Number": 2,
+    "≔  Variation Number / Device": 3,
+    "↾  Left Marker": 4
   };
   var button_actions = {
     "Off": 0,
     "--- Global ---": 0,
     "■/▶ Start/Stop": 1,
-    "Continue Playing": 0,
+    "⧐ Continue Playing": 100,
     "●○ Metronome": 2,
     "⤶ Undo": 4,
     "⤷ Redo": 40,
@@ -223,10 +317,10 @@
     "⧁ Next Looper": 49,
     "① MIDI Map 1 (Big Button)": 0,
     "② MIDI Map 2 (Clear)": 0,
-    "③ MIDI Map 3 (Free)": 0,
-    "④ MIDI Map 4 (Free)": 0,
-    "⑤ MIDI Map 5 (Free)": 0,
-    "⑥ MIDI Map 6 (Free)": 0,
+    "③ MIDI Map 3": 0,
+    "④ MIDI Map 4": 0,
+    "⑤ MIDI Map 5": 0,
+    "⑥ MIDI Map 6": 0,
     "▣ Stop Looper": 35,
     "⌻ Arm Looper Track": 30,
     "⌧ Mute Looper Track": 31,
@@ -256,6 +350,7 @@
     "■/▶ Start/Stop": 1,
     "●○ Metronome": 2,
     "← Re-enable Automation": 41,
+    "▢ Capture": 5,
     "ℚ MIDI Recording Quantization": 104,
     "--- Arrangement ---": 0,
     "● Arrangement Rec": 6,
@@ -297,21 +392,54 @@
   };
   var slider_actions = {
     "--- Global ---": 0,
-    "Last Selected Parameter": 73,
-    "Global Groove Amount": 37,
-    // "Arrangement Loop Start": 0,
-    // "Arrangement Loop Length": 0,
-    // "Scroll Scenes": 0,
+    "⟳ Last Selected Parameter": 73,
+    "% Global Groove Amount": 37,
+    "🎚 Master Volume": 89,
+    "🎧 Cue Volume": 90,
     "--- Selected Track ---": 0,
-    "Send A": 59,
-    "Send B": 60,
-    "Selected Device Param 1": 61,
-    "Selected Device Param 2": 62,
-    "Device 1 Param 1": 63,
-    "Device 1 Param 2": 64,
-    // "--- Looper Track ---": 0,
-    // "Looper Device 1 Param 1": 33,
-    // "Looper Device 1 Param 2": 34,
+    "⟊ Volume": 91,
+    "◠ Pan": 96,
+    "A Send A": 59,
+    "B Send B": 60,
+    "① Selected Device Param 1": 61,
+    "② Selected Device Param 2": 62,
+    "③ Selected Device Param 3": 63,
+    "④ Selected Device Param 4": 64,
+    "❶ Device 1 Param 1": 92,
+    "❷ Device 1 Param 2": 93,
+    "❸ Device 1 Param 3": 94,
+    "❹ Device 1 Param 4": 95,
+    "--- Custom ---": 0,
+    "Custom MIDI": 122
+  };
+  var encoder_actions = {
+    "--- Global ---": 0,
+    "⟳ Last Selected Parameter": 73,
+    "% Global Groove Amount": 37,
+    "🎚 Master Volume": 89,
+    "🎧 Cue Volume": 90,
+    "± BPM +/- 1": 87,
+    "--- Arrangement ---": 0,
+    "≪≫ Skip Fwd/Bckwd": 83,
+    "⤞ Loop Position": 84,
+    "⩉ Loop Length": 85,
+    "↹ Jump to Next/Prev Marker": 88,
+    "↔ Horizontal Zoom": 99,
+    "--- Session ---": 0,
+    "↕ Scroll Scenes": 86,
+    "--- Selected Track ---": 0,
+    "⟊ Volume": 91,
+    "◠ Pan": 96,
+    "A Send A": 59,
+    "B Send B": 60,
+    "① Selected Device Param 1": 61,
+    "② Selected Device Param 2": 62,
+    "③ Selected Device Param 3": 63,
+    "④ Selected Device Param 4": 64,
+    "❶ Device 1 Param 1": 92,
+    "❷ Device 1 Param 2": 93,
+    "❸ Device 1 Param 3": 94,
+    "❹ Device 1 Param 4": 95,
     "--- Custom ---": 0,
     "Custom MIDI": 122
   };
@@ -347,8 +475,8 @@
     "① MIDI Map 1 (Big Button)": "◈ Looper State",
   };
 
-  var color_names = ["Off", "Blue", "Light Blue", "Red", "Light Red", "Green", "Light Green", "Pink", "Light Pink", "Purple", "Light Purple", "Yellow", "Light Yellow", "Orange", "Light Orange", "White", "Light White"]
-  var colors =  [0, 125, 21, 14, 56, 126, 62, 11, 42, 66, 106, 33, 4, 43, 16, 120, 49];
+  var color_names = ["Off", "Blue 1", "Blue 2", "Red 1", "Red 2", "Green 1", "Green 2", "Pink 1", "Pink 2", "Purple 1", "Purple 2", "Yellow 1", "Yellow 2", "Orange 1", "Orange 2", "White 1", "White 2"]
+  var colors = [0, 125, 21, 14, 56, 126, 62, 11, 42, 66, 106, 33, 4, 43, 16, 120, 49];
   var cc_values = range(119, 1);
   cc_values.splice(0, 0, 'Num');
 
@@ -376,8 +504,6 @@
   function range(size, startAt = 0) {
     return [...Array(size).keys()].map(i => i + startAt);
   }
-  var NUM_BUTTONS = 6;
-  var NUM_SLIDERS = 2;
 
   function create_bpm_option(div) {
     var divClass = document.getElementsByClassName(div);
@@ -481,13 +607,12 @@
     return ([brightness_slider, brightness_slider_label]);
   }
 
-
   function create_display_brightness_option(div) {
     var divClass = document.getElementsByClassName(div);
     var display_brightness_slider = document.createElement('input');
     display_brightness_slider.type = 'range';
     display_brightness_slider.steps = "1";
-    display_brightness_slider.min = "40";
+    display_brightness_slider.min = "10";
     display_brightness_slider.max = "127";
     display_brightness_slider.class = "slider";
     // brightness_slider.id = "brightness_slider";
@@ -498,11 +623,11 @@
     return ([display_brightness_slider, display_brightness_slider_label]);
   }
 
-  function on_brightness_change(value){
+  function on_brightness_change(value) {
     sendRawSysex([240, 122, 29, 1, 19, 18, value, 247]);
   }
 
-  function on_display_brightness_change(value){
+  function on_display_brightness_change(value) {
     sendRawSysex([240, 122, 29, 1, 19, 19, value, 247]);
   }
 
@@ -515,9 +640,24 @@
     select.innerHTML = options_str;
     select.num = num;
     select.id = id + num;
-    select.onchange = function () { on_select_change(select.num, select.value); };
+    select.onchange = function () { on_select_change(id, select.num, select.value); };
     select.classList.add('select1');
     return select
+  }
+
+  function on_select_change(id, num, value) {
+    console.log("debug1", id, num, value)
+    var sel = document.getElementById("sel" + id);
+    value = parseInt(value);
+    if (id == "page") change_layout(value);
+    if (id == "short_button") set_button(id, num, value);
+    else if (id == "long_button") set_button(id, num, value);
+    else if (id == "led") set_led(num, value);
+    else if (id == "slider") set_slider(num, value);
+    else if (id == "encoder") set_encoder(num, value);
+    else if (id == "encoder_short_press") set_button(id, num, value);
+    else if (id == "encoder_long_press") set_button(id, num, value);
+    if (id == "display") set_display(num, value);
   }
 
   function create_color_sel(num) {
@@ -537,14 +677,14 @@
     value = parseInt(value);
     value = colors[value];
     // if data comes from Page Color Selector, sned special sysex message
-    if (i == 90){
-      sendSysex(32+current_layout, value); // send color for Page 1
-      options[2+current_layout] = value; //stores color as options 2 to 4
+    if (i == 90) {
+      sendSysex(32 + current_layout, value); // send color for Page 1
+      options[2 + current_layout] = value; //stores color as options 2 to 4
     }
-    else{
+    else {
       sendSysex(17, current_layout, i, value, 1, 16);
-      control_number[current_layout][i+12] = value;
-      control_channel[current_layout][i+12] = 10;
+      led_control[current_layout][i] = value;
+      led_channel[current_layout][i] = 10;
     }
   }
 
@@ -552,8 +692,9 @@
     var divClass = document.getElementById(div);
     var mainTable = document.createElement('table');
     var mainTable_row0 = mainTable.insertRow(0);
-    // var mainTable_row1 = mainTable.insertRow(1);
+    var mainTable_row1 = mainTable.insertRow(1);
     var main_cell = document.createElement('td');
+    var status_cell = document.createElement('td');
     var main_cell_table = document.createElement('table');
     var layout_icon_cell = main_cell_table.insertRow(-1).insertCell(0);
     var layout_select_cell = main_cell_table.insertRow(-1).insertCell(0);
@@ -561,7 +702,7 @@
     mainTable.className = "type_layout";
 
     layout_icon_cell.innerHTML = "Select Page";
-    sel_layout = create_sel(90, layout_actions, 'sel', 'block');
+    sel_layout = create_sel(90, layout_actions, 'page', 'block');
     layout_color_cell.innerHTML = "Page LED Color ";
     sel_color = create_color_sel(90);
     layout_icon_cell.className = "layout";
@@ -572,12 +713,35 @@
     main_cell.appendChild(layout_color_cell);
     layout_color_cell.appendChild(sel_color);
     mainTable_row0.appendChild(main_cell);
+    var statusLabel = document.createElement('label');
+    statusLabel.id = "Status Label";
+    status_cell.appendChild(statusLabel);
+    mainTable_row1.appendChild(status_cell);
+  }
+
+  function create_connect_table(div) {
+    // Creates a row of controls described by the name of the div, the number of controls,
+    // the offset number of the first control and the type of control
+    var divClass = document.getElementsByClassName(div);
+    var optionsTable = document.createElement('table');
+    var optionsTable_row0 = optionsTable.insertRow(0);
+    var optionsTable_row1 = optionsTable.insertRow(1);
+    var options_cell = [document.createElement('td'), document.createElement('td')];
+    var firmware_cell = [document.createElement('td'), document.createElement('td')];
+    optionsTable.className = "type1";
+  }
+
+  function connect_label() {
+    var statusLabel = document.createElement('label');
+    statusLabel.id = "Status Label";
+    var statusBox = document.getElementsByClassName("ConnectStatus");
+    statusBox[0].appendChild(statusLabel);
   }
 
   function create_options_table(div) {
     var divClass = document.getElementById(div);
     var optionsTable = document.createElement('table');
-    optionsTable.className = "type_options"; 
+    optionsTable.className = "type_options";
     var optionsTable_row0 = optionsTable.insertRow(0);
     var optionsTable_row1 = optionsTable.insertRow(1);
     var optionsTable_row2 = optionsTable.insertRow(2);
@@ -603,7 +767,7 @@
     options_cell[3].appendChild(display_brightness_option[0]);
     options_cell[4].innerHTML = "Forward MIDI In to:"
     options_cell[5].appendChild(midi_thru_option);
-    
+
     optionsTable_row0.appendChild(text_cell);
     optionsTable_row1.appendChild(options_cell[0]);
     optionsTable_row2.appendChild(options_cell[1]);
@@ -612,25 +776,6 @@
     optionsTable_row5.appendChild(options_cell[4]);
     optionsTable_row6.appendChild(options_cell[5]);
     divClass.appendChild(optionsTable);
-  }
-
-  function create_connect_table(div) {
-    // Creates a row of controls described by the name of the div, the number of controls,
-    // the offset number of the first control and the type of control
-    var divClass = document.getElementsByClassName(div);
-    var optionsTable = document.createElement('table');
-    var optionsTable_row0 = optionsTable.insertRow(0);
-    var optionsTable_row1 = optionsTable.insertRow(1);
-    var options_cell = [document.createElement('td'), document.createElement('td')];
-    var firmware_cell = [document.createElement('td'), document.createElement('td')];
-    optionsTable.className = "type1";
-  }
-
-  function connect_label() {
-    var statusLabel = document.createElement('label');
-    statusLabel.id = "Status Label";
-    var statusBox = document.getElementsByClassName("ConnectStatus");
-    statusBox[0].appendChild(statusLabel);
   }
 
   function create_display_table(div) {
@@ -649,7 +794,7 @@
     mainCell.className = "type_display";
 
     display_icon_cell.innerHTML = "Display";
-    sel_display = create_sel(20, display_actions, 'sel', 'block');
+    sel_display = create_sel(0, display_actions, 'display', 'block');
     sel_display.className = 'display_select'
 
     display_select_cell.appendChild(sel_display);
@@ -667,7 +812,7 @@
     // main_cell.appendChild(sel_display);
   }
 
-  function create_main_table(div) {
+  function create_buttons_table(div) {
     // Creates a row of controls described by the name of the div, the number of controls,
     // the offset number of the first control and the type of control
     var divClass = document.getElementsByClassName(div);
@@ -678,44 +823,44 @@
       // creates the content of each cell of the main table
       let main_cell = document.createElement('td');
       mainTable_row0.className = "columns-container";
-      create_main_cell_content(main_cell, i);
+      create_button_cell_content(main_cell, i);
       mainTable_row0.appendChild(main_cell);
-    main_cell.className = "main_cell";
+      main_cell.className = "main_cell";
     }
 
     divClass[0].appendChild(mainTable);
   }
 
-  function create_main_cell_content(main_cell, i) {
+  function create_button_cell_content(main_cell, i) {
     let main_cell_table = document.createElement('table');
     let row = [];
     let cell = [];
-    for (var j = 0; j < 10; j++){
+    for (var j = 0; j < 10; j++) {
       row[j] = document.createElement("tr");
-      cell[j*2] = document.createElement('td');
-      cell[j*2+1] = document.createElement('td');
-      cell[j*2].classList.add("type1");
-      cell[j*2+1].classList.add("type1");
+      cell[j * 2] = document.createElement('td');
+      cell[j * 2 + 1] = document.createElement('td');
+      cell[j * 2].classList.add("type1");
+      cell[j * 2 + 1].classList.add("type1");
     }
 
     switch (i) {
       case 0:
-      cell[0].innerHTML = "<font size=8 color=#A246FE>●</font>";
+        cell[0].innerHTML = "<font size=8 color=#A246FE>●</font>";
         break;
       case 1:
-      cell[0].innerHTML = "<font size=8 color=#2BE1BD>●</font>";
+        cell[0].innerHTML = "<font size=8 color=#2BE1BD>●</font>";
         break;
       case 2:
-      cell[0].innerHTML = "<font size=8 color=#3882E8>●</font>";
+        cell[0].innerHTML = "<font size=8 color=#3882E8>●</font>";
         break;
       case 3:
-      cell[0].innerHTML = "<font size=8 color=#F9FF33>●</font>";
+        cell[0].innerHTML = "<font size=8 color=#F9FF33>●</font>";
         break;
       case 4:
-      cell[0].innerHTML = "<font size=8 color=#FFA233>●</font>";
+        cell[0].innerHTML = "<font size=8 color=#FFA233>●</font>";
         break;
       case 5:
-      cell[0].innerHTML = "<font size=8 color=#FF3390>●</font>";
+        cell[0].innerHTML = "<font size=8 color=#FF3390>●</font>";
         break;
     }
     cell[0].classList.add("type6");
@@ -727,7 +872,7 @@
     cell[2].setAttribute("colspan", "2");
     row[1].appendChild(cell[2]);
 
-    sel_led = create_sel(i + 12, led_actions, 'sel', 'block');
+    sel_led = create_sel(i, led_actions, 'led', 'block');
     cell[4].appendChild(sel_led);
     color_sel = create_color_sel(i);
     cell[5].appendChild(color_sel);
@@ -748,7 +893,7 @@
     row[4].appendChild(cell[8]);
     row[4].appendChild(cell[9]);
 
-    sel_short_button = create_sel(i, button_actions, 'sel', 'block');
+    sel_short_button = create_sel(i, button_actions, 'short_button', 'block');
     cell[10].appendChild(sel_short_button);
 
     snap_checkbox = create_snap(i);
@@ -756,7 +901,7 @@
     row[5].appendChild(cell[10]);
     row[5].appendChild(cell[11]);
 
-    cc_table_short = cc_table_constructor(i, "custom_MIDI_table");
+    cc_table_short = cc_table_constructor(i, "custom_MIDI_table_short_button");
     cell[12].appendChild(cc_table_short);
     cc_table_short.style.visibility = "hidden";
     row[6].appendChild(cell[12]);
@@ -768,17 +913,17 @@
     row[6].appendChild(cell[13]);
 
     cell[14].innerHTML = "Long Press";
-    sel_long_button = create_sel(i + 6, button_actions, 'sel', 'block');
+    sel_long_button = create_sel(i, button_actions, 'long_button', 'block');
     cell[16].appendChild(sel_long_button);
     row[7].appendChild(cell[14]);
     row[8].appendChild(cell[16]);
 
-    cc_table_long = cc_table_constructor(i+6, "custom_MIDI_table");
+    cc_table_long = cc_table_constructor(i, "custom_MIDI_table_long_button");
     cell[18].appendChild(cc_table_long);
     cell[18].style.visibility = "hidden";
     row[9].appendChild(cell[18]);
 
-    for (var i = 0; i < 10; i++){
+    for (var i = 0; i < 10; i++) {
       main_cell.appendChild(row[i]);
     }
   }
@@ -795,16 +940,15 @@
   }
 
   function on_snap_changed(i, val) {
-    if (val){
-        sendRawSysex([240, 122, 29, 1, 19, 16, current_layout, i, 1, 247]);
-        set_snap_box(i, 1);
+    if (val) {
+      sendRawSysex([240, 122, 29, 1, 19, 16, current_layout, i, 1, 247]);
+      set_snap_box(i, 1);
     }
     else {
-        sendRawSysex([240, 122, 29, 1, 19, 16, current_layout, i, 0, 247]);
-        set_snap_box(i, 0);
+      sendRawSysex([240, 122, 29, 1, 19, 16, current_layout, i, 0, 247]);
+      set_snap_box(i, 0);
     }
   }
-
 
   function create_toggle(i) {
     var toggle_div = document.createElement('div');
@@ -824,45 +968,121 @@
   }
 
   function on_toggle_changed(i, val) {
-    if (val){
-        sendRawSysex([240, 122, 29, 1, 19, 24, current_layout, i, 1, 247]);
-        set_toggle_box(i, 1);
+    if (val) {
+      sendRawSysex([240, 122, 29, 1, 19, 24, current_layout, i, 1, 247]);
+      set_toggle_box(i, 1);
     }
     else {
-        sendRawSysex([240, 122, 29, 1, 19, 24, current_layout, i, 0, 247]);
-        set_toggle_box(i, 0);
+      sendRawSysex([240, 122, 29, 1, 19, 24, current_layout, i, 0, 247]);
+      set_toggle_box(i, 0);
     }
   }
 
   function set_snap_box(id, value) {
-    var s = document.getElementById("sel" + (id + 6));
+    var s = document.getElementById("long_button" + id);
     var l = document.getElementById("long_button_label" + (id));
     if (value == 1) {
       s.style.display = "none";
-      l.style.display = "none";
+      // l.style.display = "none";
     }
     else {
       s.style.display = "block";
-      l.style.display = "block";
+      // l.style.display = "block";
     }
-    snap[current_layout][id] = value;
+    button_short_snap[current_layout][id] = value;
   }
-  
-  function create_slider_table(div) {
+
+  function create_encoder_table(div) {
 
     var divClass = document.getElementsByClassName(div);
     var mainTable = document.createElement('table');
     mainTable.className = "type1";
     var mainTable_row0 = mainTable.insertRow(0);
 
+    for (var i = 0; i < NUM_ENCODERS; i++) {
+      let main_cell = document.createElement('td');
+      mainTable_row0.className = "columns-container";
+      create_encoder_cell_content(main_cell, i);
+      mainTable_row0.appendChild(main_cell);
+      main_cell.className = "main_cell";
+    }
+
+    divClass[0].appendChild(mainTable);
+  }
+
+  function create_encoder_cell_content(main_cell, i) {
+    let main_cell_table = document.createElement('table');
+    let row = [];
+    let cell = [];
+    for (var j = 0; j < 10; j++) {
+      row[j] = document.createElement("tr");
+      cell[j * 2] = document.createElement('td');
+      cell[j * 2 + 1] = document.createElement('td');
+      cell[j * 2].classList.add("type1");
+      cell[j * 2 + 1].classList.add("type1");
+    }
+
+    cell[0].innerHTML = "Encoder <br> " + (i + 1).toString() + "</font>";
+    sel_encoder = create_sel(i, encoder_actions, 'encoder', 'block');
+    cell[1].appendChild(sel_encoder);
+    row[0].appendChild(cell[0]);
+    row[1].appendChild(cell[1]);
+
+
+    cell[8].innerHTML = "Short Press";
+    cell[9].innerHTML = "Snap";
+    cell[8].classList.add("type5");
+    cell[9].classList.add("type5");
+    row[4].appendChild(cell[8]);
+    row[4].appendChild(cell[9]);
+
+    sel_short_button = create_sel(i, button_actions, 'encoder_short_press', 'block');
+    cell[10].appendChild(sel_short_button);
+
+    snap_checkbox = create_snap(i+NUM_BUTTONS);
+    cell[11].appendChild(snap_checkbox);
+    row[5].appendChild(cell[10]);
+    row[5].appendChild(cell[11]);
+
+    cc_table_short = cc_table_constructor(i, "custom_MIDI_table_encoder_short_press");
+    cell[12].appendChild(cc_table_short);
+    cc_table_short.style.visibility = "hidden";
+    row[6].appendChild(cell[12]);
+
+    toggle_checkbox = create_toggle(i);
+    cell[13].appendChild(toggle_checkbox);
+    // cell[13].innerHTML = "Toggle";
+    toggle_checkbox.style.visibility = "hidden";
+    row[6].appendChild(cell[13]);
+
+    cell[14].innerHTML = "Long Press";
+    sel_long_button = create_sel(i, button_actions, 'encoder_long_press', 'block');
+    cell[16].appendChild(sel_long_button);
+    row[7].appendChild(cell[14]);
+    row[8].appendChild(cell[16]);
+
+    cc_table_long = cc_table_constructor(i, "custom_MIDI_table_encoder_long_press");
+    cell[18].appendChild(cc_table_long);
+    cell[18].style.visibility = "hidden";
+    row[9].appendChild(cell[18]);
+
+    for (var i = 0; i < 10; i++) {
+      main_cell.appendChild(row[i]);
+    }
+  }
+
+  function create_slider_table(div) {
+    var divClass = document.getElementsByClassName(div);
+    var mainTable = document.createElement('table');
+    mainTable.className = "type1";
+    var mainTable_row0 = mainTable.insertRow(0);
     for (var i = 0; i < NUM_SLIDERS; i++) {
       let main_cell = document.createElement('td');
       mainTable_row0.className = "columns-container";
       create_slider_cell_content(main_cell, i);
       mainTable_row0.appendChild(main_cell);
-    main_cell.className = "main_cell";
+      main_cell.className = "main_cell";
     }
-
     divClass[0].appendChild(mainTable);
   }
 
@@ -870,221 +1090,225 @@
     let main_cell_table = document.createElement('table');
     let row = [];
     let cell = [];
-    for (var j = 0; j < 3; j++){
+    for (var j = 0; j < 3; j++) {
       row[j] = document.createElement("tr");
       cell[j] = document.createElement('td');
       row[j].appendChild(cell[j]);
       cell[j].classList.add("type1");
     }
 
-    cell[0].innerHTML = "Knob/Slider <br> " + (i + 1).toString() + "</font>";
-    sel_slider = create_sel(i + 18, slider_actions, 'sel', 'block');
+    cell[0].innerHTML = "Expression Pedal <br> " + (i + 1).toString() + "</font>";
+    sel_slider = create_sel(i, slider_actions, 'slider', 'block');
     cell[1].appendChild(sel_slider);
 
-    for (var i = 0; i < 3; i++){
+    for (var i = 0; i < 3; i++) {
       main_cell.appendChild(row[i]);
     }
   }
 
-  function on_select_change(id, value) { // callback when the main sel is changed
-    var sel = document.getElementById("sel" + id);
-    value = parseInt(value);
-    if (id == 90) change_layout(value); //change the layout
-    // else {
-    if (id < 6) set_short_button(id, value); // if id<12 the sel changed is a button
-    else if (id < 12) set_long_button(id, value); // if 12<=id<18 the sel changed is a LED
-    else if (id < 18) set_led(id, value); // if 12<=id<18 the sel changed is a LED
-    else if (id < 20) set_slider(id, value); // if 18<=id<22 the sel changed is a slider
-    if (id == 20) set_display(id, value); // if id=22, the sel changed is the display
-    // }
-  }
-
-  function set_short_button(id, value) {
+  function set_button(id, num, value) {
     var options_list = Object.keys(button_actions); // retrieves the list of button actions
     cc_to_send = button_actions[options_list[value]]; // gets the cc corresponding to the action selected
-    control_number[current_layout][id] = cc_to_send; // stores the cc value in the control_number list
-    var s = document.getElementById("sel" + (id + 6));
+    var s = document.getElementById(id + num);
     var snap = 1;
     s.style.display = "block";
+
+    if (id == "short_button") {
+      sysex_byte = 10;
+      button_short_control[current_layout][num] = cc_to_send;
+    }
+    else if (id == "long_button") {
+      sysex_byte = 11;
+      button_long_control[current_layout][num] = cc_to_send;
+    }
+    else if (id == "encoder_short_press") {
+      sysex_byte = 27;
+      encoder_short_press_control[current_layout][num] = cc_to_send;
+    }
+    else if (id == "encoder_long_press") {
+      sysex_byte = 28;
+      encoder_long_press_control[current_layout][num] = cc_to_send;
+    }
+    console.log(id, num, value)
     if (options_list[value] == "① MIDI Map 1 (Big Button)") {
-      sendSysex(10, current_layout, id, 1, 0, 16);
-      var s = document.getElementById("sel" + (id + 6));
+      sendSysex(sysex_byte, current_layout, num, 1, 0, 16);
+      var s = document.getElementById(id + num);
       s.style.display = "none";
     }
     else if (options_list[value] == "② MIDI Map 2 (Clear)") {
-      sendSysex(10, current_layout, id, 1, 0, 15);
+      sendSysex(sysex_byte, current_layout, num, 1, 0, 15);
     }
-    else if (options_list[value] == "③ MIDI Map 3 (Free)") {
-      sendSysex(10, current_layout, id, 1, 0, 14);
+    else if (options_list[value] == "③ MIDI Map 3") {
+      sendSysex(sysex_byte, current_layout, num, 1, 0, 14);
     }
-    else if (options_list[value] == "④ MIDI Map 4 (Free)") {
-      sendSysex(10, current_layout, id, 1, 0, 13);
+    else if (options_list[value] == "④ MIDI Map 4") {
+      sendSysex(sysex_byte, current_layout, num, 1, 0, 13);
     }
-    else if (options_list[value] == "⑤ MIDI Map 5 (Free)") {
-      sendSysex(10, current_layout, id, 1, 0, 12);
+    else if (options_list[value] == "⑤ MIDI Map 5") {
+      sendSysex(sysex_byte, current_layout, num, 1, 0, 12);
     }
-    else if (options_list[value] == "⑥ MIDI Map 6 (Free)") {
-      sendSysex(10, current_layout, id, 1, 0, 11);
+    else if (options_list[value] == "⑥ MIDI Map 6") {
+      sendSysex(sysex_byte, current_layout, num, 1, 0, 11);
     }
-    else sendSysex(10, current_layout, id, cc_to_send, 1, 16);
+    else sendSysex(sysex_byte, current_layout, num, cc_to_send, 1, 16);
 
     if (options_list[value] == "Custom MIDI") {
-      var s = document.getElementById("custom_MIDI_table" + id);
-    s.style.visibility = "visible";
-      var s = document.getElementById("toggle" + id);
-    s.style.visibility = "visible";
-    }    
+      var s = document.getElementById("custom_MIDI_table_" + id + num);
+      s.style.visibility = "visible";
+      var s = document.getElementById("toggle" + num);
+      s.style.visibility = "visible";
+    }
     else {
-      var s = document.getElementById("custom_MIDI_table" + id);
-    s.style.visibility = "hidden";
-      var s = document.getElementById("toggle" + id);
-    s.style.visibility = "hidden";
+      var s = document.getElementById("custom_MIDI_table_"+ id + num);
+      s.style.visibility = "hidden";
+      var s = document.getElementById("toggle" + num);
+      s.style.visibility = "hidden";
     }
-
-    var led_options_list = Object.keys(led_actions);
-    index = led_options_list.indexOf(led_translator[options_list[value]]);
-    led = document.getElementById("sel" + (id + 12));
-    var led_cc = led_actions[led_translator[options_list[value]]];
-    if (!isNaN(led_cc)) {
-      led.value = index;
-      // sendSysex(72, current_layout, id, led_cc, 1, 16);
-      sendSysex(12, current_layout, id, led_cc, 1, 16);
+    if (id == "short_button") {
+      var led_options_list = Object.keys(led_actions);
+      index = led_options_list.indexOf(led_translator[options_list[value]]);
+      led = document.getElementById("led" + (num));
+      var led_cc = led_actions[led_translator[options_list[value]]];
+      if (!isNaN(led_cc)) {
+        led.value = index;
+        // sendSysex(72, current_layout, id, led_cc, 1, 16);
+        sendSysex(12, current_layout, num, led_cc, 1, 16);
+      }
     }
-
-    // if (options_list[value] == "⇆ Page 1/2" || options_list[value] == "⇆ Page 1/3") { // if it is a Layout switch button, copy to all layouts
-    //   for (i = 0; i < 3; i++) {
-    //     control_number[i][id] = cc_to_send;
-    //     sendSysex(10, i, id, cc_to_send);
-    //   }
-    // }
   }
 
-  function set_long_button(id, value) {
-    var options_list = Object.keys(button_actions); // retrieves the list of button actions
-    cc_to_send = button_actions[options_list[value]]; // gets the cc corresponding to the action selected
-    control_number[current_layout][id] = cc_to_send; // stores the cc value in the control_number list
-    if (options_list[value] == "① MIDI Map 1 (Big Button)") {
-      sendSysex(11, current_layout, id - 6, 1, 0, 16);
-    }
-    else if (options_list[value] == "② MIDI Map 2 (Clear)") { 
-      sendSysex(11, current_layout, id - 6, 1, 0, 15);
-    }
-    else if (options_list[value] == "③ MIDI Map 3 (Free)") { 
-      sendSysex(11, current_layout, id - 6, 1, 0, 14);
-    }
-    else if (options_list[value] == "④ MIDI Map 4 (Free)") { 
-      sendSysex(11, current_layout, id - 6, 1, 0, 13);
-    }
-    else if (options_list[value] == "⑤ MIDI Map 5 (Free)") { 
-      sendSysex(11, current_layout, id - 6, 1, 0, 12);
-    }
-    else if (options_list[value] == "⑥ MIDI Map 6 (Free)") { 
-      sendSysex(11, current_layout, id - 6, 1, 0, 11);
-    }    
-
-    else sendSysex(11, current_layout, id - 6, cc_to_send, 1, 16);
-    
-
-    if (options_list[value] == "Custom MIDI") {
-      var s = document.getElementById("custom_MIDI_table" + id);
-    s.style.visibility = "visible";
-    }    
-    else {
-      var s = document.getElementById("custom_MIDI_table" + id);
-    s.style.visibility = "hidden";
-    }
-
-  }
-
-  function set_slider(id, value) {
-    var options_list = Object.keys(slider_actions)
-    cc_to_send = slider_actions[options_list[value]];
-    control_number[current_layout][id] = cc_to_send;
-    sendSysex(13, current_layout, id - 18, cc_to_send, 1, 16);
-  }
-
-  function set_led(id, value) {
+  function set_led(num, value) {
     var options_list = Object.keys(led_actions)
     cc_to_send = led_actions[options_list[value]];
-    var c = document.getElementById("color_sel" + (id-12));
-    if (cc_to_send == 0){
+    var c = document.getElementById("color_sel" + (num));
+    if (cc_to_send == 0) {
       c.style.display = "block";
-      control_channel[current_layout][id] = 10;
+      led_channel[current_layout][num] = 10;
     }
-    else{
+    else {
       c.style.display = "none";
-    control_number[current_layout][id] = cc_to_send;
-      control_channel[current_layout][id] = 16;
-    sendSysex(12, current_layout, id - 12, cc_to_send, 1, 16);
+      led_control[current_layout][num] = cc_to_send;
+      led_channel[current_layout][num] = 16;
+      sendSysex(12, current_layout, num, cc_to_send, 1, 16);
     }
 
   }
 
-  function set_display(id, value) {
+  function set_encoder(num, value) {
+    var options_list = Object.keys(encoder_actions)
+    cc_to_send = encoder_actions[options_list[value]];
+    encoder_control[current_layout][num] = cc_to_send;
+    sendSysex(29, current_layout, num, cc_to_send, 1, 16);
+  }
+
+  function set_slider(num, value) {
+    var options_list = Object.keys(slider_actions)
+    cc_to_send = slider_actions[options_list[value]];
+    slider_control[current_layout][num] = cc_to_send;
+    sendSysex(13, current_layout, num, cc_to_send, 1, 16);
+  }
+
+  function set_display(num, value) {
     var options_list = Object.keys(display_actions)
     cc_to_send = display_actions[options_list[value]];
+    display[current_layout] = cc_to_send;
     sendSysex(14, current_layout, 1, cc_to_send, 1, 16);
   }
 
-  function change_layout(layout) { // updates all sel when a layout is changed
+  function update_button(current_layout, id, i) {
+    if (id == 'short_button') {
+      control_type = button_short_type[current_layout][i];
+      control_channel = button_short_channel[current_layout][i];
+      control_number = button_short_control[current_layout][i];
+      var s = document.getElementById("checkbox" + i);
+      s.checked = button_short_snap[current_layout][i];
+      set_snap_box(i, button_short_snap[current_layout][i]);
+    }
+
+    if (id == 'long_button') {
+      control_type = button_long_type[current_layout][i];
+      control_channel = button_long_channel[current_layout][i];
+      control_number = button_long_control[current_layout][i];
+    }
+
+    if (id == 'encoder_short_press') {
+      control_type = encoder_short_press_type[current_layout][i];
+      control_channel = encoder_short_press_channel[current_layout][i];
+      control_number = encoder_short_press_control[current_layout][i];
+    }
+
+    if (id == 'encoder_long_press') {
+      control_type = encoder_long_press_type[current_layout][i];
+      control_channel = encoder_long_press_channel[current_layout][i];
+      control_number = encoder_long_press_control[current_layout][i];
+    }
+
+    var s = document.getElementById(id + i);
+    console.log("index", current_layout, id + i, control_number, get_index(control_number, button_actions))
+    s.value = get_index(control_number, button_actions);
+    if (control_type == 0 && control_channel == 16) s.value = Object.keys(button_actions).indexOf("① MIDI Map 1 (Big Button)");
+    if (control_type == 0 && control_channel == 15) s.value = Object.keys(button_actions).indexOf("② MIDI Map 2 (Clear)");
+    if (control_type == 0 && control_channel == 14) s.value = Object.keys(button_actions).indexOf("③ MIDI Map 3");
+    if (control_type == 0 && control_channel == 13) s.value = Object.keys(button_actions).indexOf("④ MIDI Map 4");
+    if (control_type == 0 && control_channel == 12) s.value = Object.keys(button_actions).indexOf("⑤ MIDI Map 5");
+    if (control_type == 0 && control_channel == 11) s.value = Object.keys(button_actions).indexOf("⑥ MIDI Map 6");
+
+    if (control_channel < 16) {
+      s.value = Object.keys(button_actions).indexOf("Custom MIDI");
+      var s1 = document.getElementById("custom_MIDI_table_" + id + i);
+      s1.style.visibility = "visible";
+      var s2 = document.getElementById("custom_MIDI_table_"+id+"_type_select" + i);
+      s2.value = control_type;
+      var s3 = document.getElementById("custom_MIDI_table_"+id+"_cc_select" + i);
+      s3.value = control_number;
+      var s4 = document.getElementById("custom_MIDI_table_"+id+"_ch_select" + i);
+      s4.value = control_channel;
+      // var s5 = document.getElementById("toggle" + id);
+      // s5.style.visibility = "visible";
+    }
+  }
+
+  function change_layout(layout) {
     current_layout = layout;
     var s = document.getElementById("color_sel90"); // set Page color sel
-    s.value = options[2+current_layout]
-    for (var i = 0; i < 21; i++) {
-      if (i < 12) { // updates buttons
-        var s = document.getElementById("sel" + i);
-        s.value = get_index(i, button_actions);
-        if (control_type[current_layout][i] == 0 && control_channel[current_layout][i] == 16) s.value = Object.keys(button_actions).indexOf("① MIDI Map 1 (Big Button)");
-        if (control_type[current_layout][i] == 0 && control_channel[current_layout][i] == 15) s.value = Object.keys(button_actions).indexOf("② MIDI Map 2 (Clear)");
-        if (control_type[current_layout][i] == 0 && control_channel[current_layout][i] == 14) s.value = Object.keys(button_actions).indexOf("③ MIDI Map 3 (Free)");
-        if (control_type[current_layout][i] == 0 && control_channel[current_layout][i] == 13) s.value = Object.keys(button_actions).indexOf("④ MIDI Map 4 (Free)");
-        if (control_type[current_layout][i] == 0 && control_channel[current_layout][i] == 12) s.value = Object.keys(button_actions).indexOf("⑤ MIDI Map 5 (Free)");
-        if (control_type[current_layout][i] == 0 && control_channel[current_layout][i] == 11) s.value = Object.keys(button_actions).indexOf("⑥ MIDI Map 6 (Free)");
+    s.value = options[2 + current_layout]
 
-        if (control_channel[current_layout][i] < 16) {
-        s.value = Object.keys(button_actions).indexOf("Custom MIDI");
-        var s1 = document.getElementById("custom_MIDI_table" + i);
-          s1.style.visibility = "visible";
-        var s2 = document.getElementById("custom_MIDI_table_type_select" + i);
-        s2.value = control_type[current_layout][i];
-        var s3 = document.getElementById("custom_MIDI_table_cc_select" + i);
-        s3.value = control_number[current_layout][i];
-        var s4 = document.getElementById("custom_MIDI_table_ch_select" + i);
-        s4.value = control_channel[current_layout][i];
-      var s5 = document.getElementById("toggle" + id);
-    s5.style.visibility = "visible";
-        }
-        
-
-      }
-      else if (i < 18) { // update LEDs
-        var s = document.getElementById("sel" + i);
-        var c = document.getElementById("color_sel" + (i-12));
-        c.style.display = "none";
-
-        if(control_channel[current_layout][i] == 10){
-          s.value = 1;
-          s.value = 0;
-          c.style.display = "block";
-          c.value = control_number[current_layout][i];
-        }
-        else s.value = get_index(i, led_actions);
-        s.style.display = "block";
-      }
-      else if (i < 20) { // updates sliders
-        var s = document.getElementById("sel" + i);
-        s.value = get_index(i, slider_actions);
-      }
-      else if (i == 20) { // updates display
-        var s = document.getElementById("sel" + i);
-        s.value = get_index(i, display_actions);
-      }
+    for (var i = 0; i < NUM_BUTTONS; i++) {
+      update_button(current_layout, "short_button", i);
+      update_button(current_layout, "long_button", i);
     }
-    for (var i = 0; i < 6; i++) {
-      var s = document.getElementById("checkbox" + i);
-      s.checked = snap[current_layout][i];
-      set_snap_box(i, snap[current_layout][i]);
+    for (var i = 0; i < NUM_LEDS; i++) { // update LEDs
+      var s = document.getElementById("led" + i);
+      var c = document.getElementById("color_sel" + (i));
+      c.style.display = "none";
+      control_type = led_type[current_layout][i];
+      control_channel = led_channel[current_layout][i];
+      control_number = led_control[current_layout][i];
+
+      if (control_channel == 10) {
+        s.value = 1;
+        s.value = 0;
+        c.style.display = "block";
+        c.value = control_number;
+      }
+      else s.value = get_index(led_control[current_layout][i], led_actions);
+      s.style.display = "block";
     }
+
+    for (var i = 0; i < NUM_SLIDERS; i++) { // updates sliders
+      var s = document.getElementById("slider" + i);
+      s.value = get_index(slider_control[current_layout][i], slider_actions);
+    }
+
+    for (var i = 0; i < NUM_ENCODERS; i++) { // updates sliders
+      var s = document.getElementById("encoder" + i);
+      s.value = get_index(encoder_control[current_layout][i], encoder_actions);
+      update_button(current_layout, "encoder_short_press", i);
+      update_button(current_layout, "encoder_long_press", i);
+    }
+
+    var s = document.getElementById("display0");
+    s.value = get_index(display[current_layout], display_actions);
   }
 
   function create_external_MIDI_table(div) {
@@ -1099,10 +1323,10 @@
     external_MIDI_table_row2.appendChild(empty_cell);
     external_MIDI_table_row2.appendChild(empty_cell2);
     empty_cell.style.backgroundColor = "#11ffee00";
-    empty_cell.style.border= "0px";
+    empty_cell.style.border = "0px";
     empty_cell2.style.backgroundColor = "#11ffee00";
-    empty_cell2.style.border= "0px";
-    
+    empty_cell2.style.border = "0px";
+
     for (var i = 0; i < 8; i++) {
 
       var external_MIDI_CC_table = document.createElement('table');
@@ -1145,7 +1369,7 @@
     cc_table.id = id + i;
     type_sel = create_cc_sel(i, type_values, 'type_select', id);
     if (id != "external_MIDI") cell00.appendChild(type_sel);
-    else if (i<8) cell00.appendChild(type_sel);
+    else if (i < 8) cell00.appendChild(type_sel);
     cc_sel = create_cc_sel(i, cc_values, 'cc_select', id);
     cell01.appendChild(cc_sel);
     if (id == "external_MIDI") ch_sel = create_cc_sel(i, ch_values, 'ch_select', id);
@@ -1171,44 +1395,66 @@
     return select
   }
 
-  function set_External_MIDI(num, btn_num, btn_chnl, btn_type) {
-    var type_sel = document.getElementById("type_select" + num);
-    var cc_sel = document.getElementById("cc_select" + num);
-    var ch_sel = document.getElementById("ch_select" + num);
-    type_sel.value = btn_type;
-    cc_sel.value = btn_num;
-    ch_sel.value = btn_chnl;
-    external_MIDI[num] = [btn_type, btn_num, btn_chnl];
+  function set_External_MIDI(num, btn_ctrl, btn_chnl, btn_type) {
+    // var type_sel = document.getElementById("type_select" + num);
+    // var cc_sel = document.getElementById("cc_select" + num);
+    // var ch_sel = document.getElementById("ch_select" + num);
+    // type_sel.value = btn_type;
+    // cc_sel.value = btn_ctrl;
+    // ch_sel.value = btn_chnl;
+    // external_MIDI[num] = [btn_type, btn_ctrl, btn_chnl];
   }
 
-  function on_cc_change(id, value, datatype, source) { // callback when the main sel is changed
-    var sel = document.getElementById("sel" + id);
+  function on_cc_change(num, value, datatype, source) {
+    console.log(num, value, datatype, source)
+    var sel = document.getElementById("sel" + num);
     value = parseInt(value);
-    if (source == "external_MIDI") {
-      if (datatype == "type_select") {sendRawSysex([240, 122, 29, 1, 19, 15, 0, id, value - 1, 247]);
-        external_MIDI[id][0] = value - 1;
+    if (source == "external_MnumI") {
+      if (datatype == "type_select") {
+        sendRawSysex([240, 122, 29, 1, 19, 15, 0, num, value - 1, 247]);
+        external_MIDI[num][0] = value - 1;
       }
-      else if (datatype == "cc_select") {sendRawSysex([240, 122, 29, 1, 19, 15, 1, id, value, 247]);
-        external_MIDI[id][1] = value;
+      else if (datatype == "cc_select") {
+        sendRawSysex([240, 122, 29, 1, 19, 15, 1, num, value, 247]);
+        external_MIDI[num][1] = value;
       }
-      else if (datatype == "ch_select") {sendRawSysex([240, 122, 29, 1, 19, 15, 2, id, value, 247]);
-        external_MIDI[id][2] = value;
+      else if (datatype == "ch_select") {
+        sendRawSysex([240, 122, 29, 1, 19, 15, 2, num, value, 247]);
+        external_MIDI[num][2] = value;
       }
     }
     else {
-      if (datatype == "type_select") control_type[current_layout][id] = value - 1;
-      else if (datatype == "cc_select") control_number[current_layout][id] = value;
-      else if (datatype == "ch_select") control_channel[current_layout][id] = value;
-      sendSysex(10, current_layout, id, 1, 0, 12);
-      if (id < 6) sendRawSysex([240, 122, 29, 1, 19, 10, current_layout, id, control_number[current_layout][id], control_type[current_layout][id], control_channel[current_layout][id], 247]);
-      else sendRawSysex([240, 122, 29, 1, 19, 11, current_layout, id-6, control_number[current_layout][id], control_type[current_layout][id], control_channel[current_layout][id], 247]);
+      if (source == "custom_MIDI_table_short_button"){
+      if (datatype == "type_select") button_short_type[current_layout][num] = value - 1;
+      else if (datatype == "cc_select") button_short_control[current_layout][num] = value;
+      else if (datatype == "ch_select") button_short_channel[current_layout][num] = value;
+      sendRawSysex([240, 122, 29, 1, 19, 10, current_layout, num, button_short_control[current_layout][num], button_short_type[current_layout][num], button_short_channel[current_layout][num], 247]);
+      }
+      else if (source == "custom_MIDI_table_long_button"){
+      if (datatype == "type_select") button_long_type[current_layout][num] = value - 1;
+      else if (datatype == "cc_select") button_long_control[current_layout][num] = value;
+      else if (datatype == "ch_select") button_long_channel[current_layout][num] = value;
+      sendRawSysex([240, 122, 29, 1, 19, 11, current_layout, num, button_long_control[current_layout][num], button_long_type[current_layout][num], button_long_channel[current_layout][num], 247]);
+    }
+    else if (source == "custom_MIDI_table_encoder_short_press"){
+      if (datatype == "type_select") encoder_short_press_type[current_layout][num] = value - 1;
+      else if (datatype == "cc_select") encoder_short_press_control[current_layout][num] = value;
+      else if (datatype == "ch_select") encoder_short_press_channel[current_layout][num] = value;
+      sendRawSysex([240, 122, 29, 1, 19, 10, current_layout, num+NUM_BUTTONS, encoder_short_press_control[current_layout][num], encoder_short_press_type[current_layout][num], encoder_short_press_channel[current_layout][num], 247]);
+}
+    else if (source == "custom_MIDI_table_encoder_long_press"){
+      if (datatype == "type_select") encoder_long_press_type[current_layout][num] = value - 1;
+      else if (datatype == "cc_select") encoder_long_press_control[current_layout][num] = value;
+      else if (datatype == "ch_select") encoder_long_press_channel[current_layout][num] = value;
+      sendRawSysex([240, 122, 29, 1, 19, 11, current_layout, num+NUM_BUTTONS, encoder_long_press_control[current_layout][num], encoder_long_press_type[current_layout][num], encoder_long_press_channel[current_layout][num], 247]);
+}
       //Sending {240, 122, 29, 1, 19, 10, Layout Number, Button number, Note/CC Number, Type, Channel, 247}
     }
   }
 
-  function get_index(i, action_type) {
+  function get_index(control_number, action_type) {
     var values_list = Object.values(action_type)
-    return values_list.indexOf(control_number[current_layout][i]);
+    return values_list.indexOf(control_number);
   }
 
   function send_cc(id, type, cc, ch) {
@@ -1220,65 +1466,65 @@
   }
 
 
-  function saveTextAsFile(){
-          var textToSave = [];
-          var textToSave = [control_type[current_layout], control_number[current_layout], control_channel[current_layout]];
-          // document.getElementById("inputTextToSave").value;
-          var textToSaveAsBlob = new Blob([textToSave], {type:"text/plain"});
-          var textToSaveAsURL = window.URL.createObjectURL(textToSaveAsBlob);
-          var fileNameToSaveAs = document.getElementById("inputFileNameToSaveAs").value;
+  function saveTextAsFile() {
+    // var textToSave = [];
+    // var textToSave = [control_type[current_layout], control_number[current_layout], control_channel[current_layout]];
+    // // document.getElementById("inputTextToSave").value;
+    // var textToSaveAsBlob = new Blob([textToSave], { type: "text/plain" });
+    // var textToSaveAsURL = window.URL.createObjectURL(textToSaveAsBlob);
+    // var fileNameToSaveAs = document.getElementById("inputFileNameToSaveAs").value;
 
-          var downloadLink = document.createElement("a");
-          downloadLink.download = fileNameToSaveAs;
-          downloadLink.innerHTML = "Download File";
-          downloadLink.href = textToSaveAsURL;
-          downloadLink.onclick = destroyClickedElement;
-          downloadLink.style.display = "none";
-          document.body.appendChild(downloadLink);
+    // var downloadLink = document.createElement("a");
+    // downloadLink.download = fileNameToSaveAs;
+    // downloadLink.innerHTML = "Download File";
+    // downloadLink.href = textToSaveAsURL;
+    // downloadLink.onclick = destroyClickedElement;
+    // downloadLink.style.display = "none";
+    // document.body.appendChild(downloadLink);
 
-          downloadLink.click();
-      }
+    // downloadLink.click();
+  }
 
-      function destroyClickedElement(event){
-          document.body.removeChild(event.target);
-      }
+  function destroyClickedElement(event) {
+    document.body.removeChild(event.target);
+  }
 
-    //   tp = [bigArray.slice(0, 20)];
-    //           cc = [bigArray.slice(21, 41)];
-    //           ch = [bigArray.slice(52, 72)];
+  //   tp = [bigArray.slice(0, 20)];
+  //           cc = [bigArray.slice(21, 41)];
+  //           ch = [bigArray.slice(52, 72)];
 
-    function loadFileAsText(){
-          var fileToLoad = document.getElementById("fileToLoad").files[0];
-        //   console.log("fileToLoad", fileToLoad)
-        var filez
-          var bigArray = [];
-          const reader = new FileReader()
-            reader.onload = event =>  filez = event.target.result
-            console.log("filez", filez)
-            // console.log("readAsText", reader.readAsText(fileToLoad)) 
-            var textFromFileLoaded = reader.readAsText(fileToLoad)
-              bigArray = textFromFileLoaded.split("\n");
-              console.log("bigArray ", bigArray);
-        //   var fileReader = new FileReader();
-        //   fileReader.onload = function(fileLoadedEvent)
-        //   {console.log("textFromFileLoaded ", fileLoadedEvent.target.result);
-        //       var textFromFileLoaded = fileLoadedEvent.target.result;
-        //     //   document.getElementById("inputTextToSave").value = textFromFileLoaded;
-        //       console.log("textFromFileLoaded ", textFromFileLoaded);
-        //       bigArray = textFromFileLoaded.split("\n");
-        //       console.log("bigArray ", bigArray);
-        //     //   control_type = [[bigArray.slice(0, 24)], [bigArray.slice(25, 49)], [bigArray.slice(50, 74)]];
-        //     //   control_number[current_layout] = [[bigArray.slice(75, 99)], [bigArray.slice(100, 124)], [bigArray.slice(125, 149)]];
-        //     // control_type[current_layout] = [bigArray.slice(0, 20)];
-        //     //   control_number[current_layout] = [bigArray.slice(21, 41)];
-        //     //   control_channel[current_layout] = [bigArray.slice(22, 42)];
-        //     //   control_channel = [[bigArray.slice(150, 174)], [bigArray.slice(175, 199)], [bigArray.slice(200, 224)]];
-        //   };
-          receive_Preset();
-          // fileReader.readAsText(fileToLoad, "UTF-8");
-      }
+  function loadFileAsText() {
+    var fileToLoad = document.getElementById("fileToLoad").files[0];
+    //   console.log("fileToLoad", fileToLoad)
+    var filez
+    var bigArray = [];
+    const reader = new FileReader()
+    reader.onload = event => filez = event.target.result
+    console.log("filez", filez)
+    // console.log("readAsText", reader.readAsText(fileToLoad)) 
+    var textFromFileLoaded = reader.readAsText(fileToLoad)
+    bigArray = textFromFileLoaded.split("\n");
+    console.log("bigArray ", bigArray);
+    //   var fileReader = new FileReader();
+    //   fileReader.onload = function(fileLoadedEvent)
+    //   {console.log("textFromFileLoaded ", fileLoadedEvent.target.result);
+    //       var textFromFileLoaded = fileLoadedEvent.target.result;
+    //     //   document.getElementById("inputTextToSave").value = textFromFileLoaded;
+    //       console.log("textFromFileLoaded ", textFromFileLoaded);
+    //       bigArray = textFromFileLoaded.split("\n");
+    //       console.log("bigArray ", bigArray);
+    //     //   control_type = [[bigArray.slice(0, 24)], [bigArray.slice(25, 49)], [bigArray.slice(50, 74)]];
+    //     //   control_number[current_layout] = [[bigArray.slice(75, 99)], [bigArray.slice(100, 124)], [bigArray.slice(125, 149)]];
+    //     // control_type[current_layout] = [bigArray.slice(0, 20)];
+    //     //   control_number[current_layout] = [bigArray.slice(21, 41)];
+    //     //   control_channel[current_layout] = [bigArray.slice(22, 42)];
+    //     //   control_channel = [[bigArray.slice(150, 174)], [bigArray.slice(175, 199)], [bigArray.slice(200, 224)]];
+    //   };
+    receive_Preset();
+    // fileReader.readAsText(fileToLoad, "UTF-8");
+  }
 
-      function receive_Preset() {
+  function receive_Preset() {
     // control_number = cc;
     console.log("control_number4");
   }
@@ -1288,236 +1534,248 @@
 <html>
 
 <head>
-  <!-- <link href="styles/style.css" rel="stylesheet" type="text/css"> -->
-  <link rel="icon" href="https://opencontrol.me/wp-content/uploads/2021/03/cropped-logo_small-1-192x192.png"
-    sizes="192x192" />
 
   <style>
-  :root {
-    --radius: 20px;
-    --border: 1px;
-    --border_color: #000000;
-  }
+    :root {
+      --radius: 20px;
+      --border: 1px;
+      --border_color: #000000;
+    }
 
-body {
-  background-color: #777777; 
-  font-family: Helvetica; 
-  font-size: 100%;
-  }
+    body {
+      background-color: #777777;
+      font-family: Helvetica;
+      font-size: 100%;
+    }
 
-table {
-  /* table-layout: fixed; */
-  width: 100%;
-  border-collapse: collapse;
-  border: 3px none rgb(128, 0, 128);
-  color: rgb(231, 231, 231);
-  font-family: "Helvetica Neue";
-  border-collapse:  separate;
-  background-color: transparent;
-  padding: 0px;
-}
+    table {
+      /* table-layout: fixed; */
+      width: 100%;
+      border-collapse: collapse;
+      border: 3px none rgb(128, 0, 128);
+      color: rgb(231, 231, 231);
+      font-family: "Helvetica Neue";
+      border-collapse: separate;
+      background-color: transparent;
+      padding: 0px;
+    }
 
-td {
-  border: var(--border) none rgb(19, 170, 39);
-  text-align: center;
-  width: 50%;
-}
+    td {
+      border: var(--border) none rgb(19, 170, 39);
+      text-align: center;
+      width: 50%;
+    }
 
-.columns-container {
-  display: table-cell;
-  height: 100%;
-  width:20px;
-  text-align: center;
-}
- #Options{
-   /* width: 500px; */
-    width:33%;
-   padding-left: 820px;
-   padding-top: 30px;
- }
- div.Sliders{
-   align-items: center;
-    width:400px;
-   padding-left: 540px;
- }
- div.Display{
-   /* align-items: center; */
-   padding-top: 40px;
-   padding-left: 410px;
-    width: 600px;
-    text-align: center;
- } 
+    .columns-container {
+      display: table-cell;
+      height: 100%;
+      width: 20px;
+      text-align: center;
+    }
 
- div.ConnectStatus{
-   padding-left: 500px;
-   padding-top: 40px;
- }
- td.type_display {
-  border-collapse:  separate;
-  background: rgb(0, 0, 0);
-  border: var(--border) solid var(--border_color);
-    border-radius: var(--radius);
-  height: 18px;
-  padding-left: 50px;
-  padding-bottom: 25px;
-  padding-top: 25px;
-}
-select.display_select {
-  color: rgb(0, 0, 0);
-  font-family: Helvetica;
-  background: rgb(255, 255, 255);
-  height: 30px;
-  width: 240px;
-  padding-left: 5%;
-  padding-right: 5%;
-  /* font-weight: bold; */
-  border-radius: 10px;
-}
-td.layout {
-  text-align: center;
-  border-collapse:  separate;
-  background: rgb(0, 0, 0);
-  border: var(--border) solid rgb(0, 0, 0);
-    border-radius: var(--radius);
-  height: 18px;
-  width: 100px;
-  padding-left: 40px;
-  padding-right: 5px;
-}
-td.type1 {
-  text-align: center;
-  border-collapse:  separate;
-  background: rgb(0, 0, 0);
-  border: var(--border) solid  rgb(0, 0, 0);
-    border-radius: var(--radius);
-  height: 18px;
-  width: 100px;
-  padding-left: 2px;
-  padding-right: 2px;
-  align-items: center;
-}
-td.main_cell {
-  text-align: center;
-  border-collapse:  separate;
-  background: rgb(0, 0, 0);
-  border: var(--border) solid var(--border_color);
-    border-radius: var(--radius);
-  height: 18px;
-  width: 100px;
-  /* padding-left: 5px;
+    #Options {
+      /* width: 500px; */
+      width: 33%;
+      padding-left: 920px;
+      /* padding-top: 10px; */
+    }
+
+    div.Sliders {
+      align-items: center;
+      width: 400px;
+      padding-left: 530px;
+    }
+
+    div.Encoders {
+      align-items: center;
+      width: 400px;
+      padding-left: 463px;
+    }
+
+    div.Display {
+      /* align-items: center; */
+      /* padding-top: 10px; */
+      padding-left: 410px;
+      width: 600px;
+      text-align: center;
+    }
+
+    div.ConnectStatus {
+      padding-left: 500px;
+      padding-top: 40px;
+    }
+
+    td.type_display {
+      border-collapse: separate;
+      background: rgb(0, 0, 0);
+      border: var(--border) solid var(--border_color);
+      border-radius: var(--radius);
+      height: 18px;
+      padding-left: 50px;
+      padding-bottom: 25px;
+      padding-top: 25px;
+    }
+
+    select.display_select {
+      color: rgb(0, 0, 0);
+      font-family: Helvetica;
+      background: rgb(255, 255, 255);
+      height: 30px;
+      width: 240px;
+      padding-left: 5%;
+      padding-right: 5%;
+      /* font-weight: bold; */
+      border-radius: 10px;
+    }
+
+    td.layout {
+      text-align: center;
+      border-collapse: separate;
+      background: rgb(0, 0, 0);
+      border: var(--border) solid rgb(0, 0, 0);
+      border-radius: var(--radius);
+      height: 18px;
+      width: 100px;
+      padding-left: 40px;
+      padding-right: 5px;
+    }
+
+    td.type1 {
+      text-align: center;
+      border-collapse: separate;
+      background: rgb(0, 0, 0);
+      border: var(--border) solid rgb(0, 0, 0);
+      border-radius: var(--radius);
+      height: 18px;
+      width: 100px;
+      padding-left: 2px;
+      padding-right: 2px;
+      align-items: center;
+    }
+
+    td.main_cell {
+      text-align: center;
+      border-collapse: separate;
+      background: rgb(0, 0, 0);
+      border: var(--border) solid var(--border_color);
+      border-radius: var(--radius);
+      height: 18px;
+      width: 100px;
+      /* padding-left: 5px;
   padding-right: 5px; */
-  align-items: center;
-  padding-bottom: 10px;
-}
+      align-items: center;
+      padding-bottom: 10px;
+    }
 
-td.color_sel {
-  /* text-align: center; */
-  border-collapse:  separate;
-  background: rgb(0, 0, 0);
-  /* border-style: none; */
-  border: var(--border) none rgb(252, 252, 252);
-  height: 18px;
-  width: 10px;
-  padding-left: 5px;
-  padding-right: 5px;
-  /* align-items: center; */
-}
+    td.color_sel {
+      /* text-align: center; */
+      border-collapse: separate;
+      background: rgb(0, 0, 0);
+      /* border-style: none; */
+      border: var(--border) none rgb(252, 252, 252);
+      height: 18px;
+      width: 10px;
+      padding-left: 5px;
+      padding-right: 5px;
+      /* align-items: center; */
+    }
 
-table.type_layout {
-  text-align: center;
-  float:left;
-  border-collapse:  separate;
-  background: rgb(0, 0, 0);
-  /* border-style: none; */
-  border: var(--border) solid var(--border_color);
-    border-radius: var(--radius);
-  height: 18px;
-  width: 220px;
-  padding-left: 5px;
-  padding-right: 5px;
-}
+    table.type_layout {
+      text-align: center;
+      float: left;
+      border-collapse: separate;
+      background: rgb(0, 0, 0);
+      /* border-style: none; */
+      border: var(--border) solid var(--border_color);
+      border-radius: var(--radius);
+      height: 18px;
+      width: 220px;
+      padding-left: 5px;
+      padding-right: 5px;
+    }
 
-table.type_options {
-  text-align: center;
-  float:right;
-  border-collapse:  separate;
-  background: rgb(0, 0, 0);
-  /* border-style: none; */
-  border: var(--border) solid var(--border_color);
-    border-radius: var(--radius);
-  height: 18px;
-  width: 250px;
-  padding-left: 5px;
-  padding-right: 5px;
-  align-items: center;
-}
+    table.type_options {
+      text-align: center;
+      float: right;
+      border-collapse: separate;
+      background: rgb(0, 0, 0);
+      /* border-style: none; */
+      border: var(--border) solid var(--border_color);
+      border-radius: var(--radius);
+      height: 18px;
+      width: 250px;
+      padding-left: 5px;
+      padding-right: 5px;
+      align-items: center;
+    }
 
-td.main_cell_text  {
-  text-align: center;
-  width: 200px;
-  background: rgb(0, 0, 0);
-  border: var(--border) none rgb(172, 4, 4);
-  column-span: 2;
-  width:120px;
-  border-radius: 20px;
-  padding-top: 15px;
-  height: 60px;
-  font-weight: bold;
-  font-size: x-large;
-  font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
-}
+    td.main_cell_text {
+      text-align: center;
+      width: 200px;
+      background: rgb(0, 0, 0);
+      border: var(--border) none rgb(172, 4, 4);
+      column-span: 2;
+      width: 120px;
+      border-radius: 20px;
+      padding-top: 15px;
+      height: 60px;
+      font-weight: bold;
+      font-size: x-large;
+      font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    }
 
-table.external_midi_table td {
-  border-collapse:  separate;
-  background: rgb(60, 60, 60);
-  border-radius: 0px;
-  text-align: center;
-  width: 500px;
-  padding-top: 5px;
-}
+    table.external_midi_table td {
+      border-collapse: separate;
+      background: rgb(60, 60, 60);
+      border-radius: 0px;
+      text-align: center;
+      width: 500px;
+      padding-top: 5px;
+    }
 
-select.select1 {
-  color: rgb(0, 0, 0);
-  font-family: Helvetica;
-  background: rgb(255, 255, 255);
-  height: 30px;
-  width: 150px;
-  /* font-weight: bold; */
-  border-radius: 10px;
-}
+    select.select1 {
+      color: rgb(0, 0, 0);
+      font-family: Helvetica;
+      background: rgb(255, 255, 255);
+      height: 30px;
+      width: 150px;
+      /* font-weight: bold; */
+      border-radius: 10px;
+    }
 
-select.color_select {
-  color: rgb(0, 0, 0);
-  font-family: Helvetica;
-  background: rgb(255, 255, 255);
-  height: 30px;
-  width: 40px;
-  padding-left: 5%;
-  padding-right: 5%;
-  /* font-weight: bold; */
-  border-radius: 10px;
-}
-div.ExternalMIDI{
-  color:rgb(231, 231, 231);
-  font-weight: bold;
-  text-align: center;
-  padding-top: 20px;
-}
+    select.color_select {
+      color: rgb(0, 0, 0);
+      font-family: Helvetica;
+      background: rgb(255, 255, 255);
+      height: 30px;
+      width: 40px;
+      padding-left: 5%;
+      padding-right: 5%;
+      /* font-weight: bold; */
+      border-radius: 10px;
+    }
 
-.slider{
-  height: 80px;
-  width: 380px;
-  background:#fff;
-  border-radius: 10px;
-  padding: 0 65px 0 45px;
-}
+    div.ExternalMIDI {
+      color: rgb(231, 231, 231);
+      font-weight: bold;
+      text-align: center;
+      padding-top: 20px;
+    }
 
+    .slider {
+      height: 80px;
+      width: 380px;
+      background: #fff;
+      border-radius: 10px;
+      padding: 0 65px 0 45px;
+    }
   </style>
 </head>
 <title>open·control editor</title>
+
 <body>
 
-    <!-- <table>
+  <!-- <table>
         <tr>
             <td>Preset name:</td>
             <td><input id="inputFileNameToSaveAs"></input></td>
@@ -1534,32 +1792,36 @@ div.ExternalMIDI{
 
   <div id="Layout">
     <script>create_layout_table("Layout")</script>
-    </div>
+  </div>
   <div id="Options">
     <script>create_options_table("Options")</script>
-    </div>
+  </div>
 
-    <div class="ConnectStatus">
-      </div>
+  <div class="ConnectStatus">
+  </div>
 
 
-    <div class="Display">
+  <div class="Display">
     <script>create_display_table("Display")</script>
-    </div>
-    <br>
+  </div>
+  <br>
 
-    <div class="main_table">
-    <script>create_main_table("main_table", 0)</script>
-    </div>
-    <br>
-    <div class="Sliders">
+  <div class="buttons_table">
+    <script>create_buttons_table("buttons_table", 0)</script>
+  </div>
+  <br>
+  <div class="Encoders">
+    <script>create_encoder_table("Encoders")</script>
+  </div>
+  <div class="Sliders">
     <script>create_slider_table("Sliders")</script>
-    </div>
-<hr>
-    <div class="ExternalMIDI">
-      External MIDI
-      <br>
-      <script>create_external_MIDI_table("ExternalMIDI")</script>
-    </div>
+  </div>
+  <hr>
+  <div class="ExternalMIDI">
+    External MIDI
+    <br>
+    <script>create_external_MIDI_table("ExternalMIDI")</script>
+  </div>
 </body>
+
 </html>
