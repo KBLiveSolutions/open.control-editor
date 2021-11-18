@@ -53,7 +53,7 @@ console.log("length", button_short_control[1].length)
   var display = [0, 0, 0] // = Array(NUM_LAYOUTS)
 
   var options = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-  var external_MIDI = [[1, 1, 1], [1, 1, 1], [1, 1, 1], [1, 1, 1], [1, 1, 1], [1, 1, 1], [1, 1, 1], [1, 1, 1]]
+  var external_MIDI = [[1, 1, 1], [1, 1, 1], [1, 1, 1], [1, 1, 1], [1, 1, 1], [1, 1, 1], [1, 1, 1], [1, 1, 1], [1, 1, 1], [1, 1, 1]]
   //====================== MIDI ==========================
 
   var midi = null;
@@ -118,12 +118,12 @@ console.log("length", button_short_control[1].length)
         onOpenControlDetected(event.data[6], event.data[7]);
       }
       // Receiving Data from opencontrol after a Dump request
-      if (event.data[5] == 10) {
         var rcvd_layout = event.data[6];
         var num = event.data[7];
         var btn_ctrl = event.data[8];
         var btn_chnl = event.data[9];
         var btn_type = event.data[10];
+      if (event.data[5] == 10) {
         if (num < NUM_BUTTONS) {
           button_short_type[rcvd_layout][num] = btn_type;
           button_short_control[rcvd_layout][num] = btn_ctrl;
@@ -137,11 +137,6 @@ console.log("length", button_short_control[1].length)
       }
 
       else if (event.data[5] == 11) {
-        var rcvd_layout = event.data[6];
-        var num = event.data[7];
-        var btn_ctrl = event.data[8];
-        var btn_chnl = event.data[9];
-        var btn_type = event.data[10];
         if (num < NUM_BUTTONS) {
           button_long_type[rcvd_layout][num] = btn_type;
           button_long_control[rcvd_layout][num] = btn_ctrl;
@@ -155,43 +150,27 @@ console.log("length", button_short_control[1].length)
       }
 
       else if (event.data[5] == 16) {
-        var rcvd_layout = event.data[6];
-        var num = event.data[7];
         var btn_snap = event.data[8];
         button_short_snap[rcvd_layout][num] = btn_snap;
       }
 
       else if (event.data[5] == 12) {
-        var rcvd_layout = event.data[6];
-        var num = event.data[7];
-        var btn_ctrl = event.data[8];
-        var btn_chnl = event.data[9];
-        var btn_type = event.data[10];
         led_type[rcvd_layout][num] = btn_type;
         led_control[rcvd_layout][num] = btn_ctrl;
         led_channel[rcvd_layout][num] = btn_chnl;
       }
 
       else if (event.data[5] == 13) {
-        var rcvd_layout = event.data[6];
-        var num = event.data[7];
-        var btn_ctrl = event.data[8];
-        var btn_chnl = event.data[9];
         slider_control[rcvd_layout][num] = btn_ctrl;
         slider_channel[rcvd_layout][num] = btn_chnl;
       }
 
       else if (event.data[5] == 14) {
-        var rcvd_layout = event.data[6];
-        var num = event.data[7];
-        var btn_ctrl = event.data[8];
-        var btn_chnl = event.data[9];
         encoder_control[rcvd_layout][num] = btn_ctrl;
         encoder_channel[rcvd_layout][num] = btn_chnl;
       }
 
       else if (event.data[5] == 15) {
-        var rcvd_layout = event.data[6];
         var rcvd_display = event.data[8];
         console.log("disp", rcvd_layout, rcvd_display)
         display[rcvd_layout] = rcvd_display;
@@ -207,14 +186,13 @@ console.log("length", button_short_control[1].length)
         set_External_MIDI(num, btn_ctrl, btn_chnl, btn_type + 1);
       }
 
- 
       if (event.data[5] == 79) {
 
         var s = document.getElementById("metro");
         s.checked = options[0];
         s = document.getElementById("session_box");
         s.checked = !options[1];
-        change_layout(0);
+        on_page_select_changed(0);
       }
     }
   }
@@ -243,7 +221,7 @@ console.log("length", button_short_control[1].length)
     //   //sendSysexHandshakeRequest();
     // }
 
-    // // change_layout(0);
+    // // on_page_select_changed(0);
   }
 
 
@@ -258,7 +236,7 @@ console.log("length", button_short_control[1].length)
   };
   var display_actions = {
     "≡  Scene Name": 0,
-    "⦀  Track Name": 1,
+    "⦀ Track Name": 1,
     "⊙  Looper Number": 2,
     "≔  Variation Number / Device": 3,
     "↾  Left Marker": 4
@@ -419,12 +397,12 @@ console.log("length", button_short_control[1].length)
     "🎚 Master Volume": 89,
     "🎧 Cue Volume": 90,
     "± BPM +/- 1": 87,
+    "↔ Arr. Zoom/Session Track Select": 99,
     "--- Arrangement ---": 0,
     "≪≫ Skip Fwd/Bckwd": 83,
     "⤞ Loop Position": 84,
     "⩉ Loop Length": 85,
     "↹ Jump to Next/Prev Marker": 88,
-    "↔ Horizontal Zoom": 99,
     "--- Session ---": 0,
     "↕ Scroll Scenes": 86,
     "--- Selected Track ---": 0,
@@ -505,6 +483,11 @@ console.log("length", button_short_control[1].length)
     return [...Array(size).keys()].map(i => i + startAt);
   }
 
+ 
+  ///////////////////////////////////
+  // CREATE TABLES AND FUNCTIONS
+  ///////////////////////////////////
+
   function create_bpm_option(div) {
     var divClass = document.getElementsByClassName(div);
     var tempo_checkbox = document.createElement('input');
@@ -516,11 +499,11 @@ console.log("length", button_short_control[1].length)
 
     tempo_checkbox.addEventListener('change', (event) => {
       if (event.target.checked) {
-        sendRawSysex([240, 122, 29, 1, 19, 30, 1, 247]);
+        sendRawSysex([240, 122, 29, 1, 19, 30, 0, 1, 247]);
         options[0] = 1;
       }
       else {
-        sendRawSysex([240, 122, 29, 1, 19, 30, 0, 247]);
+        sendRawSysex([240, 122, 29, 1, 19, 30, 0, 0, 247]);
         options[0] = 0;
       }
     })
@@ -539,11 +522,11 @@ console.log("length", button_short_control[1].length)
     session_box_checkbox.addEventListener('change', (event) => {
       if (event.target.checked) {
         options[1] = 0;
-        sendRawSysex([240, 122, 29, 1, 19, 31, 0, 247]);
+        sendRawSysex([240, 122, 29, 1, 19, 30, 1, 0, 247]);
       }
       else {
         options[1] = 1;
-        sendRawSysex([240, 122, 29, 1, 19, 31, 1, 247]);
+        sendRawSysex([240, 122, 29, 1, 19, 30, 1, 1, 247]);
       }
     })
     return ([session_box_checkbox, session_box_label])
@@ -603,7 +586,7 @@ console.log("length", button_short_control[1].length)
     var brightness_slider_label = document.createElement('label');
     brightness_slider_label.appendChild(document.createTextNode(' LEDs Brightness'));
 
-    brightness_slider.oninput = function () { on_brightness_change(brightness_slider.value); };
+    brightness_slider.oninput = function () { on_LEDs_brightness_change(brightness_slider.value); };
     return ([brightness_slider, brightness_slider_label]);
   }
 
@@ -623,14 +606,6 @@ console.log("length", button_short_control[1].length)
     return ([display_brightness_slider, display_brightness_slider_label]);
   }
 
-  function on_brightness_change(value) {
-    sendRawSysex([240, 122, 29, 1, 19, 18, value, 247]);
-  }
-
-  function on_display_brightness_change(value) {
-    sendRawSysex([240, 122, 29, 1, 19, 19, value, 247]);
-  }
-
   function create_sel(num, options_dict, id, display) {
     var select = document.createElement('select')
     var options_str = "";
@@ -645,21 +620,6 @@ console.log("length", button_short_control[1].length)
     return select
   }
 
-  function on_select_change(id, num, value) {
-    console.log("debug1", id, num, value)
-    var sel = document.getElementById("sel" + id);
-    value = parseInt(value);
-    if (id == "page") change_layout(value);
-    if (id == "short_button") set_button(id, num, value);
-    else if (id == "long_button") set_button(id, num, value);
-    else if (id == "led") set_led(num, value);
-    else if (id == "slider") set_slider(num, value);
-    else if (id == "encoder") set_encoder(num, value);
-    else if (id == "encoder_short_press") set_button(id, num, value);
-    else if (id == "encoder_long_press") set_button(id, num, value);
-    if (id == "display") set_display(num, value);
-  }
-
   function create_color_sel(num) {
     var select = document.createElement('select')
     var options_str = "";
@@ -671,23 +631,7 @@ console.log("length", button_short_control[1].length)
     select.onchange = function () { on_color_change(select.num, select.value, num); };
     return select
   }
-
-  function on_color_change(i, value, datatype) { // callback when the main sel is changed
-    // var sel = document.getElementById("sel" + id);
-    value = parseInt(value);
-    value = colors[value];
-    // if data comes from Page Color Selector, sned special sysex message
-    if (i == 90) {
-      sendSysex(32 + current_layout, value); // send color for Page 1
-      options[2 + current_layout] = value; //stores color as options 2 to 4
-    }
-    else {
-      sendSysex(17, current_layout, i, value, 1, 16);
-      led_control[current_layout][i] = value;
-      led_channel[current_layout][i] = 10;
-    }
-  }
-
+ 
   function create_layout_table(div) {
     var divClass = document.getElementById(div);
     var mainTable = document.createElement('table');
@@ -939,17 +883,6 @@ console.log("length", button_short_control[1].length)
     return snap;
   }
 
-  function on_snap_changed(i, val) {
-    if (val) {
-      sendRawSysex([240, 122, 29, 1, 19, 16, current_layout, i, 1, 247]);
-      set_snap_box(i, 1);
-    }
-    else {
-      sendRawSysex([240, 122, 29, 1, 19, 16, current_layout, i, 0, 247]);
-      set_snap_box(i, 0);
-    }
-  }
-
   function create_toggle(i) {
     var toggle_div = document.createElement('div');
     toggle_div.id = "toggle" + i;
@@ -967,351 +900,121 @@ console.log("length", button_short_control[1].length)
     return toggle_div;
   }
 
-  function on_toggle_changed(i, val) {
-    if (val) {
-      sendRawSysex([240, 122, 29, 1, 19, 24, current_layout, i, 1, 247]);
-      set_toggle_box(i, 1);
-    }
-    else {
-      sendRawSysex([240, 122, 29, 1, 19, 24, current_layout, i, 0, 247]);
-      set_toggle_box(i, 0);
-    }
-  }
-
-  function set_snap_box(id, value) {
-    var s = document.getElementById("long_button" + id);
-    var l = document.getElementById("long_button_label" + (id));
-    if (value == 1) {
-      s.style.display = "none";
-      // l.style.display = "none";
-    }
-    else {
-      s.style.display = "block";
-      // l.style.display = "block";
-    }
-    button_short_snap[current_layout][id] = value;
-  }
-
   function create_encoder_table(div) {
 
-    var divClass = document.getElementsByClassName(div);
-    var mainTable = document.createElement('table');
-    mainTable.className = "type1";
-    var mainTable_row0 = mainTable.insertRow(0);
+var divClass = document.getElementsByClassName(div);
+var mainTable = document.createElement('table');
+mainTable.className = "type1";
+var mainTable_row0 = mainTable.insertRow(0);
 
-    for (var i = 0; i < NUM_ENCODERS; i++) {
-      let main_cell = document.createElement('td');
-      mainTable_row0.className = "columns-container";
-      create_encoder_cell_content(main_cell, i);
-      mainTable_row0.appendChild(main_cell);
-      main_cell.className = "main_cell";
-    }
+for (var i = 0; i < NUM_ENCODERS; i++) {
+  let main_cell = document.createElement('td');
+  mainTable_row0.className = "columns-container";
+  create_encoder_cell_content(main_cell, i);
+  mainTable_row0.appendChild(main_cell);
+  main_cell.className = "main_cell";
+}
 
-    divClass[0].appendChild(mainTable);
-  }
+divClass[0].appendChild(mainTable);
+}
 
-  function create_encoder_cell_content(main_cell, i) {
-    let main_cell_table = document.createElement('table');
-    let row = [];
-    let cell = [];
-    for (var j = 0; j < 10; j++) {
-      row[j] = document.createElement("tr");
-      cell[j * 2] = document.createElement('td');
-      cell[j * 2 + 1] = document.createElement('td');
-      cell[j * 2].classList.add("type1");
-      cell[j * 2 + 1].classList.add("type1");
-    }
+function create_encoder_cell_content(main_cell, i) {
+let main_cell_table = document.createElement('table');
+let row = [];
+let cell = [];
+for (var j = 0; j < 10; j++) {
+  row[j] = document.createElement("tr");
+  cell[j * 2] = document.createElement('td');
+  cell[j * 2 + 1] = document.createElement('td');
+  cell[j * 2].classList.add("type1");
+  cell[j * 2 + 1].classList.add("type1");
+}
 
-    cell[0].innerHTML = "Encoder <br> " + (i + 1).toString() + "</font>";
-    sel_encoder = create_sel(i, encoder_actions, 'encoder', 'block');
-    cell[1].appendChild(sel_encoder);
-    row[0].appendChild(cell[0]);
-    row[1].appendChild(cell[1]);
+cell[0].innerHTML = "Encoder <br> " + (i + 1).toString() + "</font>";
+sel_encoder = create_sel(i, encoder_actions, 'encoder', 'block');
+cell[1].appendChild(sel_encoder);
+row[0].appendChild(cell[0]);
+row[1].appendChild(cell[1]);
 
 
-    cell[8].innerHTML = "Short Press";
-    cell[9].innerHTML = "Snap";
-    cell[8].classList.add("type5");
-    cell[9].classList.add("type5");
-    row[4].appendChild(cell[8]);
-    row[4].appendChild(cell[9]);
+cell[8].innerHTML = "Short Press";
+cell[9].innerHTML = "Snap";
+cell[8].classList.add("type5");
+cell[9].classList.add("type5");
+row[4].appendChild(cell[8]);
+row[4].appendChild(cell[9]);
 
-    sel_short_button = create_sel(i, button_actions, 'encoder_short_press', 'block');
-    cell[10].appendChild(sel_short_button);
+sel_short_button = create_sel(i, button_actions, 'encoder_short_press', 'block');
+cell[10].appendChild(sel_short_button);
 
-    snap_checkbox = create_snap(i+NUM_BUTTONS);
-    cell[11].appendChild(snap_checkbox);
-    row[5].appendChild(cell[10]);
-    row[5].appendChild(cell[11]);
+snap_checkbox = create_snap(i+NUM_BUTTONS);
+cell[11].appendChild(snap_checkbox);
+row[5].appendChild(cell[10]);
+row[5].appendChild(cell[11]);
 
-    cc_table_short = cc_table_constructor(i, "custom_MIDI_table_encoder_short_press");
-    cell[12].appendChild(cc_table_short);
-    cc_table_short.style.visibility = "hidden";
-    row[6].appendChild(cell[12]);
+cc_table_short = cc_table_constructor(i, "custom_MIDI_table_encoder_short_press");
+cell[12].appendChild(cc_table_short);
+cc_table_short.style.visibility = "hidden";
+row[6].appendChild(cell[12]);
 
-    toggle_checkbox = create_toggle(i);
-    cell[13].appendChild(toggle_checkbox);
-    // cell[13].innerHTML = "Toggle";
-    toggle_checkbox.style.visibility = "hidden";
-    row[6].appendChild(cell[13]);
+toggle_checkbox = create_toggle(i);
+cell[13].appendChild(toggle_checkbox);
+// cell[13].innerHTML = "Toggle";
+toggle_checkbox.style.visibility = "hidden";
+row[6].appendChild(cell[13]);
 
-    cell[14].innerHTML = "Long Press";
-    sel_long_button = create_sel(i, button_actions, 'encoder_long_press', 'block');
-    cell[16].appendChild(sel_long_button);
-    row[7].appendChild(cell[14]);
-    row[8].appendChild(cell[16]);
+cell[14].innerHTML = "Long Press";
+sel_long_button = create_sel(i, button_actions, 'encoder_long_press', 'block');
+cell[16].appendChild(sel_long_button);
+row[7].appendChild(cell[14]);
+row[8].appendChild(cell[16]);
 
-    cc_table_long = cc_table_constructor(i, "custom_MIDI_table_encoder_long_press");
-    cell[18].appendChild(cc_table_long);
-    cell[18].style.visibility = "hidden";
-    row[9].appendChild(cell[18]);
+cc_table_long = cc_table_constructor(i, "custom_MIDI_table_encoder_long_press");
+cell[18].appendChild(cc_table_long);
+cell[18].style.visibility = "hidden";
+row[9].appendChild(cell[18]);
 
-    for (var i = 0; i < 10; i++) {
-      main_cell.appendChild(row[i]);
-    }
-  }
+for (var i = 0; i < 10; i++) {
+  main_cell.appendChild(row[i]);
+}
+}
 
-  function create_slider_table(div) {
-    var divClass = document.getElementsByClassName(div);
-    var mainTable = document.createElement('table');
-    mainTable.className = "type1";
-    var mainTable_row0 = mainTable.insertRow(0);
-    for (var i = 0; i < NUM_SLIDERS; i++) {
-      let main_cell = document.createElement('td');
-      mainTable_row0.className = "columns-container";
-      create_slider_cell_content(main_cell, i);
-      mainTable_row0.appendChild(main_cell);
-      main_cell.className = "main_cell";
-    }
-    divClass[0].appendChild(mainTable);
-  }
+function create_slider_table(div) {
+var divClass = document.getElementsByClassName(div);
+var mainTable = document.createElement('table');
+mainTable.className = "type1";
+var mainTable_row0 = mainTable.insertRow(0);
+for (var i = 0; i < NUM_SLIDERS; i++) {
+  let main_cell = document.createElement('td');
+  mainTable_row0.className = "columns-container";
+  create_slider_cell_content(main_cell, i);
+  mainTable_row0.appendChild(main_cell);
+  main_cell.className = "main_cell";
+}
+divClass[0].appendChild(mainTable);
+}
 
-  function create_slider_cell_content(main_cell, i) {
-    let main_cell_table = document.createElement('table');
-    let row = [];
-    let cell = [];
-    for (var j = 0; j < 3; j++) {
-      row[j] = document.createElement("tr");
-      cell[j] = document.createElement('td');
-      row[j].appendChild(cell[j]);
-      cell[j].classList.add("type1");
-    }
+function create_slider_cell_content(main_cell, i) {
+let main_cell_table = document.createElement('table');
+let row = [];
+let cell = [];
+for (var j = 0; j < 3; j++) {
+  row[j] = document.createElement("tr");
+  cell[j] = document.createElement('td');
+  row[j].appendChild(cell[j]);
+  cell[j].classList.add("type1");
+}
 
-    cell[0].innerHTML = "Expression Pedal <br> " + (i + 1).toString() + "</font>";
-    sel_slider = create_sel(i, slider_actions, 'slider', 'block');
-    cell[1].appendChild(sel_slider);
+cell[0].innerHTML = "Expression Pedal <br> " + (i + 1).toString() + "</font>";
+sel_slider = create_sel(i, slider_actions, 'slider', 'block');
+cell[1].appendChild(sel_slider);
 
-    for (var i = 0; i < 3; i++) {
-      main_cell.appendChild(row[i]);
-    }
-  }
+for (var i = 0; i < 3; i++) {
+  main_cell.appendChild(row[i]);
+}
+}
 
-  function set_button(id, num, value) {
-    var options_list = Object.keys(button_actions); // retrieves the list of button actions
-    cc_to_send = button_actions[options_list[value]]; // gets the cc corresponding to the action selected
-    var s = document.getElementById(id + num);
-    var snap = 1;
-    s.style.display = "block";
-
-    if (id == "short_button") {
-      sysex_byte = 10;
-      button_short_control[current_layout][num] = cc_to_send;
-    }
-    else if (id == "long_button") {
-      sysex_byte = 11;
-      button_long_control[current_layout][num] = cc_to_send;
-    }
-    else if (id == "encoder_short_press") {
-      sysex_byte = 27;
-      encoder_short_press_control[current_layout][num] = cc_to_send;
-    }
-    else if (id == "encoder_long_press") {
-      sysex_byte = 28;
-      encoder_long_press_control[current_layout][num] = cc_to_send;
-    }
-    console.log(id, num, value)
-    if (options_list[value] == "① MIDI Map 1 (Big Button)") {
-      sendSysex(sysex_byte, current_layout, num, 1, 0, 16);
-      var s = document.getElementById(id + num);
-      s.style.display = "none";
-    }
-    else if (options_list[value] == "② MIDI Map 2 (Clear)") {
-      sendSysex(sysex_byte, current_layout, num, 1, 0, 15);
-    }
-    else if (options_list[value] == "③ MIDI Map 3") {
-      sendSysex(sysex_byte, current_layout, num, 1, 0, 14);
-    }
-    else if (options_list[value] == "④ MIDI Map 4") {
-      sendSysex(sysex_byte, current_layout, num, 1, 0, 13);
-    }
-    else if (options_list[value] == "⑤ MIDI Map 5") {
-      sendSysex(sysex_byte, current_layout, num, 1, 0, 12);
-    }
-    else if (options_list[value] == "⑥ MIDI Map 6") {
-      sendSysex(sysex_byte, current_layout, num, 1, 0, 11);
-    }
-    else sendSysex(sysex_byte, current_layout, num, cc_to_send, 1, 16);
-
-    if (options_list[value] == "Custom MIDI") {
-      var s = document.getElementById("custom_MIDI_table_" + id + num);
-      s.style.visibility = "visible";
-      var s = document.getElementById("toggle" + num);
-      s.style.visibility = "visible";
-    }
-    else {
-      var s = document.getElementById("custom_MIDI_table_"+ id + num);
-      s.style.visibility = "hidden";
-      var s = document.getElementById("toggle" + num);
-      s.style.visibility = "hidden";
-    }
-    if (id == "short_button") {
-      var led_options_list = Object.keys(led_actions);
-      index = led_options_list.indexOf(led_translator[options_list[value]]);
-      led = document.getElementById("led" + (num));
-      var led_cc = led_actions[led_translator[options_list[value]]];
-      if (!isNaN(led_cc)) {
-        led.value = index;
-        // sendSysex(72, current_layout, id, led_cc, 1, 16);
-        sendSysex(12, current_layout, num, led_cc, 1, 16);
-      }
-    }
-  }
-
-  function set_led(num, value) {
-    var options_list = Object.keys(led_actions)
-    cc_to_send = led_actions[options_list[value]];
-    var c = document.getElementById("color_sel" + (num));
-    if (cc_to_send == 0) {
-      c.style.display = "block";
-      led_channel[current_layout][num] = 10;
-    }
-    else {
-      c.style.display = "none";
-      led_control[current_layout][num] = cc_to_send;
-      led_channel[current_layout][num] = 16;
-      sendSysex(12, current_layout, num, cc_to_send, 1, 16);
-    }
-
-  }
-
-  function set_encoder(num, value) {
-    var options_list = Object.keys(encoder_actions)
-    cc_to_send = encoder_actions[options_list[value]];
-    encoder_control[current_layout][num] = cc_to_send;
-    sendSysex(29, current_layout, num, cc_to_send, 1, 16);
-  }
-
-  function set_slider(num, value) {
-    var options_list = Object.keys(slider_actions)
-    cc_to_send = slider_actions[options_list[value]];
-    slider_control[current_layout][num] = cc_to_send;
-    sendSysex(13, current_layout, num, cc_to_send, 1, 16);
-  }
-
-  function set_display(num, value) {
-    var options_list = Object.keys(display_actions)
-    cc_to_send = display_actions[options_list[value]];
-    display[current_layout] = cc_to_send;
-    sendSysex(14, current_layout, 1, cc_to_send, 1, 16);
-  }
-
-  function update_button(current_layout, id, i) {
-    if (id == 'short_button') {
-      control_type = button_short_type[current_layout][i];
-      control_channel = button_short_channel[current_layout][i];
-      control_number = button_short_control[current_layout][i];
-      var s = document.getElementById("checkbox" + i);
-      s.checked = button_short_snap[current_layout][i];
-      set_snap_box(i, button_short_snap[current_layout][i]);
-    }
-
-    if (id == 'long_button') {
-      control_type = button_long_type[current_layout][i];
-      control_channel = button_long_channel[current_layout][i];
-      control_number = button_long_control[current_layout][i];
-    }
-
-    if (id == 'encoder_short_press') {
-      control_type = encoder_short_press_type[current_layout][i];
-      control_channel = encoder_short_press_channel[current_layout][i];
-      control_number = encoder_short_press_control[current_layout][i];
-    }
-
-    if (id == 'encoder_long_press') {
-      control_type = encoder_long_press_type[current_layout][i];
-      control_channel = encoder_long_press_channel[current_layout][i];
-      control_number = encoder_long_press_control[current_layout][i];
-    }
-
-    var s = document.getElementById(id + i);
-    console.log("index", current_layout, id + i, control_number, get_index(control_number, button_actions))
-    s.value = get_index(control_number, button_actions);
-    if (control_type == 0 && control_channel == 16) s.value = Object.keys(button_actions).indexOf("① MIDI Map 1 (Big Button)");
-    if (control_type == 0 && control_channel == 15) s.value = Object.keys(button_actions).indexOf("② MIDI Map 2 (Clear)");
-    if (control_type == 0 && control_channel == 14) s.value = Object.keys(button_actions).indexOf("③ MIDI Map 3");
-    if (control_type == 0 && control_channel == 13) s.value = Object.keys(button_actions).indexOf("④ MIDI Map 4");
-    if (control_type == 0 && control_channel == 12) s.value = Object.keys(button_actions).indexOf("⑤ MIDI Map 5");
-    if (control_type == 0 && control_channel == 11) s.value = Object.keys(button_actions).indexOf("⑥ MIDI Map 6");
-
-    if (control_channel < 16) {
-      s.value = Object.keys(button_actions).indexOf("Custom MIDI");
-      var s1 = document.getElementById("custom_MIDI_table_" + id + i);
-      s1.style.visibility = "visible";
-      var s2 = document.getElementById("custom_MIDI_table_"+id+"_type_select" + i);
-      s2.value = control_type;
-      var s3 = document.getElementById("custom_MIDI_table_"+id+"_cc_select" + i);
-      s3.value = control_number;
-      var s4 = document.getElementById("custom_MIDI_table_"+id+"_ch_select" + i);
-      s4.value = control_channel;
-      // var s5 = document.getElementById("toggle" + id);
-      // s5.style.visibility = "visible";
-    }
-  }
-
-  function change_layout(layout) {
-    current_layout = layout;
-    var s = document.getElementById("color_sel90"); // set Page color sel
-    s.value = options[2 + current_layout]
-
-    for (var i = 0; i < NUM_BUTTONS; i++) {
-      update_button(current_layout, "short_button", i);
-      update_button(current_layout, "long_button", i);
-    }
-    for (var i = 0; i < NUM_LEDS; i++) { // update LEDs
-      var s = document.getElementById("led" + i);
-      var c = document.getElementById("color_sel" + (i));
-      c.style.display = "none";
-      control_type = led_type[current_layout][i];
-      control_channel = led_channel[current_layout][i];
-      control_number = led_control[current_layout][i];
-
-      if (control_channel == 10) {
-        s.value = 1;
-        s.value = 0;
-        c.style.display = "block";
-        c.value = control_number;
-      }
-      else s.value = get_index(led_control[current_layout][i], led_actions);
-      s.style.display = "block";
-    }
-
-    for (var i = 0; i < NUM_SLIDERS; i++) { // updates sliders
-      var s = document.getElementById("slider" + i);
-      s.value = get_index(slider_control[current_layout][i], slider_actions);
-    }
-
-    for (var i = 0; i < NUM_ENCODERS; i++) { // updates sliders
-      var s = document.getElementById("encoder" + i);
-      s.value = get_index(encoder_control[current_layout][i], encoder_actions);
-      update_button(current_layout, "encoder_short_press", i);
-      update_button(current_layout, "encoder_long_press", i);
-    }
-
-    var s = document.getElementById("display0");
-    s.value = get_index(display[current_layout], display_actions);
-  }
-
-  function create_external_MIDI_table(div) {
+function create_external_MIDI_table(div) {
     var divClass = document.getElementsByClassName(div);
     var external_MIDI_table = document.createElement('table');
     external_MIDI_table.className = "external_midi_table";
@@ -1327,7 +1030,7 @@ console.log("length", button_short_control[1].length)
     empty_cell2.style.backgroundColor = "#11ffee00";
     empty_cell2.style.border = "0px";
 
-    for (var i = 0; i < 8; i++) {
+    for (var i = 0; i < 10; i++) {
 
       var external_MIDI_CC_table = document.createElement('table');
       var external_MIDI_CC_table_row0 = external_MIDI_CC_table.insertRow(0);
@@ -1335,8 +1038,8 @@ console.log("length", button_short_control[1].length)
       var external_MIDI_cell = [document.createElement('td'), document.createElement('td')];
 
       var external_MIDI_label = document.createElement('label');
-      if (i < 6) external_MIDI_label.appendChild(document.createTextNode("Button " + (i + 1)));
-      else external_MIDI_label.appendChild(document.createTextNode("Knob/Slider " + (i - 5)));
+      if (i < 8) external_MIDI_label.appendChild(document.createTextNode("Button " + (i + 1)));
+      else external_MIDI_label.appendChild(document.createTextNode("Knob/Slider " + (i - 7)));
       external_MIDI_cell[0].appendChild(external_MIDI_label);
 
       // creates the content of each cell of the main table
@@ -1351,7 +1054,7 @@ console.log("length", button_short_control[1].length)
       MIDI_cell_table = cc_tab;
       external_MIDI_cell[0].appendChild(MIDI_cell_table);
       external_MIDI_cell[0].appendChild(MIDI_cell);
-      if (i < 6) external_MIDI_table_row0.appendChild(external_MIDI_cell[0]);
+      if (i < 8) external_MIDI_table_row0.appendChild(external_MIDI_cell[0]);
       else external_MIDI_table_row2.appendChild(external_MIDI_cell[0]);
     }
     // external_MIDI_CC_table_row0.appendChild(external_MIDI_cell[1]);
@@ -1391,35 +1094,93 @@ console.log("length", button_short_control[1].length)
     select.innerHTML = options_str;
     select.num = num;
     select.id = source + "_" + id + num;
+    console.log(select.id)
     select.onchange = function () { on_cc_change(select.num, select.value, id, source); };
     return select
   }
 
-  function set_External_MIDI(num, btn_ctrl, btn_chnl, btn_type) {
-    // var type_sel = document.getElementById("type_select" + num);
-    // var cc_sel = document.getElementById("cc_select" + num);
-    // var ch_sel = document.getElementById("ch_select" + num);
-    // type_sel.value = btn_type;
-    // cc_sel.value = btn_ctrl;
-    // ch_sel.value = btn_chnl;
-    // external_MIDI[num] = [btn_type, btn_ctrl, btn_chnl];
+  ///////////////////////////////////
+  // CALLBACKS
+  ///////////////////////////////////
+
+  function on_select_change(id, num, value) {
+    console.log("debug1", id, num, value)
+    var sel = document.getElementById("sel" + id);
+    value = parseInt(value);
+    if (id == "page") on_page_select_changed(value);
+    if (id == "short_button") set_button(id, num, value);
+    else if (id == "long_button") set_button(id, num, value);
+    else if (id == "led") set_led(num, value);
+    else if (id == "slider") set_slider(num, value);
+    else if (id == "encoder") set_encoder(num, value);
+    else if (id == "encoder_short_press") set_button(id, num, value);
+    else if (id == "encoder_long_press") set_button(id, num, value);
+    if (id == "display") set_display(num, value);
+  }
+
+  function on_LEDs_brightness_change(value) {
+    sendRawSysex([240, 122, 29, 1, 19, 23, value, 247]);
+  }
+
+  function on_display_brightness_change(value) {
+    sendRawSysex([240, 122, 29, 1, 19, 22, value, 247]);
+  }
+
+  function on_color_change(i, value, datatype) { // callback when the main sel is changed
+    // var sel = document.getElementById("sel" + id);
+    value = parseInt(value);
+    value = colors[value];
+    // // if data comes from Page Color Selector, sned special sysex message
+    // if (i == 90) {
+    //   sendSysex(32 + current_layout, value); // send color for Page 1
+    //   options[2 + current_layout] = value; //stores color as options 2 to 4
+    // }
+    // else {
+      sendSysex(15, current_layout, i, value, 1, 16);
+      led_control[current_layout][i] = value;
+      led_channel[current_layout][i] = 10;
+    // }
+  }
+
+  function on_snap_changed(i, val) {
+    if (val) {
+      sendRawSysex([240, 122, 29, 1, 19, 11, current_layout, i, 1, 247]);
+      set_snap_box(i, 1);
+    }
+    else {
+      sendRawSysex([240, 122, 29, 1, 19, 11, current_layout, i, 0, 247]);
+      set_snap_box(i, 0);
+    }
+  }
+
+  function on_toggle_changed(i, val, button_type) {
+      var type = 0;
+      if (button_type == "long") type = 1;
+    if (val) {
+      sendRawSysex([240, 122, 29, 1, 19, 13, current_layout, i, 1, , type, 247]);
+      set_toggle_box(i, 1);
+    }
+    else {
+      sendRawSysex([240, 122, 29, 1, 19, 13, current_layout, i, 0, type, 247]);
+      set_toggle_box(i, 0);
+    }
   }
 
   function on_cc_change(num, value, datatype, source) {
     console.log(num, value, datatype, source)
-    var sel = document.getElementById("sel" + num);
+    // var sel = document.getElementById("sel" + num);
     value = parseInt(value);
-    if (source == "external_MnumI") {
+    if (source == "external_MIDI") {
       if (datatype == "type_select") {
-        sendRawSysex([240, 122, 29, 1, 19, 15, 0, num, value - 1, 247]);
+        sendRawSysex([240, 122, 29, 1, 19, 21, 0, num, value - 1, 247]);
         external_MIDI[num][0] = value - 1;
       }
       else if (datatype == "cc_select") {
-        sendRawSysex([240, 122, 29, 1, 19, 15, 1, num, value, 247]);
+        sendRawSysex([240, 122, 29, 1, 19, 21, 1, num, value, 247]);
         external_MIDI[num][1] = value;
       }
       else if (datatype == "ch_select") {
-        sendRawSysex([240, 122, 29, 1, 19, 15, 2, num, value, 247]);
+        sendRawSysex([240, 122, 29, 1, 19, 21, 2, num, value, 247]);
         external_MIDI[num][2] = value;
       }
     }
@@ -1434,7 +1195,7 @@ console.log("length", button_short_control[1].length)
       if (datatype == "type_select") button_long_type[current_layout][num] = value - 1;
       else if (datatype == "cc_select") button_long_control[current_layout][num] = value;
       else if (datatype == "ch_select") button_long_channel[current_layout][num] = value;
-      sendRawSysex([240, 122, 29, 1, 19, 11, current_layout, num, button_long_control[current_layout][num], button_long_type[current_layout][num], button_long_channel[current_layout][num], 247]);
+      sendRawSysex([240, 122, 29, 1, 19, 12, current_layout, num, button_long_control[current_layout][num], button_long_type[current_layout][num], button_long_channel[current_layout][num], 247]);
     }
     else if (source == "custom_MIDI_table_encoder_short_press"){
       if (datatype == "type_select") encoder_short_press_type[current_layout][num] = value - 1;
@@ -1446,26 +1207,270 @@ console.log("length", button_short_control[1].length)
       if (datatype == "type_select") encoder_long_press_type[current_layout][num] = value - 1;
       else if (datatype == "cc_select") encoder_long_press_control[current_layout][num] = value;
       else if (datatype == "ch_select") encoder_long_press_channel[current_layout][num] = value;
-      sendRawSysex([240, 122, 29, 1, 19, 11, current_layout, num+NUM_BUTTONS, encoder_long_press_control[current_layout][num], encoder_long_press_type[current_layout][num], encoder_long_press_channel[current_layout][num], 247]);
+      sendRawSysex([240, 122, 29, 1, 19, 12, current_layout, num+NUM_BUTTONS, encoder_long_press_control[current_layout][num], encoder_long_press_type[current_layout][num], encoder_long_press_channel[current_layout][num], 247]);
 }
       //Sending {240, 122, 29, 1, 19, 10, Layout Number, Button number, Note/CC Number, Type, Channel, 247}
     }
   }
+
+  ///////////////////////////////////
+  // UPDATE SELECTS
+  ///////////////////////////////////
+ 
+  function update_button_menus(current_layout, id, i) {
+    if (id == 'short_button') {
+      control_type = button_short_type[current_layout][i];
+      control_channel = button_short_channel[current_layout][i];
+      control_number = button_short_control[current_layout][i];
+      var s = document.getElementById("checkbox" + i);
+      s.checked = button_short_snap[current_layout][i];
+      set_snap_box(i, button_short_snap[current_layout][i]);
+    }
+
+    if (id == 'long_button') {
+      control_type = button_long_type[current_layout][i];
+      control_channel = button_long_channel[current_layout][i];
+      control_number = button_long_control[current_layout][i];
+    }
+
+    if (id == 'encoder_short_press') {
+      control_type = encoder_short_press_type[current_layout][i];
+      control_channel = encoder_short_press_channel[current_layout][i];
+      control_number = encoder_short_press_control[current_layout][i];
+    }
+
+    if (id == 'encoder_long_press') {
+      control_type = encoder_long_press_type[current_layout][i];
+      control_channel = encoder_long_press_channel[current_layout][i];
+      control_number = encoder_long_press_control[current_layout][i];
+    }
+
+    var s = document.getElementById(id + i);
+    s.value = get_index(control_number, button_actions);
+    if (control_type == 0 && control_channel == 16) s.value = Object.keys(button_actions).indexOf("① MIDI Map 1 (Big Button)");
+    if (control_type == 0 && control_channel == 15) s.value = Object.keys(button_actions).indexOf("② MIDI Map 2 (Clear)");
+    if (control_type == 0 && control_channel == 14) s.value = Object.keys(button_actions).indexOf("③ MIDI Map 3");
+    if (control_type == 0 && control_channel == 13) s.value = Object.keys(button_actions).indexOf("④ MIDI Map 4");
+    if (control_type == 0 && control_channel == 12) s.value = Object.keys(button_actions).indexOf("⑤ MIDI Map 5");
+    if (control_type == 0 && control_channel == 11) s.value = Object.keys(button_actions).indexOf("⑥ MIDI Map 6");
+
+    if (control_channel < 16) {
+      s.value = Object.keys(button_actions).indexOf("Custom MIDI");
+      var s1 = document.getElementById("custom_MIDI_table_" + id + i);
+      s1.style.visibility = "visible";
+      var s2 = document.getElementById("custom_MIDI_table_"+id+"_type_select" + i);
+      s2.value = control_type;
+      var s3 = document.getElementById("custom_MIDI_table_"+id+"_cc_select" + i);
+      s3.value = control_number;
+      var s4 = document.getElementById("custom_MIDI_table_"+id+"_ch_select" + i);
+      s4.value = control_channel;
+      // var s5 = document.getElementById("toggle" + id);
+      // s5.style.visibility = "visible";
+    }
+  }
+
+  function on_page_select_changed(layout) {
+    current_layout = layout;
+    var s = document.getElementById("color_sel90"); // set Page color sel
+    s.value = options[2 + current_layout]
+
+    for (var i = 0; i < NUM_BUTTONS; i++) {
+      update_button_menus(current_layout, "short_button", i);
+      update_button_menus(current_layout, "long_button", i);
+    }
+    for (var i = 0; i < NUM_LEDS; i++) { // update LEDs
+      var s = document.getElementById("led" + i);
+      var c = document.getElementById("color_sel" + (i));
+      c.style.display = "none";
+      control_type = led_type[current_layout][i];
+      control_channel = led_channel[current_layout][i];
+      control_number = led_control[current_layout][i];
+
+      if (control_channel == 10) {
+        s.value = 1;
+        s.value = 0;
+        c.style.display = "block";
+        c.value = control_number;
+      }
+      else s.value = get_index(led_control[current_layout][i], led_actions);
+      s.style.display = "block";
+    }
+
+    for (var i = 0; i < NUM_SLIDERS; i++) { // updates sliders
+      var s = document.getElementById("slider" + i);
+      s.value = get_index(slider_control[current_layout][i], slider_actions);
+    }
+
+    for (var i = 0; i < NUM_ENCODERS; i++) { // updates sliders
+      var s = document.getElementById("encoder" + i);
+      s.value = get_index(encoder_control[current_layout][i], encoder_actions);
+      update_button_menus(current_layout, "encoder_short_press", i);
+      update_button_menus(current_layout, "encoder_long_press", i);
+    }
+
+    var s = document.getElementById("display0");
+    s.value = get_index(display[current_layout], display_actions);
+  }
+
+  function set_button(id, num, value) {
+    var options_list = Object.keys(button_actions); // retrieves the list of button actions
+    cc_to_send = button_actions[options_list[value]]; // gets the cc corresponding to the action selected
+    var s = document.getElementById(id + num);
+    var snap = 1;
+    s.style.display = "block";
+
+    if (id == "short_button") {
+      sysex_byte = 10;
+      button_short_control[current_layout][num] = cc_to_send;
+    }
+    else if (id == "long_button") {
+      sysex_byte = 12;
+      button_long_control[current_layout][num] = cc_to_send;
+    }
+    else if (id == "encoder_short_press") {
+      sysex_byte = 10;
+      encoder_short_press_control[current_layout][num] = cc_to_send;
+      num = num + NUM_BUTTONS;
+    }
+    else if (id == "encoder_long_press") {
+      sysex_byte = 12;
+      encoder_long_press_control[current_layout][num] = cc_to_send;
+      num = num + NUM_BUTTONS;
+    }
+    console.log(id, num, value)
+    if (options_list[value] == "① MIDI Map 1 (Big Button)") {
+      sendSysex(sysex_byte, current_layout, num, 1, 0, 16);
+      // var s = document.getElementById(id + num);
+      // s.style.display = "none";
+    }
+    else if (options_list[value] == "② MIDI Map 2 (Clear)") {
+      sendSysex(sysex_byte, current_layout, num, 1, 0, 15);
+    }
+    else if (options_list[value] == "③ MIDI Map 3") {
+      sendSysex(sysex_byte, current_layout, num, 1, 0, 14);
+    }
+    else if (options_list[value] == "④ MIDI Map 4") {
+      sendSysex(sysex_byte, current_layout, num, 1, 0, 13);
+    }
+    else if (options_list[value] == "⑤ MIDI Map 5") {
+      sendSysex(sysex_byte, current_layout, num, 1, 0, 12);
+    }
+    else if (options_list[value] == "⑥ MIDI Map 6") {
+      sendSysex(sysex_byte, current_layout, num, 1, 0, 11);
+    }
+    else sendSysex(sysex_byte, current_layout, num, cc_to_send, 1, 16);
+
+    if (options_list[value] == "Custom MIDI") {
+      var s = document.getElementById("custom_MIDI_table_" + id + num);
+      s.style.visibility = "visible";
+      var s = document.getElementById("toggle" + num);
+      s.style.visibility = "visible";
+    }
+    else {
+      var s = document.getElementById("custom_MIDI_table_"+ id + num);
+      s.style.visibility = "hidden";
+      var s = document.getElementById("toggle" + num);
+      s.style.visibility = "hidden";
+    }
+    if (id == "short_button") {
+      var led_options_list = Object.keys(led_actions);
+      index = led_options_list.indexOf(led_translator[options_list[value]]);
+      led = document.getElementById("led" + (num));
+      var led_cc = led_actions[led_translator[options_list[value]]];
+      if (!isNaN(led_cc)) {
+        led.value = index;
+        // sendSysex(72, current_layout, id, led_cc, 1, 16);
+        sendSysex(14, current_layout, num, led_cc, 1, 16);
+      }
+    }
+  }
+
+  function set_snap_box(num, value) {
+    var s = document.getElementById("long_button" + num);
+    var l = document.getElementById("long_button_label" + (num));
+    if (value == 1) {
+      s.style.display = "none";
+      // l.style.display = "none";
+    }
+    else {
+      s.style.display = "block";
+      // l.style.display = "block";
+    }
+    button_short_snap[current_layout][num] = value;
+  }
+
+  function set_toggle_box(id, value){
+
+  }
+
+  function set_led(num, value) {
+    var options_list = Object.keys(led_actions)
+    cc_to_send = led_actions[options_list[value]];
+    var c = document.getElementById("color_sel" + (num));
+    if (cc_to_send == 0) {
+      c.style.display = "block";
+      led_channel[current_layout][num] = 10;
+    }
+    else {
+      c.style.display = "none";
+      led_control[current_layout][num] = cc_to_send;
+      led_channel[current_layout][num] = 16;
+      sendSysex(14, current_layout, num, cc_to_send, 1, 16);
+    }
+
+  }
+
+  function set_encoder(num, value) {
+    var options_list = Object.keys(encoder_actions)
+    cc_to_send = encoder_actions[options_list[value]];
+    encoder_control[current_layout][num] = cc_to_send;
+    sendSysex(16, current_layout, num, cc_to_send, 1, 16);
+  }
+
+  function set_slider(num, value) {
+    var options_list = Object.keys(slider_actions)
+    cc_to_send = slider_actions[options_list[value]];
+    slider_control[current_layout][num] = cc_to_send;
+    sendSysex(17, current_layout, num, cc_to_send, 1, 16);
+  }
+
+  function set_display(num, value) {
+    var options_list = Object.keys(display_actions)
+    cc_to_send = display_actions[options_list[value]];
+    display[current_layout] = cc_to_send;
+    sendSysex(18, current_layout, 1, cc_to_send, 1, 16);
+  }
+
+  function set_External_MIDI(num, btn_ctrl, btn_chnl, btn_type) {
+    var cc_sel = document.getElementById("external_MIDI_cc_select" + num);
+    var ch_sel = document.getElementById("external_MIDI_ch_select" + num);
+    console.log("EXT", num, btn_type, btn_ctrl, btn_chnl)
+    cc_sel.value = btn_ctrl;
+    ch_sel.value = btn_chnl;
+    if (num<8){
+      var type_sel = document.getElementById("external_MIDI_type_select" + num);
+    type_sel.value = btn_type;
+    }
+    external_MIDI[num] = [btn_type, btn_ctrl, btn_chnl];
+  }
+
+  // function send_cc(id, type, cc, ch) {
+  //   button = document.getElementById("sel" + (id));
+  //   var options_list = Object.keys(button_actions)
+  //   if (options_list[button.value] == "Custom MIDI") {
+  //     sendSysex(65, current_layout, id, cc, type, ch_values[ch])
+  //   }
+  // }
 
   function get_index(control_number, action_type) {
     var values_list = Object.values(action_type)
     return values_list.indexOf(control_number);
   }
 
-  function send_cc(id, type, cc, ch) {
-    button = document.getElementById("sel" + (id));
-    var options_list = Object.keys(button_actions)
-    if (options_list[button.value] == "Custom MIDI") {
-      sendSysex(65, current_layout, id, cc, type, ch_values[ch])
-    }
-  }
-
-
+ ///////////////////////////////////
+  // PRESETS
+  ///////////////////////////////////
+ 
   function saveTextAsFile() {
     // var textToSave = [];
     // var textToSave = [control_type[current_layout], control_number[current_layout], control_channel[current_layout]];
@@ -1530,6 +1535,11 @@ console.log("length", button_short_control[1].length)
   }
 
 </script>
+
+<!-- 
+///////////////////////////////////
+// HTML
+/////////////////////////////////// -->
 
 <html>
 
