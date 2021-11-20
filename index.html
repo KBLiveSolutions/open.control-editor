@@ -397,14 +397,17 @@ console.log("length", button_short_control[1].length)
     "🎚 Master Volume": 89,
     "🎧 Cue Volume": 90,
     "± BPM +/- 1": 87,
-    "↔ Arr. Zoom/Session Track Select": 99,
+    "↔ Track Select": 0,
     "--- Arrangement ---": 0,
     "≪≫ Skip Fwd/Bckwd": 83,
     "⤞ Loop Position": 84,
     "⩉ Loop Length": 85,
     "↹ Jump to Next/Prev Marker": 88,
+    "↔ Horizontal Zoom": 99,
+    "↔ Horizontal Scroll": 99,
+    "↕ Vertical Zoom": 0,
     "--- Session ---": 0,
-    "↕ Scroll Scenes": 86,
+    "↕ Scene Select": 86,
     "--- Selected Track ---": 0,
     "⟊ Volume": 91,
     "◠ Pan": 96,
@@ -789,22 +792,22 @@ console.log("length", button_short_control[1].length)
 
     switch (i) {
       case 0:
-        cell[0].innerHTML = "<font size=8 color=#A246FE>●</font>";
+        cell[0].innerHTML = "<font size=8 color=#A246FE>●</font><br> ________________________";
         break;
       case 1:
-        cell[0].innerHTML = "<font size=8 color=#2BE1BD>●</font>";
+        cell[0].innerHTML = "<font size=8 color=#2BE1BD>●</font><br> ________________________";
         break;
       case 2:
-        cell[0].innerHTML = "<font size=8 color=#3882E8>●</font>";
+        cell[0].innerHTML = "<font size=8 color=#3882E8>●</font><br> ________________________";
         break;
       case 3:
-        cell[0].innerHTML = "<font size=8 color=#F9FF33>●</font>";
+        cell[0].innerHTML = "<font size=8 color=#F9FF33>●</font><br> ________________________";
         break;
       case 4:
-        cell[0].innerHTML = "<font size=8 color=#FFA233>●</font>";
+        cell[0].innerHTML = "<font size=8 color=#FFA233>●</font><br> ________________________";
         break;
       case 5:
-        cell[0].innerHTML = "<font size=8 color=#FF3390>●</font>";
+        cell[0].innerHTML = "<font size=8 color=#FF3390>●</font><br> ________________________";
         break;
     }
     cell[0].classList.add("type6");
@@ -857,6 +860,7 @@ console.log("length", button_short_control[1].length)
     row[6].appendChild(cell[13]);
 
     cell[14].innerHTML = "Long Press";
+    cell[14].setAttribute("colspan", "2");
     sel_long_button = create_sel(i, button_actions, 'long_button', 'block');
     cell[16].appendChild(sel_long_button);
     row[7].appendChild(cell[14]);
@@ -904,7 +908,7 @@ console.log("length", button_short_control[1].length)
 
 var divClass = document.getElementsByClassName(div);
 var mainTable = document.createElement('table');
-mainTable.className = "type1";
+mainTable.className = "type_encoder";
 var mainTable_row0 = mainTable.insertRow(0);
 
 for (var i = 0; i < NUM_ENCODERS; i++) {
@@ -930,49 +934,56 @@ for (var j = 0; j < 10; j++) {
   cell[j * 2 + 1].classList.add("type1");
 }
 
-cell[0].innerHTML = "Encoder <br> " + (i + 1).toString() + "</font>";
+cell[0].innerHTML = "Encoder " + (i + 1).toString() + "<br> ________________________</font>";
+cell[0].setAttribute("colspan", "2");
+row[0].appendChild(cell[0]);
 sel_encoder = create_sel(i, encoder_actions, 'encoder', 'block');
 cell[1].appendChild(sel_encoder);
-row[0].appendChild(cell[0]);
 row[1].appendChild(cell[1]);
 
+cc_table_encoder_hold = cc_table_constructor(i, "custom_MIDI_table_encoder_hold");
+cell[2].appendChild(cc_table_encoder_hold);
+cell[2].style.visibility = "hidden";
+row[3].appendChild(cell[2]);
 
-cell[8].innerHTML = "Short Press";
-cell[9].innerHTML = "Snap";
+
+cell[6].innerHTML = "Hold and Turn";
+sel_encoder_hold_button = create_sel(i, encoder_actions, 'encoder_hold_button', 'block');
+cell[6].appendChild(sel_encoder_hold_button);
+row[3].appendChild(cell[4]);
+row[4].appendChild(cell[6]);
+
+cc_table_encoder_hold = cc_table_constructor(i, "custom_MIDI_table_encoder_hold");
+cell[12].appendChild(cc_table_encoder_hold);
+cell[12].style.visibility = "hidden";
+row[5].appendChild(cell[18]);
+
+cell[14].innerHTML = "Short Press";
+cell[15].innerHTML = "Snap";
 cell[8].classList.add("type5");
 cell[9].classList.add("type5");
-row[4].appendChild(cell[8]);
-row[4].appendChild(cell[9]);
+row[6].appendChild(cell[14]);
+row[6].appendChild(cell[15]);
 
 sel_short_button = create_sel(i, button_actions, 'encoder_short_press', 'block');
 cell[10].appendChild(sel_short_button);
 
 snap_checkbox = create_snap(i+NUM_BUTTONS);
 cell[11].appendChild(snap_checkbox);
-row[5].appendChild(cell[10]);
-row[5].appendChild(cell[11]);
+row[7].appendChild(cell[10]);
+row[7].appendChild(cell[11]);
 
 cc_table_short = cc_table_constructor(i, "custom_MIDI_table_encoder_short_press");
 cell[12].appendChild(cc_table_short);
 cc_table_short.style.visibility = "hidden";
-row[6].appendChild(cell[12]);
+row[8].appendChild(cell[12]);
 
 toggle_checkbox = create_toggle(i);
 cell[13].appendChild(toggle_checkbox);
 // cell[13].innerHTML = "Toggle";
 toggle_checkbox.style.visibility = "hidden";
-row[6].appendChild(cell[13]);
+row[8].appendChild(cell[13]);
 
-cell[14].innerHTML = "Long Press";
-sel_long_button = create_sel(i, button_actions, 'encoder_long_press', 'block');
-cell[16].appendChild(sel_long_button);
-row[7].appendChild(cell[14]);
-row[8].appendChild(cell[16]);
-
-cc_table_long = cc_table_constructor(i, "custom_MIDI_table_encoder_long_press");
-cell[18].appendChild(cc_table_long);
-cell[18].style.visibility = "hidden";
-row[9].appendChild(cell[18]);
 
 for (var i = 0; i < 10; i++) {
   main_cell.appendChild(row[i]);
@@ -982,7 +993,7 @@ for (var i = 0; i < 10; i++) {
 function create_slider_table(div) {
 var divClass = document.getElementsByClassName(div);
 var mainTable = document.createElement('table');
-mainTable.className = "type1";
+mainTable.className = "type_slider";
 var mainTable_row0 = mainTable.insertRow(0);
 for (var i = 0; i < NUM_SLIDERS; i++) {
   let main_cell = document.createElement('td');
@@ -1005,7 +1016,7 @@ for (var j = 0; j < 3; j++) {
   cell[j].classList.add("type1");
 }
 
-cell[0].innerHTML = "Expression Pedal <br> " + (i + 1).toString() + "</font>";
+cell[0].innerHTML = "Expression Pedal " + (i + 1).toString() + "</font><br> ____________________";
 sel_slider = create_sel(i, slider_actions, 'slider', 'block');
 cell[1].appendChild(sel_slider);
 
@@ -1023,12 +1034,16 @@ function create_external_MIDI_table(div) {
     var external_MIDI_table_row2 = external_MIDI_table.insertRow(2);
     var empty_cell = document.createElement('td');
     var empty_cell2 = document.createElement('td');
+    var empty_cell3 = document.createElement('td');
     external_MIDI_table_row2.appendChild(empty_cell);
     external_MIDI_table_row2.appendChild(empty_cell2);
+    external_MIDI_table_row2.appendChild(empty_cell3);
     empty_cell.style.backgroundColor = "#11ffee00";
     empty_cell.style.border = "0px";
     empty_cell2.style.backgroundColor = "#11ffee00";
     empty_cell2.style.border = "0px";
+    empty_cell3.style.backgroundColor = "#11ffee00";
+    empty_cell3.style.border = "0px";
 
     for (var i = 0; i < 10; i++) {
 
@@ -1047,17 +1062,12 @@ function create_external_MIDI_table(div) {
       var MIDI_cell_table = document.createElement('table');
 
       cc_tab = cc_table_constructor(i, "external_MIDI");
-      // cc_table = cc_tab[0];
-      // cc_select = cc_tab[1];
-      // ch_select = cc_tab[2];
-      // type_select = cc_tab[3];
       MIDI_cell_table = cc_tab;
       external_MIDI_cell[0].appendChild(MIDI_cell_table);
       external_MIDI_cell[0].appendChild(MIDI_cell);
       if (i < 8) external_MIDI_table_row0.appendChild(external_MIDI_cell[0]);
       else external_MIDI_table_row2.appendChild(external_MIDI_cell[0]);
     }
-    // external_MIDI_CC_table_row0.appendChild(external_MIDI_cell[1]);
     divClass[0].appendChild(external_MIDI_table);
   }
 
@@ -1112,9 +1122,9 @@ function create_external_MIDI_table(div) {
     else if (id == "long_button") set_button(id, num, value);
     else if (id == "led") set_led(num, value);
     else if (id == "slider") set_slider(num, value);
-    else if (id == "encoder") set_encoder(num, value);
+    else if (id == "encoder") set_encoder(id, num, value);
     else if (id == "encoder_short_press") set_button(id, num, value);
-    else if (id == "encoder_long_press") set_button(id, num, value);
+    else if (id == "encoder_hold_button") set_encoder(id, num, value);
     if (id == "display") set_display(num, value);
   }
 
@@ -1420,10 +1430,11 @@ function create_external_MIDI_table(div) {
 
   }
 
-  function set_encoder(num, value) {
+  function set_encoder(id, num, value) {
     var options_list = Object.keys(encoder_actions)
     cc_to_send = encoder_actions[options_list[value]];
     encoder_control[current_layout][num] = cc_to_send;
+    if (id == "encoder_hold_button") num = num+2;
     sendSysex(16, current_layout, num, cc_to_send, 1, 16);
   }
 
@@ -1593,13 +1604,13 @@ function create_external_MIDI_table(div) {
     div.Sliders {
       align-items: center;
       width: 400px;
-      padding-left: 530px;
+      padding-left: 672px;
     }
 
     div.Encoders {
       align-items: center;
-      width: 400px;
-      padding-left: 463px;
+      width: 800px;
+      padding-left: 230px;
     }
 
     div.Display {
@@ -1719,6 +1730,52 @@ function create_external_MIDI_table(div) {
       align-items: center;
     }
 
+    td.type_options {
+      text-align: center;
+      border-collapse: separate;
+      background: rgb(0, 0, 0);
+      border: var(--border) solid rgb(0, 0, 0);
+      border-radius: var(--radius);
+      height: 18px;
+      width: 100px;
+      padding-left: 2px;
+      padding-right: 2px;
+      align-items: center;
+    }
+
+    table.type_encoder {
+      float: left;
+      text-align: center;
+      border-collapse: separate;
+      background: rgb(0, 0, 0);
+      border: var(--border) none rgb(0, 0, 0);
+      border-radius: var(--radius);
+      height: 18px;
+      width: 100px;
+      padding-left: 2px;
+      padding-right: 2px;
+      align-items: center;
+      border-collapse: separate;
+      background-color: transparent;
+    }
+
+    table.type_slider {
+      text-align: center;
+      float: right;
+      border-collapse: separate;
+      background: rgb(0, 0, 0);
+      /* border-style: none; */
+      border: var(--border) solnoneid var(--border_color);
+      border-radius: var(--radius);
+      height: 18px;
+      width: 250px;
+      padding-left: 5px;
+      padding-right: 5px;
+      align-items: center;
+      border-collapse: separate;
+      background-color: transparent;
+    }
+
     td.main_cell_text {
       text-align: center;
       width: 200px;
@@ -1769,7 +1826,7 @@ function create_external_MIDI_table(div) {
       color: rgb(231, 231, 231);
       font-weight: bold;
       text-align: center;
-      padding-top: 20px;
+      padding-top: 360px;
     }
 
     .slider {
@@ -1826,9 +1883,11 @@ function create_external_MIDI_table(div) {
   <div class="Sliders">
     <script>create_slider_table("Sliders")</script>
   </div>
-  <hr>
+  <br>
   <div class="ExternalMIDI">
+    <hr>
     External MIDI
+    <br>
     <br>
     <script>create_external_MIDI_table("ExternalMIDI")</script>
   </div>
