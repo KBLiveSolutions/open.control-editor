@@ -94,10 +94,13 @@ console.log("length", button_short_control[1].length)
   }
 
   function sendSysexHandshakeRequest(output) {
+    console.log("check")
     if (output.name == "open·control") {
+      console.log("YES")
       var requestMessage = [240, 122, 29, 1, 19, 1, 247];
       open_control_output = output;
       open_control_output.send(requestMessage);
+      console.log("output", output)
     }
   }
 
@@ -120,7 +123,7 @@ console.log("length", button_short_control[1].length)
         onOpenControlDetected(event.data[6], event.data[7]);
       }
       // Receiving Data from opencontrol after a Dump request
-        var rcvd_layout = event.data[6];
+        var rcvd_layout = event.data[6]; 
         var num = event.data[7];
         var btn_ctrl = event.data[8];
         var btn_chnl = event.data[9];
@@ -143,11 +146,6 @@ console.log("length", button_short_control[1].length)
           button_long_type[rcvd_layout][num] = btn_type;
           button_long_control[rcvd_layout][num] = btn_ctrl;
           button_long_channel[rcvd_layout][num] = btn_chnl;
-        }
-        else {
-          encoder_long_press_type[rcvd_layout][num-NUM_BUTTONS] = btn_type;
-          encoder_long_press_control[rcvd_layout][num-NUM_BUTTONS] = btn_ctrl;
-          encoder_long_press_channel[rcvd_layout][num-NUM_BUTTONS] = btn_chnl;
         }
       }
 
@@ -1103,7 +1101,7 @@ function create_external_MIDI_table(div) {
     select.innerHTML = options_str;
     select.num = num;
     select.id = source + "_" + id + num;
-    console.log(select.id)
+    // console.log(select.id)
     select.onchange = function () { on_cc_change(select.num, select.value, id, source); };
     return select
   }
