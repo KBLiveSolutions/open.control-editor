@@ -41,11 +41,13 @@ console.log("length", button_short_control[1].length)
   var encoder_short_press_type = [...Array(NUM_LAYOUTS)].map(e => Array(NUM_ENCODERS));
   var encoder_short_press_control = [...Array(NUM_LAYOUTS)].map(e => Array(NUM_ENCODERS));
   var encoder_short_press_channel = [...Array(NUM_LAYOUTS)].map(e => Array(NUM_ENCODERS));
-  var encoder_long_press_type = [...Array(NUM_LAYOUTS)].map(e => Array(NUM_ENCODERS));
-  var encoder_long_press_control = [...Array(NUM_LAYOUTS)].map(e => Array(NUM_ENCODERS));
-  var encoder_long_press_channel = [...Array(NUM_LAYOUTS)].map(e => Array(NUM_ENCODERS));
+  // var encoder_long_press_type = [...Array(NUM_LAYOUTS)].map(e => Array(NUM_ENCODERS));
+  // var encoder_long_press_control = [...Array(NUM_LAYOUTS)].map(e => Array(NUM_ENCODERS));
+  // var encoder_long_press_channel = [...Array(NUM_LAYOUTS)].map(e => Array(NUM_ENCODERS));
   var encoder_control = [...Array(NUM_LAYOUTS)].map(e => Array(NUM_ENCODERS));
   var encoder_channel = [...Array(NUM_LAYOUTS)].map(e => Array(NUM_ENCODERS));
+  var encoder_hold_control = [...Array(NUM_LAYOUTS)].map(e => Array(NUM_ENCODERS));
+  var encoder_hold_channel = [...Array(NUM_LAYOUTS)].map(e => Array(NUM_ENCODERS));
 
   var slider_control = [...Array(NUM_LAYOUTS)].map(e => Array(NUM_SLIDERS));
   var slider_channel = [...Array(NUM_LAYOUTS)].map(e => Array(NUM_SLIDERS));
@@ -166,8 +168,14 @@ console.log("length", button_short_control[1].length)
       }
 
       else if (event.data[5] == 14) {
+        if (num<2){
         encoder_control[rcvd_layout][num] = btn_ctrl;
-        encoder_channel[rcvd_layout][num] = btn_chnl;
+        encoder_channel[rcvd_layout][num] = btn_chnl;}
+        else{
+        encoder_hold_control[rcvd_layout][num-2] = btn_ctrl;
+        encoder_hold_channel[rcvd_layout][num-2] = btn_chnl;
+
+        }
       }
 
       else if (event.data[5] == 15) {
@@ -928,10 +936,8 @@ let row = [];
 let cell = [];
 for (var j = 0; j < 10; j++) {
   row[j] = document.createElement("tr");
-  cell[j * 2] = document.createElement('td');
-  cell[j * 2 + 1] = document.createElement('td');
-  cell[j * 2].classList.add("type1");
-  cell[j * 2 + 1].classList.add("type1");
+  cell[j] = document.createElement('td');
+  cell[j].classList.add("type1");
 }
 
 cell[0].innerHTML = "Encoder " + (i + 1).toString() + "<br> ________________________</font>";
@@ -944,45 +950,38 @@ row[1].appendChild(cell[1]);
 cc_table_encoder_hold = cc_table_constructor(i, "custom_MIDI_table_encoder_hold");
 cell[2].appendChild(cc_table_encoder_hold);
 cell[2].style.visibility = "hidden";
-row[3].appendChild(cell[2]);
+row[2].appendChild(cell[2]);
 
 
-cell[6].innerHTML = "Hold and Turn";
+cell[3].innerHTML = "Hold and Turn";
 sel_encoder_hold_button = create_sel(i, encoder_actions, 'encoder_hold_button', 'block');
-cell[6].appendChild(sel_encoder_hold_button);
-row[3].appendChild(cell[4]);
-row[4].appendChild(cell[6]);
+cell[4].appendChild(sel_encoder_hold_button);
+row[3].appendChild(cell[3]);
+row[4].appendChild(cell[4]);
 
 cc_table_encoder_hold = cc_table_constructor(i, "custom_MIDI_table_encoder_hold");
-cell[12].appendChild(cc_table_encoder_hold);
-cell[12].style.visibility = "hidden";
-row[5].appendChild(cell[18]);
+cell[5].appendChild(cc_table_encoder_hold);
+cell[5].style.visibility = "hidden";
+row[5].appendChild(cell[5]);
 
-cell[14].innerHTML = "Short Press";
-cell[15].innerHTML = "Snap";
-cell[8].classList.add("type5");
-cell[9].classList.add("type5");
-row[6].appendChild(cell[14]);
-row[6].appendChild(cell[15]);
+cell[6].innerHTML = "Short Press";
+cell[6].classList.add("type5");
+row[6].appendChild(cell[6]);
 
 sel_short_button = create_sel(i, button_actions, 'encoder_short_press', 'block');
-cell[10].appendChild(sel_short_button);
-
-snap_checkbox = create_snap(i+NUM_BUTTONS);
-cell[11].appendChild(snap_checkbox);
-row[7].appendChild(cell[10]);
-row[7].appendChild(cell[11]);
+cell[7].appendChild(sel_short_button);
+row[7].appendChild(cell[7]);
 
 cc_table_short = cc_table_constructor(i, "custom_MIDI_table_encoder_short_press");
-cell[12].appendChild(cc_table_short);
+cell[8].appendChild(cc_table_short);
 cc_table_short.style.visibility = "hidden";
-row[8].appendChild(cell[12]);
+row[8].appendChild(cell[8]);
 
-toggle_checkbox = create_toggle(i);
-cell[13].appendChild(toggle_checkbox);
-// cell[13].innerHTML = "Toggle";
-toggle_checkbox.style.visibility = "hidden";
-row[8].appendChild(cell[13]);
+// toggle_checkbox = create_toggle(i);
+// cell[13].appendChild(toggle_checkbox);
+// // cell[13].innerHTML = "Toggle";
+// toggle_checkbox.style.visibility = "hidden";
+// row[8].appendChild(cell[13]);
 
 
 for (var i = 0; i < 10; i++) {
@@ -1314,8 +1313,9 @@ function create_external_MIDI_table(div) {
     for (var i = 0; i < NUM_ENCODERS; i++) { // updates sliders
       var s = document.getElementById("encoder" + i);
       s.value = get_index(encoder_control[current_layout][i], encoder_actions);
+      var s = document.getElementById("encoder_hold_button" + i);
+      s.value = get_index(encoder_hold_control[current_layout][i], encoder_actions);
       update_button_menus(current_layout, "encoder_short_press", i);
-      update_button_menus(current_layout, "encoder_long_press", i);
     }
 
     var s = document.getElementById("display0");
@@ -1433,8 +1433,11 @@ function create_external_MIDI_table(div) {
   function set_encoder(id, num, value) {
     var options_list = Object.keys(encoder_actions)
     cc_to_send = encoder_actions[options_list[value]];
-    encoder_control[current_layout][num] = cc_to_send;
-    if (id == "encoder_hold_button") num = num+2;
+    if (id == "encoder_hold_button") {
+    encoder_hold_control[current_layout][num] = cc_to_send;
+    num = num+2;
+    }
+    else encoder_control[current_layout][num] = cc_to_send;
     sendSysex(16, current_layout, num, cc_to_send, 1, 16);
   }
 
@@ -1603,14 +1606,14 @@ function create_external_MIDI_table(div) {
 
     div.Sliders {
       align-items: center;
-      width: 400px;
-      padding-left: 672px;
+      width: 800px;
+      padding-left: 272px;
     }
 
     div.Encoders {
       align-items: center;
       width: 800px;
-      padding-left: 230px;
+      padding-left: 270px;
     }
 
     div.Display {
@@ -1751,7 +1754,7 @@ function create_external_MIDI_table(div) {
       border: var(--border) none rgb(0, 0, 0);
       border-radius: var(--radius);
       height: 18px;
-      width: 100px;
+      width: 250px;
       padding-left: 2px;
       padding-right: 2px;
       align-items: center;
@@ -1769,8 +1772,8 @@ function create_external_MIDI_table(div) {
       border-radius: var(--radius);
       height: 18px;
       width: 250px;
-      padding-left: 5px;
-      padding-right: 5px;
+      padding-left: 2px;
+      padding-right: 2px;
       align-items: center;
       border-collapse: separate;
       background-color: transparent;
