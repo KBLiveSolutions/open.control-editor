@@ -172,7 +172,6 @@ console.log("length", button_short_control[1].length)
         else{
         encoder_hold_control[rcvd_layout][num-2] = btn_ctrl;
         encoder_hold_channel[rcvd_layout][num-2] = btn_chnl;
-
         }
       }
 
@@ -186,6 +185,8 @@ console.log("length", button_short_control[1].length)
         var rcvd_opt = event.data[7];
         var num = event.data[6];
         options[num] = rcvd_opt;
+        if (num == 0) set_bpm_option(rcvd_opt);
+        if (num == 1) set_session_box_option(rcvd_opt);
       }
 
       else if (event.data[5] == 18) {
@@ -385,14 +386,15 @@ console.log("length", button_short_control[1].length)
     "◠ Pan": 96,
     "A Send A": 59,
     "B Send B": 60,
-    "① Selected Device Param 1": 61,
-    "② Selected Device Param 2": 62,
-    "③ Selected Device Param 3": 63,
-    "④ Selected Device Param 4": 64,
-    "❶ Device 1 Param 1": 92,
-    "❷ Device 1 Param 2": 93,
-    "❸ Device 1 Param 3": 94,
-    "❹ Device 1 Param 4": 95,
+    "--- Selected Device ---": 0,
+    "① Parameter 1": 61,
+    "② Parameter 2": 62,
+    "③ Parameter 3": 63,
+    "④ Parameter 4": 64,
+    // "❶ Device 1 Param 1": 92,
+    // "❷ Device 1 Param 2": 93,
+    // "❸ Device 1 Param 3": 94,
+    // "❹ Device 1 Param 4": 95,
     "--- Custom ---": 0,
     "Custom MIDI": 122
   };
@@ -419,14 +421,15 @@ console.log("length", button_short_control[1].length)
     "◠ Pan": 96,
     "A Send A": 59,
     "B Send B": 60,
-    "① Selected Device Param 1": 61,
-    "② Selected Device Param 2": 62,
-    "③ Selected Device Param 3": 63,
-    "④ Selected Device Param 4": 64,
-    "❶ Device 1 Param 1": 92,
-    "❷ Device 1 Param 2": 93,
-    "❸ Device 1 Param 3": 94,
-    "❹ Device 1 Param 4": 95,
+    "--- Selected Device ---": 0,
+    "① Parameter 1": 61,
+    "② Parameter 2": 62,
+    "③ Parameter 3": 63,
+    "④ Parameter 4": 64,
+    // "❶ Device 1 Param 1": 92,
+    // "❷ Device 1 Param 2": 93,
+    // "❸ Device 1 Param 3": 94,
+    // "❹ Device 1 Param 4": 95,
     "--- Custom ---": 0,
     "Custom MIDI": 122
   };
@@ -604,7 +607,7 @@ console.log("length", button_short_control[1].length)
     var display_brightness_slider = document.createElement('input');
     display_brightness_slider.type = 'range';
     display_brightness_slider.steps = "1";
-    display_brightness_slider.min = "10";
+    display_brightness_slider.min = "40";
     display_brightness_slider.max = "127";
     display_brightness_slider.class = "slider";
     // brightness_slider.id = "brightness_slider";
@@ -945,16 +948,16 @@ sel_encoder = create_sel(i, encoder_actions, 'encoder', 'block');
 cell[1].appendChild(sel_encoder);
 row[1].appendChild(cell[1]);
 
-cc_table_encoder_hold = cc_table_constructor(i, "custom_MIDI_table_encoder_hold");
-cell[2].appendChild(cc_table_encoder_hold);
+cc_table_encoder = cc_table_constructor(i, "custom_MIDI_table_encoder");
+cell[2].appendChild(cc_table_encoder);
 cell[2].style.visibility = "hidden";
 row[2].appendChild(cell[2]);
 
-
 cell[3].innerHTML = "Hold and Turn";
-sel_encoder_hold_button = create_sel(i, encoder_actions, 'encoder_hold_button', 'block');
-cell[4].appendChild(sel_encoder_hold_button);
 row[3].appendChild(cell[3]);
+
+sel_encoder_hold = create_sel(i, encoder_actions, 'encoder_hold', 'block');
+cell[4].appendChild(sel_encoder_hold);
 row[4].appendChild(cell[4]);
 
 cc_table_encoder_hold = cc_table_constructor(i, "custom_MIDI_table_encoder_hold");
@@ -992,6 +995,7 @@ var divClass = document.getElementsByClassName(div);
 var mainTable = document.createElement('table');
 mainTable.className = "type_slider";
 var mainTable_row0 = mainTable.insertRow(0);
+
 for (var i = 0; i < NUM_SLIDERS; i++) {
   let main_cell = document.createElement('td');
   mainTable_row0.className = "columns-container";
@@ -1077,9 +1081,10 @@ function create_external_MIDI_table(div) {
     var cell03 = cc_table_row0.insertCell(3);
 
     cc_table.id = id + i;
+    console.log(cc_table.id)
     type_sel = create_cc_sel(i, type_values, 'type_select', id);
-    if (id != "external_MIDI") cell00.appendChild(type_sel);
-    else if (i < 8) cell00.appendChild(type_sel);
+    // if (id != "external_MIDI") cell00.appendChild(type_sel);
+    if (id == "custom_MIDI_table_short_button" || id == "custom_MIDI_table_long_button") cell00.appendChild(type_sel);
     cc_sel = create_cc_sel(i, cc_values, 'cc_select', id);
     cell01.appendChild(cc_sel);
     if (id == "external_MIDI") ch_sel = create_cc_sel(i, ch_values, 'ch_select', id);
@@ -1120,8 +1125,8 @@ function create_external_MIDI_table(div) {
     else if (id == "led") set_led(num, value);
     else if (id == "slider") set_slider(num, value);
     else if (id == "encoder") set_encoder(id, num, value);
+    else if (id == "encoder_hold") set_encoder(id, num, value);
     else if (id == "encoder_short_press") set_button(id, num, value);
-    else if (id == "encoder_hold_button") set_encoder(id, num, value);
     if (id == "display") set_display(num, value);
   }
 
@@ -1224,6 +1229,18 @@ function create_external_MIDI_table(div) {
   // UPDATE SELECTS
   ///////////////////////////////////
  
+  
+  function set_bpm_option(value) {
+    console.log("bpm", value)
+    var s = document.getElementById("metro");
+    s.value = value;
+  }
+  
+  function set_session_box_option(value) {
+    var s = document.getElementById("session_box");
+    s.value = value;
+  }
+  
   function update_button_menus(current_layout, id, i) {
     if (id == 'short_button') {
       control_type = button_short_type[current_layout][i];
@@ -1311,7 +1328,7 @@ function create_external_MIDI_table(div) {
     for (var i = 0; i < NUM_ENCODERS; i++) { // updates sliders
       var s = document.getElementById("encoder" + i);
       s.value = get_index(encoder_control[current_layout][i], encoder_actions);
-      var s = document.getElementById("encoder_hold_button" + i);
+      var s = document.getElementById("encoder_hold" + i);
       s.value = get_index(encoder_hold_control[current_layout][i], encoder_actions);
       update_button_menus(current_layout, "encoder_short_press", i);
     }
@@ -1345,7 +1362,6 @@ function create_external_MIDI_table(div) {
       encoder_long_press_control[current_layout][num] = cc_to_send;
       num = num + NUM_BUTTONS;
     }
-    console.log(id, num, value)
     if (options_list[value] == "① MIDI Map 1 (Big Button)") {
       sendSysex(sysex_byte, current_layout, num, 1, 0, 16);
       // var s = document.getElementById(id + num);
@@ -1431,12 +1447,21 @@ function create_external_MIDI_table(div) {
   function set_encoder(id, num, value) {
     var options_list = Object.keys(encoder_actions)
     cc_to_send = encoder_actions[options_list[value]];
-    if (id == "encoder_hold_button") {
+    if (id == "encoder_hold") {
     encoder_hold_control[current_layout][num] = cc_to_send;
     num = num+2;
     }
     else encoder_control[current_layout][num] = cc_to_send;
     sendSysex(16, current_layout, num, cc_to_send, 1, 16);
+
+    if (options_list[value] == "Custom MIDI") {
+      var s = document.getElementById("custom_MIDI_table_" + id + num);
+      s.style.visibility = "visible";
+    }
+    else {
+      var s = document.getElementById("custom_MIDI_table_"+ id + num);
+      s.style.visibility = "hidden";
+    }
   }
 
   function set_slider(num, value) {
