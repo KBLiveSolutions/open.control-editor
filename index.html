@@ -1010,7 +1010,7 @@ function create_slider_cell_content(main_cell, i) {
 let main_cell_table = document.createElement('table');
 let row = [];
 let cell = [];
-for (var j = 0; j < 3; j++) {
+for (var j = 0; j < 5; j++) {
   row[j] = document.createElement("tr");
   cell[j] = document.createElement('td');
   row[j].appendChild(cell[j]);
@@ -1021,8 +1021,26 @@ cell[0].innerHTML = "Expression Pedal " + (i + 1).toString() + "</font><br> ____
 sel_slider = create_sel(i, slider_actions, 'slider', 'block');
 cell[1].appendChild(sel_slider);
 
-for (var i = 0; i < 3; i++) {
-  main_cell.appendChild(row[i]);
+cell[3].innerHTML = "____________________<br> Calibrate";
+calibrate_min_button = document.createElement("input");
+calibrate_min_button.type = "button"
+calibrate_min_button.value = "Min."
+calibrate_max_button = document.createElement("input");
+calibrate_max_button.type = "button"
+calibrate_max_button.value = "Max."
+cell[4].appendChild(calibrate_min_button);
+cell[4].appendChild(calibrate_max_button);
+calibrate_min_button.onclick = function() {
+  console.log("click ", i)
+  sendSysex(27, i, i, 0, 1, 1);
+}
+calibrate_max_button.onclick = function() {
+  console.log("click ", i)
+  sendSysex(27, i, i, 1, 1, 1);
+}
+
+for (var k = 0; k < 5; k++) {
+  main_cell.appendChild(row[k]);
 }
 }
 
