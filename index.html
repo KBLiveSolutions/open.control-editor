@@ -112,7 +112,7 @@ console.log("length", button_short_control[1].length)
       if (!open_control_detected) {
         if (LATEST_FIRMWARE_MINOR_VERSION > min_ver){
         statusLabel.style.color = "#FFA500";
-        statusLabel.innerHTML = "<b> open·control detected</b> <br> <a href=https://github.com/KBLiveSolutions/open.control-firmware target=_blank style=color:#FFA500;> new firmware available</a> <br> Current: " + maj_ver + "." + min_ver +"; New: " + LATEST_FIRMWARE_MAJOR_VERSION + "." + LATEST_FIRMWARE_MINOR_VERSION;
+        statusLabel.innerHTML = "<b> open·control detected</b> <br> <a href=https://github.com/KBLiveSolutions/open.control-firmware target=_blank style=color:#FFA500;> new firmware available</a> <br> Current: " + maj_ver + "." + min_ver +" | New: " + LATEST_FIRMWARE_MAJOR_VERSION + "." + LATEST_FIRMWARE_MINOR_VERSION;
         }
         else {
         statusLabel.style.color = "#00FF55";
