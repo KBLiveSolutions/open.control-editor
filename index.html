@@ -1,4 +1,4 @@
-<!-- # Remote Script to make open·control work with Ableton Live
+<!-- # WebMIDI Editor for open·control
 # Copyright (C) 2021 Pierre-Antoine GRISON
 # more info on open·control on http://opencontrol.me
 
@@ -28,16 +28,18 @@
   var NUM_LAYOUTS = 3;
 
   var button_short_type = [...Array(NUM_LAYOUTS)].map(e => Array(NUM_BUTTONS));
-  // new Array(NUM_BUTTONS)[NUM_BUTTONS][NUM_LAYOUTS];
   var button_short_control = [...Array(NUM_LAYOUTS)].map(e => Array(NUM_BUTTONS));
   var button_short_channel = [...Array(NUM_LAYOUTS)].map(e => Array(NUM_BUTTONS));
+  var button_short_toggle = [...Array(NUM_LAYOUTS)].map(e => Array(NUM_BUTTONS));
   var button_short_snap = [...Array(NUM_LAYOUTS)].map(e => Array(NUM_BUTTONS));
   var button_long_type = [...Array(NUM_LAYOUTS)].map(e => Array(NUM_BUTTONS));
   var button_long_control = [...Array(NUM_LAYOUTS)].map(e => Array(NUM_BUTTONS));
   var button_long_channel = [...Array(NUM_LAYOUTS)].map(e => Array(NUM_BUTTONS));
+  var button_long_toggle = [...Array(NUM_LAYOUTS)].map(e => Array(NUM_BUTTONS));
   var button_double_type = [...Array(NUM_LAYOUTS)].map(e => Array(NUM_BUTTONS));
   var button_double_control = [...Array(NUM_LAYOUTS)].map(e => Array(NUM_BUTTONS));
   var button_double_channel = [...Array(NUM_LAYOUTS)].map(e => Array(NUM_BUTTONS));
+  var button_double_toggle = [...Array(NUM_LAYOUTS)].map(e => Array(NUM_BUTTONS));
 
   var led_type = [...Array(NUM_LAYOUTS)].map(e => Array(NUM_LEDS));
   var led_control = [...Array(NUM_LAYOUTS)].map(e => Array(NUM_LEDS));
@@ -77,8 +79,13 @@
   function onMIDISuccess(midiAccess) {
     midi = midiAccess;
     console.log("MIDI ready!");
-    connect_label();
+    // connect_label();
     midi.onstatechange = function (e) { ConnectEventHandler(e); };
+    statusLabel = document.getElementById("Status Label");
+    statusLabel.style.color = "#000000";
+        var connect_cell = document.getElementById("connect_cell");
+        connect_cell.style.backgroundColor = "red";
+    statusLabel.innerHTML = "<b> Please connect open·control </b>";
 
     var inputs = midiAccess.inputs.values();
     for (var input = inputs.next(); input && !input.done; input = inputs.next()) {
@@ -89,9 +96,6 @@
 
   function ConnectEventHandler(event) {
     // Print information about the (dis)connected MIDI controller
-    statusLabel = document.getElementById("Status Label");
-    statusLabel.style.color = "red";
-    statusLabel.innerHTML = "<b> Please connect open·control </b>";
     midi.outputs.forEach(output => {
       console.log("OUTPUT NAME", output.name);
       sendSysexHandshakeRequest(midi.outputs.get(output.id));
@@ -112,13 +116,15 @@
   function onOpenControlDetected(maj_ver, min_ver) {
     midi.outputs.forEach(output => {
       if (!open_control_detected) {
-        if (min_ver == LATEST_FIRMWARE_MINOR_VERSION){
-        statusLabel.style.color = "#00FF55";
-        statusLabel.innerHTML = "<b> open·control detected</b> <br> firmware up to date" // <br> firmware version: " + maj_ver + "." + min_ver;
+        var connect_cell = document.getElementById("connect_cell");
+        statusLabel.style.color = "#000000";
+        if (LATEST_FIRMWARE_MINOR_VERSION > min_ver){
+        connect_cell.style.backgroundColor = "#FFA500";
+        statusLabel.innerHTML = "<b> open·control detected</b> <br> <a href=https://github.com/KBLiveSolutions/open.control-firmware target=_blank style=color:#000000;> new firmware available</a> <br> Current: " + maj_ver + "." + min_ver +" | New: " + LATEST_FIRMWARE_MAJOR_VERSION + "." + LATEST_FIRMWARE_MINOR_VERSION;
         }
         else {
-        statusLabel.style.color = "#FFA500";
-        statusLabel.innerHTML = "<b> open·control detected</b> <br> <a href=https://github.com/KBLiveSolutions/open.control-firmware target=_blank style=color:#FFA500;> new firmware available</a>";
+        connect_cell.style.backgroundColor = "#00FF55";
+        statusLabel.innerHTML = "<b> open·control detected</b> <br> firmware version: " + maj_ver + "." + min_ver;
         }
         var requestMessage = [240, 122, 29, 1, 19, 4, 247];
         open_control_detected = true;
@@ -150,6 +156,12 @@
           encoder_short_press_control[rcvd_layout][num-NUM_BUTTONS] = btn_ctrl;
           encoder_short_press_channel[rcvd_layout][num-NUM_BUTTONS] = btn_chnl;
         }
+      }
+
+      if (event.data[5] == 20) {
+        if (event.data[9] == 0) button_short_toggle[rcvd_layout][num] = event.data[8];
+        else if (event.data[9] == 1) button_long_toggle[rcvd_layout][num] = event.data[8];
+        else if (event.data[9] == 2) button_double_toggle[rcvd_layout][num] = event.data[8];
       }
 
       else if (event.data[5] == 11) {
@@ -196,7 +208,6 @@
 
       else if (event.data[5] == 15) {
         var rcvd_display = event.data[8];
-        console.log("disp", rcvd_layout, rcvd_display)
         display[rcvd_layout] = rcvd_display;
       }
            
@@ -668,6 +679,7 @@
   function create_layout_table(div) {
     var divClass = document.getElementById(div);
     var mainTable = document.createElement('table');
+    divClass.className = "Layout";
     var mainTable_row0 = mainTable.insertRow(0);
     var mainTable_row1 = mainTable.insertRow(1);
     var main_cell = document.createElement('td');
@@ -690,29 +702,6 @@
     main_cell.appendChild(layout_color_cell);
     layout_color_cell.appendChild(sel_color);
     mainTable_row0.appendChild(main_cell);
-    var statusLabel = document.createElement('label');
-    statusLabel.id = "Status Label";
-    status_cell.appendChild(statusLabel);
-    mainTable_row1.appendChild(status_cell);
-  }
-
-  function create_connect_table(div) {
-    // Creates a row of controls described by the name of the div, the number of controls,
-    // the offset number of the first control and the type of control
-    var divClass = document.getElementsByClassName(div);
-    var optionsTable = document.createElement('table');
-    var optionsTable_row0 = optionsTable.insertRow(0);
-    var optionsTable_row1 = optionsTable.insertRow(1);
-    var options_cell = [document.createElement('td'), document.createElement('td')];
-    var firmware_cell = [document.createElement('td'), document.createElement('td')];
-    optionsTable.className = "type1";
-  }
-
-  function connect_label() {
-    var statusLabel = document.createElement('label');
-    statusLabel.id = "Status Label";
-    var statusBox = document.getElementsByClassName("ConnectStatus");
-    statusBox[0].appendChild(statusLabel);
   }
 
   function create_options_table(div) {
@@ -728,7 +717,15 @@
     var optionsTable_row6 = optionsTable.insertRow(6);
     text_cell = document.createElement('td')
     text_cell.innerHTML = "Options"
-    var options_cell = [document.createElement('td'), document.createElement('td'), document.createElement('td'), document.createElement('td'), document.createElement('td'), document.createElement('td')];
+    // text_cell.className = "type_options";
+    text_cell.setAttribute("colspan", "4");
+    var options_cell = [document.createElement('td'), document.createElement('td'), document.createElement('td'), document.createElement('td'), document.createElement('td'), document.createElement('td'), document.createElement('td')];
+    
+    for (var i = 0; i < 6; i++) {
+    options_cell[i].className = "type_options";
+    }
+    options_cell[6].className = "connect_cell";
+    options_cell[6].id = "connect_cell";
     tempo_option = create_bpm_option("Options");
     session_box_option = create_session_box_option("Options");
     led_brightness_option = create_led_brightness_option("Options");
@@ -738,6 +735,7 @@
     options_cell[0].appendChild(tempo_option[1]);
     options_cell[1].appendChild(session_box_option[0]);
     options_cell[1].appendChild(session_box_option[1]);
+
     options_cell[2].appendChild(led_brightness_option[1]);
     options_cell[2].appendChild(led_brightness_option[0]);
     options_cell[3].appendChild(display_brightness_option[1]);
@@ -745,13 +743,19 @@
     options_cell[4].innerHTML = "Forward MIDI In to:"
     options_cell[5].appendChild(midi_thru_option);
 
-    optionsTable_row0.appendChild(text_cell);
+    // optionsTable_row0.appendChild(text_cell);
     optionsTable_row1.appendChild(options_cell[0]);
     optionsTable_row2.appendChild(options_cell[1]);
-    optionsTable_row3.appendChild(options_cell[2]);
-    optionsTable_row4.appendChild(options_cell[3]);
-    optionsTable_row5.appendChild(options_cell[4]);
-    optionsTable_row6.appendChild(options_cell[5]);
+    optionsTable_row1.appendChild(options_cell[2]);
+    optionsTable_row2.appendChild(options_cell[3]);
+    optionsTable_row1.appendChild(options_cell[4]);
+    optionsTable_row2.appendChild(options_cell[5]);
+    
+    var statusLabel = document.createElement('label');
+    statusLabel.id = "Status Label";
+    optionsTable_row1.appendChild(options_cell[6])
+    options_cell[6].appendChild(statusLabel)
+    options_cell[6].setAttribute("rowspan", "2");
     divClass.appendChild(optionsTable);
   }
 
@@ -949,10 +953,12 @@
     var toggle_div = document.createElement('div');
     toggle_div.id = id + i;
     var toggle = document.createElement('input');
+    toggle.id = id+"_checkbox"+i;
     toggle.type = "checkbox";
+    console.log(toggle, toggle.id)
     toggle.addEventListener('change', (event) => {
-      if (event.target.checked) on_toggle_changed(i, true);
-      else on_toggle_changed(i, false);
+      if (event.target.checked) on_toggle_changed(i, true, id);
+      else on_toggle_changed(i, false, id);
     })
     var toggle_label = document.createElement('label');
     toggle_label.id = "Toggle";
@@ -962,7 +968,7 @@
     return toggle_div;
   }
 
-  function create_encoder_table(div) {
+function create_encoder_table(div) {
 
 var divClass = document.getElementsByClassName(div);
 var mainTable = document.createElement('table');
@@ -1148,7 +1154,6 @@ function create_external_MIDI_table(div) {
     var cell03 = cc_table_row0.insertCell(3);
 
     cc_table.id = id + i;
-    console.log(cc_table.id)
     type_sel = create_cc_sel(i, type_values, 'type_select', id);
     // if (id != "external_MIDI") cell00.appendChild(type_sel);
     if (id == "custom_MIDI_table_short_button" || id == "custom_MIDI_table_long_button" || id == "custom_MIDI_table_double_button") cell00.appendChild(type_sel);
@@ -1234,15 +1239,37 @@ function create_external_MIDI_table(div) {
   }
 
   function on_toggle_changed(i, val, button_type) {
+    console.log(i, val, button_type)
       var type = 0;
-      if (button_type == "long") type = 1;
+      if (button_type == "custom_MIDI_toggle_long_button") type = 1;
+      else if (button_type == "custom_MIDI_toggle_double_button") type = 2;
     if (val) {
-      sendRawSysex([240, 122, 29, 1, 19, 13, current_layout, i, 1, , type, 247]);
-      set_toggle_box(i, 1);
+      if (button_type == "custom_MIDI_toggle_short_button"){
+        sendRawSysex([240, 122, 29, 1, 19, 13, current_layout, i, 1, 0, 247]);
+        button_short_toggle[current_layout][i] = 1;
+      };
+      if (button_type == "custom_MIDI_toggle_long_button"){
+        sendRawSysex([240, 122, 29, 1, 19, 13, current_layout, i, 1, 1, 247]);
+        button_long_toggle[current_layout][i] = 1;
+      };      
+      if (button_type == "custom_MIDI_toggle_double_button"){
+        sendRawSysex([240, 122, 29, 1, 19, 13, current_layout, i, 1, 2, 247]);
+        button_double_toggle[current_layout][i] = 1;
+      };
     }
     else {
-      sendRawSysex([240, 122, 29, 1, 19, 13, current_layout, i, 0, type, 247]);
-      set_toggle_box(i, 0);
+      if (button_type == "custom_MIDI_toggle_short_button"){
+        sendRawSysex([240, 122, 29, 1, 19, 13, current_layout, i, 0, 0, 247]);
+        button_short_toggle[current_layout][i] = 0;
+      };
+      if (button_type == "custom_MIDI_toggle_long_button"){
+        sendRawSysex([240, 122, 29, 1, 19, 13, current_layout, i, 0, 1, 247]);
+        button_long_toggle[current_layout][i] = 0;
+      };      
+      if (button_type == "custom_MIDI_toggle_double_button"){
+        sendRawSysex([240, 122, 29, 1, 19, 13, current_layout, i, 0, 2, 247]);
+        button_double_toggle[current_layout][i] = 0;
+      };
     }
   }
 
@@ -1330,18 +1357,21 @@ else if (source == "custom_MIDI_table_encoder_double_press"){
       var s = document.getElementById("checkbox" + i);
       s.checked = button_short_snap[current_layout][i];
       set_snap_box(i, button_short_snap[current_layout][i]);
+      toggle = button_short_toggle[current_layout][i];
     }
 
     if (id == 'long_button') {
       control_type = button_long_type[current_layout][i];
       control_channel = button_long_channel[current_layout][i];
       control_number = button_long_control[current_layout][i];
+      toggle = button_long_toggle[current_layout][i];
     }
 
     if (id == 'double_button') {
       control_type = button_double_type[current_layout][i];
       control_channel = button_double_channel[current_layout][i];
       control_number = button_double_control[current_layout][i];
+      toggle = button_double_toggle[current_layout][i];
     }
 
     if (id == 'encoder_short_press') {
@@ -1355,7 +1385,6 @@ else if (source == "custom_MIDI_table_encoder_double_press"){
       control_channel = encoder_long_press_channel[current_layout][i];
       control_number = encoder_long_press_control[current_layout][i];
     }
-
     var s = document.getElementById(id + i);
     s.value = get_index(control_number, button_actions);
     if (control_type == 0 && control_channel == 16) s.value = Object.keys(button_actions).indexOf("① MIDI Map 1 (Big Button)");
@@ -1370,13 +1399,16 @@ else if (source == "custom_MIDI_table_encoder_double_press"){
       var s1 = document.getElementById("custom_MIDI_table_" + id + i);
       s1.style.visibility = "visible";
       var s2 = document.getElementById("custom_MIDI_table_"+id+"_type_select" + i);
-      s2.value = control_type;
+      s2.value = control_type + 1;
       var s3 = document.getElementById("custom_MIDI_table_"+id+"_cc_select" + i);
       s3.value = control_number;
       var s4 = document.getElementById("custom_MIDI_table_"+id+"_ch_select" + i);
       s4.value = control_channel;
-      // var s5 = document.getElementById("toggle" + id);
-      // s5.style.visibility = "visible";
+      var s5 = document.getElementById("custom_MIDI_toggle_" + id+ i);
+      s5.style.visibility = "visible";
+      var s6 = document.getElementById("custom_MIDI_toggle_" + id+ "_checkbox"+ i);
+      // console.log("custom_MIDI_toggle_" + id+ "_checkbox"+ i, s6, toggle)
+      s6.checked = toggle;
     }
   }
 
@@ -1475,7 +1507,6 @@ else if (source == "custom_MIDI_table_encoder_double_press"){
       sendSysex(sysex_byte, current_layout, num, 1, 0, 11);
     }
     else sendSysex(sysex_byte, current_layout, num, cc_to_send, 1, 16);
-console.log("custom_MIDI_toggle_" + id + num)
     if (options_list[value] == "Custom MIDI") {
       var s = document.getElementById("custom_MIDI_table_" + id + num);
       s.style.visibility = "visible";
@@ -1483,10 +1514,12 @@ console.log("custom_MIDI_toggle_" + id + num)
       s.style.visibility = "visible";
     }
     else {
+      on_toggle_changed(num, 0, "custom_MIDI_toggle_"+id)
       var s = document.getElementById("custom_MIDI_table_" + id + num);
       s.style.visibility = "hidden";
       var s = document.getElementById("custom_MIDI_toggle_" + id + num);
       s.style.visibility = "hidden";
+
     }
     if (id == "short_button") {
       var led_options_list = Object.keys(led_actions);
@@ -1519,10 +1552,6 @@ console.log("custom_MIDI_toggle_" + id + num)
       l2.style.display = "block";
     }
     button_short_snap[current_layout][num] = value;
-  }
-
-  function set_toggle_box(id, value){
-
   }
 
   function set_led(num, value) {
@@ -1584,7 +1613,7 @@ console.log("custom_MIDI_toggle_" + id + num)
     ch_sel.value = btn_chnl;
     if (num<8){
       var type_sel = document.getElementById("external_MIDI_type_select" + num);
-    type_sel.value = btn_type;
+      type_sel.value = btn_type;
     }
     external_MIDI[num] = [btn_type, btn_ctrl, btn_chnl];
   }
@@ -1720,9 +1749,13 @@ console.log("custom_MIDI_toggle_" + id + num)
 
     #Options {
       /* width: 500px; */
-      width: 33%;
-      padding-left: 920px;
+      width: 1370px;
+      /* padding-left: 920px; */
       /* padding-top: 10px; */
+    }
+
+    div.Layout {
+      padding-top: 10px;
     }
 
     div.Sliders {
@@ -1745,11 +1778,6 @@ console.log("custom_MIDI_toggle_" + id + num)
       text-align: center;
     }
 
-    div.ConnectStatus {
-      padding-left: 500px;
-      padding-top: 40px;
-    }
-
     td.type_display {
       border-collapse: separate;
       background: rgb(0, 0, 0);
@@ -1769,6 +1797,7 @@ console.log("custom_MIDI_toggle_" + id + num)
       width: 240px;
       padding-left: 5%;
       padding-right: 5%;
+      /* padding-top: 55px; */
       /* font-weight: bold; */
       border-radius: 10px;
     }
@@ -1780,10 +1809,11 @@ console.log("custom_MIDI_toggle_" + id + num)
       border: var(--border) solid rgb(0, 0, 0);
       border-radius: var(--radius);
       height: 18px;
-      width: 100px;
+      width: 200px;
       padding-left: 40px;
       padding-right: 5px;
     }
+
 
     td.type1 {
       text-align: center;
@@ -1840,31 +1870,43 @@ console.log("custom_MIDI_toggle_" + id + num)
     }
 
     table.type_options {
-      text-align: center;
-      float: right;
+      /* text-align: center; */
+      /* float: left; */
       border-collapse: separate;
-      background: rgb(0, 0, 0);
+      background: rgb(39, 39, 39);
       /* border-style: none; */
       border: var(--border) solid var(--border_color);
       border-radius: var(--radius);
       height: 18px;
-      width: 250px;
+      /* width: 800px; */
       padding-left: 5px;
       padding-right: 5px;
-      align-items: center;
+      align-items: left;
     }
 
     td.type_options {
+      text-align: left;
+      border-collapse: separate;
+      background: rgb(39, 39, 39);
+      border: var(--border) solid rgb(39, 39, 39);
+      border-radius: var(--radius);
+      height: 18px;
+      width: 25%;
+      /* padding-left: 20px;
+      padding-right: 20px; */
+      align-items: left;
+    }
+
+    td.connect_cell {
       text-align: center;
       border-collapse: separate;
-      background: rgb(0, 0, 0);
+      background: rgb(255, 0, 0);
       border: var(--border) solid rgb(0, 0, 0);
       border-radius: var(--radius);
       height: 18px;
-      width: 100px;
-      padding-left: 2px;
-      padding-right: 2px;
-      align-items: center;
+      width: 200px;
+      padding-left: 40px;
+      padding-right: 5px;
     }
 
     table.type_encoder {
@@ -1960,6 +2002,9 @@ console.log("custom_MIDI_toggle_" + id + num)
       border-radius: 10px;
       padding: 0 65px 0 45px;
     }
+
+
+}
   </style>
 </head>
 <title>open·control editor</title>
@@ -1981,15 +2026,14 @@ console.log("custom_MIDI_toggle_" + id + num)
 <button onclick="uploadPreset()">Upload to Device</button>  -->
 
 
+<div id="Options">
+  <script>create_options_table("Options")</script>
+</div>
+
   <div id="Layout">
     <script>create_layout_table("Layout")</script>
   </div>
-  <div id="Options">
-    <script>create_options_table("Options")</script>
-  </div>
 
-  <div class="ConnectStatus">
-  </div>
 
 
   <div class="Display">
