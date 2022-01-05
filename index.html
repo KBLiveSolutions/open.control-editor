@@ -17,6 +17,238 @@
 
 
 <script>
+  var layout_actions = {
+    "Page 1": 0,
+    "Page 2": 1,
+    "Page 3": 2
+  };
+  var display_actions = {
+    "≡  Scene Name": 0,
+    "⦀ Track Name": 1,
+    "⊙  Looper Number": 2,
+    "≔  Variation Number / Device": 3,
+    "↾  Left Marker": 4
+  };
+  var button_actions = {
+    "Off": 0,
+    "--- Global ---": 0,
+    "■/▶ Start/Stop": 1,
+    "❚▶ Continue Playing": 100,
+    "●○ Metronome": 2,
+    "⤶ Undo": 4,
+    "⤷ Redo": 40,
+    "▢ Capture": 5,
+    "⊕ BPM +1": 28,
+    "⊖ BPM -1": 29,
+    "ℚ MIDI Recording Quantization": 104,
+    "← Re-enable Automation": 41,
+    "⇶ Back To Arrangement": 42,
+    "⮂ Arr./Session View": 75,
+    "Clip/Device View": 76,
+    "--- Arrangement ---": 0,
+    "↞ Jump to 1.1.1": 74,
+    "⇉ Restart From Last Pos.": 103,
+    "● Arrangement Rec": 6,
+    "⥁ Arrangement Loop": 7,
+    "⇤ Go to Prev Marker": 9,
+    "⇥ Go to Next Marker": 8,
+    "⤓ Add/Delete Marker": 10,
+    "⥀ Loop to Next Marker": 102,
+    "⌉ Punch In": 38,
+    "⌈ Punch Out": 39,
+    "--- Session ---": 0,
+    "○ Session Rec": 11,
+    "▶ Launch Scene": 13,
+    "⬆ Sel Prev Scene": 14,
+    "⬇ Sel Next Scene": 15,
+    "⬆+4 Jump 4 Scenes Up": 105,
+    "⬇-4 Jump 4 Scenes Down": 106,
+    "⥴ Jump to Playing Scene": 16,
+    "⥅ Insert Scene": 17,
+    "⇴ Capture and Insert Scene": 43,
+    "⧈ Stop All Clips": 3,
+    // "➟ Disable Follow Actions": 12,
+    "--- Tracks ---": 0,
+    "← Sel Prev Track": 18,
+    "→ Sel Next Track": 19,
+    "▷ Launch Clip": 22,
+    "↳ Find Empty Slot": 23,
+    "⌧ Mute": 24,
+    "S Solo": 25,
+    "⌻ Arm": 26,
+    "■ Stop": 27,
+    "U Fold/Unfold Track": 55,
+    "☆ Add Audio Track": 20,
+    "✬ Add MIDI Track": 21,
+    "--- Looper ---": 0,
+    "⧀ Prev Looper": 48,
+    "⧁ Next Looper": 49,
+    "① MIDI Map 1 (Big Button)": 0,
+    "② MIDI Map 2 (Clear)": 0,
+    "③ MIDI Map 3": 0,
+    "④ MIDI Map 4": 0,
+    "⑤ MIDI Map 5": 0,
+    "⑥ MIDI Map 6": 0,
+    // "▣ Stop Looper": 35,
+    "⌻ Arm Looper Track": 30,
+    "⌧ Mute Looper Track": 31,
+    "⌸ Show Looper": 32,
+    "+ Add Looper": 47,
+    "∅ Clear All": 36,
+    "--- Variations ---": 0,
+    "⍇ Prev Device": 65,
+    "⍈ Next Device": 66,
+    "⌃ Prev Variation": 67,
+    "⌵ Next Variation": 68,
+    "▹ Launch Variation": 69,
+    "◦ Store Variation": 70,
+    "↩︎ Recall Last Used": 72,
+    "⌁ Randomize Macros": 71,
+    "--- Pages ---": 0,
+    "↪ Next Page": 57,
+    "↩ Prev Page": 56,
+    "Page 1⇆2": 50,
+    "Page 1⇆3": 51,
+    "--- Custom ---": 0,
+    "Custom MIDI": 122
+  };
+  var led_actions = {
+    "Custom Color": 0,
+    "--- Global ---": 0,
+    "■/▶ Start/Stop": 1,
+    "●○ Metronome": 2,
+    "← Re-enable Automation": 41,
+    "▢ Capture": 5,
+    "ℚ MIDI Recording Quantization": 104,
+    "--- Arrangement ---": 0,
+    "● Arrangement Rec": 6,
+    "⥁ Arrangement Loop": 7,
+    "⌉ Punch In": 38,
+    "⌈ Punch Out": 39,
+    "⇶ Back To Arrangement": 42,
+    "--- Session ---": 0,
+    "○ Session Rec": 11,
+    "▶ Selected Scene Color": 13,
+    "⬆ Prev Scene Color": 14,
+    "⬇ Next Scene Color": 15,
+    "➟ Disable Follow Actions": 12,
+    "--- Tracks ---": 0,
+    "✽ Selected Track Color": 54,
+    "← Prev Track Color": 18,
+    "→ Next Track Color": 19,
+    "▷ Clip Color": 22,
+    "⌧ Mute": 24,
+    "S Solo": 25,
+    "⌻ Arm": 26,
+    "■ Stop": 27,
+    "--- Looper ---": 0,
+    "⧀ Prev Looper Track Color": 48,
+    "⧁ Next Looper Track Color": 49,
+    "◈ State Selected Looper ": 53,
+    "⌻ Track Arm Selected Looper": 30,
+    "⌧ Track Mute Selected Looper": 31,
+    "◈ State (LOOPER1)": 77,
+    "◈ State (LOOPER2)": 78,
+    "◈ State (LOOPER3)": 79,
+    "◈ State (LOOPER4)": 80,
+    "◈ State (LOOPER5)": 81,
+    "◈ State (LOOPER6)": 82,
+    // "--- Pages ---": 0,
+    // "⇆ Page Color": 58,
+    // "--- Custom ---": 0,
+    // "Custom MIDI": 122
+  };
+  var slider_actions = {
+    "Off": 0,
+    "--- Global ---": 0,
+    "⟳ Last Selected Parameter": 73,
+    "% Global Groove Amount": 37,
+    "🎚 Master Volume": 89,
+    "🎧 Cue Volume": 90,
+    "--- Selected Track ---": 0,
+    "⟊ Volume": 91,
+    "◠ Pan": 96,
+    "A Send A": 59,
+    "B Send B": 60,
+    "--- Selected Device ---": 0,
+    "① Parameter 1": 61,
+    "② Parameter 2": 62,
+    "③ Parameter 3": 63,
+    "④ Parameter 4": 64,
+    // "❶ Device 1 Param 1": 92,
+    // "❷ Device 1 Param 2": 93,
+    // "❸ Device 1 Param 3": 94,
+    // "❹ Device 1 Param 4": 95,
+    "--- Custom ---": 0,
+    "Custom MIDI": 122
+  };
+  var encoder_actions = {
+    "Off": 0,
+    "--- Global ---": 0,
+    "⟳ Last Selected Parameter": 73,
+    "% Global Groove Amount": 37,
+    "🎚 Master Volume": 89,
+    "🎧 Cue Volume": 90,
+    "± BPM +/- 1": 87,
+    "↔ Track Select": 0,
+    "--- Arrangement ---": 0,
+    "≪≫ Skip Fwd/Bckwd": 83,
+    "⤞ Loop Position": 84,
+    "⩉ Loop Length": 85,
+    "↹ Jump to Next/Prev Marker": 88,
+    "↔ Horizontal Zoom": 99,
+    "↔ Horizontal Scroll": 99,
+    "↕ Vertical Zoom": 0,
+    "--- Session ---": 0,
+    "↕ Scene Select": 86,
+    "--- Selected Track ---": 0,
+    "⟊ Volume": 91,
+    "◠ Pan": 96,
+    "A Send A": 59,
+    "B Send B": 60,
+    "--- Selected Device ---": 0,
+    "① Parameter 1": 61,
+    "② Parameter 2": 62,
+    "③ Parameter 3": 63,
+    "④ Parameter 4": 64,
+    // "❶ Device 1 Param 1": 92,
+    // "❷ Device 1 Param 2": 93,
+    // "❸ Device 1 Param 3": 94,
+    // "❹ Device 1 Param 4": 95,
+    "--- Custom ---": 0,
+    "Custom MIDI": 122
+  };
+  var led_translator = {
+    "Off": "Off",
+    "▶ Launch Scene": "▶ Selected Scene Color",
+    "⬆ Sel Prev Scene": "⬆ Prev Scene Color",
+    "⬇ Sel Next Scene": "⬇ Next Scene Color",
+    "■/▶ Start/Stop": "■/▶ Start/Stop",
+    "●○ Metronome": "●○ Metronome",
+    "■ Stop All Clips": 0,
+    "● Arrangement Rec": "● Arrangement Rec",
+    "⥁ Arrangement Loop": "⥁ Arrangement Loop",
+    "⇥ Go to Next Marker": 0,
+    "⇤ Go to Prev Marker": 0,
+    "⤓ Add/Delete Marker": 0,
+    "○ Session Rec": "○ Session Rec",
+    "➟ Disable Follow Actions": 0,
+    "▷ Launch Clip": "▷ Clip Color",
+    "↳ Find Empty Slot": 0,
+    "⌧ Mute": "⌧ Mute",
+    "S Solo": "S Solo",
+    "⌻ Arm": "⌻ Arm",
+    "← Sel Prev Track": "← Prev Track Color",
+    "→ Sel Next Track": "→ Next Track Color",
+    "+ Add Looper": 0,
+    "⧀ Prev Looper": "⧀ Prev Looper Track Color",
+    "⧁ Next Looper": "⧁ Next Looper Track Color",
+    "⇆ Page 1/2": "⇆ Page Color",
+    "⇆ Page 1/3": "⇆ Page Color",
+    "⌻ Arm Looper Track": "⌻  Looper Track Arm",
+    "⌧ Mute Looper Track": "⌧ Looper Track Mute",
+    "① MIDI Map 1 (Big Button)": "◈ Looper State",
+  };
 
   var LATEST_FIRMWARE_MAJOR_VERSION = 1
   var LATEST_FIRMWARE_MINOR_VERSION = 1
@@ -83,29 +315,50 @@
     midi.onstatechange = function (e) { ConnectEventHandler(e); };
     statusLabel = document.getElementById("Status Label");
     statusLabel.style.color = "#000000";
-        var connect_cell = document.getElementById("connect_cell");
-        connect_cell.style.backgroundColor = "red";
+    var connect_cell = document.getElementById("connect_cell");
+    connect_cell.style.backgroundColor = "red";
     statusLabel.innerHTML = "<b> Please connect open·control </b>";
 
     var inputs = midiAccess.inputs.values();
     for (var input = inputs.next(); input && !input.done; input = inputs.next()) {
-      input.value.onmidimessage = MIDIMessageEventHandler;
+      if (input.value.name == "open·control") input.value.onmidimessage = MIDIMessageEventHandler;
       haveAtLeastOneDevice = true;
     }
+    // detect_output();
   }
 
   function ConnectEventHandler(event) {
     // Print information about the (dis)connected MIDI controller
     midi.outputs.forEach(output => {
+      // console.log("OUTPUT NAME", output.name);
+      if (output.name == "open·control" && !open_control_detected) detect_output();
+      else {
+        open_control_detected = false;
+    var connect_cell = document.getElementById("connect_cell");
+    connect_cell.style.backgroundColor = "red";
+    statusLabel.innerHTML = "<b> Please connect open·control </b>";
+      }
+    });
+  }
+  function detect_output() {
+    open_control_detected = true
+    // Print information about the (dis)connected MIDI controller
+    midi.outputs.forEach(output => {
       console.log("OUTPUT NAME", output.name);
-      sendSysexHandshakeRequest(midi.outputs.get(output.id));
+      // sendSysexHandshakeRequest(midi.outputs.get(output.id));
+      if (output.name == "open·control") {
+        console.log("send handshake")
+        var requestMessage = [240, 122, 29, 1, 19, 1, 247];
+        open_control_output = midi.outputs.get(output.id);
+        open_control_output.send(requestMessage);
+        // console.log("output", midi.outputs.get(output.id))
+    }
     });
   }
 
   function sendSysexHandshakeRequest(output) {
-    console.log("check")
     if (output.name == "open·control") {
-      console.log("YES")
+    console.log("send handshake")
       var requestMessage = [240, 122, 29, 1, 19, 1, 247];
       open_control_output = output;
       open_control_output.send(requestMessage);
@@ -115,9 +368,9 @@
 
   function onOpenControlDetected(maj_ver, min_ver) {
     midi.outputs.forEach(output => {
-      if (!open_control_detected) {
         var connect_cell = document.getElementById("connect_cell");
         statusLabel.style.color = "#000000";
+        console.log("check")
         if (LATEST_FIRMWARE_MINOR_VERSION > min_ver){
         connect_cell.style.backgroundColor = "#FFA500";
         statusLabel.innerHTML = "<b> open·control detected</b> <br> <a href=https://github.com/KBLiveSolutions/open.control-firmware target=_blank style=color:#000000;> new firmware available</a> <br> Current: " + maj_ver + "." + min_ver +" | New: " + LATEST_FIRMWARE_MAJOR_VERSION + "." + LATEST_FIRMWARE_MINOR_VERSION;
@@ -129,7 +382,6 @@
         var requestMessage = [240, 122, 29, 1, 19, 4, 247];
         open_control_detected = true;
         open_control_output.send(requestMessage);
-      }
     });
   }
 
@@ -266,236 +518,6 @@
 
   var current_layout = 0;
   var NUM_CONTROLS = 25;
-  var layout_actions = {
-    "Page 1": 0,
-    "Page 2": 1,
-    "Page 3": 2
-  };
-  var display_actions = {
-    "≡  Scene Name": 0,
-    "⦀ Track Name": 1,
-    "⊙  Looper Number": 2,
-    "≔  Variation Number / Device": 3,
-    "↾  Left Marker": 4
-  };
-  var button_actions = {
-    "Off": 0,
-    "--- Global ---": 0,
-    "■/▶ Start/Stop": 1,
-    "❚▶ Continue Playing": 100,
-    "●○ Metronome": 2,
-    "⤶ Undo": 4,
-    "⤷ Redo": 40,
-    "▢ Capture": 5,
-    "⊕ BPM +1": 28,
-    "⊖ BPM -1": 29,
-    "ℚ MIDI Recording Quantization": 104,
-    "← Re-enable Automation": 41,
-    "⇶ Back To Arrangement": 42,
-    "⮂ Arr./Session View": 75,
-    "Clip/Device View": 76,
-    "--- Arrangement ---": 0,
-    "↞ Jump to 1.1.1": 74,
-    "⇉ Restart From Last Pos.": 103,
-    "● Arrangement Rec": 6,
-    "⥁ Arrangement Loop": 7,
-    "⇤ Go to Prev Marker": 9,
-    "⇥ Go to Next Marker": 8,
-    "⤓ Add/Delete Marker": 10,
-    "⥀ Loop to Next Marker": 102,
-    "⌉ Punch In": 38,
-    "⌈ Punch Out": 39,
-    "--- Session ---": 0,
-    "○ Session Rec": 11,
-    "▶ Launch Scene": 13,
-    "⬆ Sel Prev Scene": 14,
-    "⬇ Sel Next Scene": 15,
-    "⥴ Jump to Playing Scene": 16,
-    "⥅ Insert Scene": 17,
-    "⇴ Capture and Insert Scene": 43,
-    "⧈ Stop All Clips": 3,
-    // "➟ Disable Follow Actions": 12,
-    "--- Tracks ---": 0,
-    "← Sel Prev Track": 18,
-    "→ Sel Next Track": 19,
-    "▷ Launch Clip": 22,
-    "↳ Find Empty Slot": 23,
-    "⌧ Mute": 24,
-    "S Solo": 25,
-    "⌻ Arm": 26,
-    "■ Stop": 27,
-    "U Fold/Unfold Track": 55,
-    "☆ Add Audio Track": 20,
-    "✬ Add MIDI Track": 21,
-    "--- Looper ---": 0,
-    "⧀ Prev Looper": 48,
-    "⧁ Next Looper": 49,
-    "① MIDI Map 1 (Big Button)": 0,
-    "② MIDI Map 2 (Clear)": 0,
-    "③ MIDI Map 3": 0,
-    "④ MIDI Map 4": 0,
-    "⑤ MIDI Map 5": 0,
-    "⑥ MIDI Map 6": 0,
-    "▣ Stop Looper": 35,
-    "⌻ Arm Looper Track": 30,
-    "⌧ Mute Looper Track": 31,
-    "⌸ Show Looper": 32,
-    "+ Add Looper": 47,
-    "∅ Clear All": 36,
-    "--- Variations ---": 0,
-    "⍇ Prev Device": 65,
-    "⍈ Next Device": 66,
-    "⌃ Prev Variation": 67,
-    "⌵ Next Variation": 68,
-    "▹ Launch Variation": 69,
-    "◦ Store Variation": 70,
-    "↩︎ Recall Last Used": 72,
-    "⌁ Randomize Macros": 71,
-    "--- Pages ---": 0,
-    "↪ Next Page": 57,
-    "↩ Prev Page": 56,
-    "Page 1⇆2": 50,
-    "Page 1⇆3": 51,
-    "--- Custom ---": 0,
-    "Custom MIDI": 122
-  };
-  var led_actions = {
-    "Custom Color": 0,
-    "--- Global ---": 0,
-    "■/▶ Start/Stop": 1,
-    "●○ Metronome": 2,
-    "← Re-enable Automation": 41,
-    "▢ Capture": 5,
-    "ℚ MIDI Recording Quantization": 104,
-    "--- Arrangement ---": 0,
-    "● Arrangement Rec": 6,
-    "⥁ Arrangement Loop": 7,
-    "⌉ Punch In": 38,
-    "⌈ Punch Out": 39,
-    "⇶ Back To Arrangement": 42,
-    "--- Session ---": 0,
-    "○ Session Rec": 11,
-    "▶ Selected Scene Color": 13,
-    "⬆ Prev Scene Color": 14,
-    "⬇ Next Scene Color": 15,
-    "➟ Disable Follow Actions": 12,
-    "--- Tracks ---": 0,
-    "✽ Selected Track Color": 54,
-    "← Prev Track Color": 18,
-    "→ Next Track Color": 19,
-    "▷ Clip Color": 22,
-    "⌧ Mute": 24,
-    "S Solo": 25,
-    "⌻ Arm": 26,
-    "■ Stop": 27,
-    "--- Looper ---": 0,
-    "⧀ Prev Looper Track Color": 48,
-    "⧁ Next Looper Track Color": 49,
-    "◈ State Selected Looper ": 53,
-    "⌻ Track Arm Selected Looper": 30,
-    "⌧ Track Mute Selected Looper": 31,
-    "◈ State (LOOPER1)": 77,
-    "◈ State (LOOPER2)": 78,
-    "◈ State (LOOPER3)": 79,
-    "◈ State (LOOPER4)": 80,
-    "◈ State (LOOPER5)": 81,
-    "◈ State (LOOPER6)": 82,
-    "--- Pages ---": 0,
-    "⇆ Page Color": 58,
-    "--- Custom ---": 0,
-    "Custom MIDI": 122
-  };
-  var slider_actions = {
-    "Off": 0,
-    "--- Global ---": 0,
-    "⟳ Last Selected Parameter": 73,
-    "% Global Groove Amount": 37,
-    "🎚 Master Volume": 89,
-    "🎧 Cue Volume": 90,
-    "--- Selected Track ---": 0,
-    "⟊ Volume": 91,
-    "◠ Pan": 96,
-    "A Send A": 59,
-    "B Send B": 60,
-    "--- Selected Device ---": 0,
-    "① Parameter 1": 61,
-    "② Parameter 2": 62,
-    "③ Parameter 3": 63,
-    "④ Parameter 4": 64,
-    // "❶ Device 1 Param 1": 92,
-    // "❷ Device 1 Param 2": 93,
-    // "❸ Device 1 Param 3": 94,
-    // "❹ Device 1 Param 4": 95,
-    "--- Custom ---": 0,
-    "Custom MIDI": 122
-  };
-  var encoder_actions = {
-    "Off": 0,
-    "--- Global ---": 0,
-    "⟳ Last Selected Parameter": 73,
-    "% Global Groove Amount": 37,
-    "🎚 Master Volume": 89,
-    "🎧 Cue Volume": 90,
-    "± BPM +/- 1": 87,
-    "↔ Track Select": 0,
-    "--- Arrangement ---": 0,
-    "≪≫ Skip Fwd/Bckwd": 83,
-    "⤞ Loop Position": 84,
-    "⩉ Loop Length": 85,
-    "↹ Jump to Next/Prev Marker": 88,
-    "↔ Horizontal Zoom": 99,
-    "↔ Horizontal Scroll": 99,
-    "↕ Vertical Zoom": 0,
-    "--- Session ---": 0,
-    "↕ Scene Select": 86,
-    "--- Selected Track ---": 0,
-    "⟊ Volume": 91,
-    "◠ Pan": 96,
-    "A Send A": 59,
-    "B Send B": 60,
-    "--- Selected Device ---": 0,
-    "① Parameter 1": 61,
-    "② Parameter 2": 62,
-    "③ Parameter 3": 63,
-    "④ Parameter 4": 64,
-    // "❶ Device 1 Param 1": 92,
-    // "❷ Device 1 Param 2": 93,
-    // "❸ Device 1 Param 3": 94,
-    // "❹ Device 1 Param 4": 95,
-    "--- Custom ---": 0,
-    "Custom MIDI": 122
-  };
-  var led_translator = {
-    "Off": "Off",
-    "▶ Launch Scene": "▶ Selected Scene Color",
-    "⬆ Sel Prev Scene": "⬆ Prev Scene Color",
-    "⬇ Sel Next Scene": "⬇ Next Scene Color",
-    "■/▶ Start/Stop": "■/▶ Start/Stop",
-    "●○ Metronome": "●○ Metronome",
-    "■ Stop All Clips": 0,
-    "● Arrangement Rec": "● Arrangement Rec",
-    "⥁ Arrangement Loop": "⥁ Arrangement Loop",
-    "⇥ Go to Next Marker": 0,
-    "⇤ Go to Prev Marker": 0,
-    "⤓ Add/Delete Marker": 0,
-    "○ Session Rec": "○ Session Rec",
-    "➟ Disable Follow Actions": 0,
-    "▷ Launch Clip": "▷ Clip Color",
-    "↳ Find Empty Slot": 0,
-    "⌧ Mute": "⌧ Mute",
-    "S Solo": "S Solo",
-    "⌻ Arm": "⌻ Arm",
-    "← Sel Prev Track": "← Prev Track Color",
-    "→ Sel Next Track": "→ Next Track Color",
-    "+ Add Looper": 0,
-    "⧀ Prev Looper": "⧀ Prev Looper Track Color",
-    "⧁ Next Looper": "⧁ Next Looper Track Color",
-    "⇆ Page 1/2": "⇆ Page Color",
-    "⇆ Page 1/3": "⇆ Page Color",
-    "⌻ Arm Looper Track": "⌻  Looper Track Arm",
-    "⌧ Mute Looper Track": "⌧ Looper Track Mute",
-    "① MIDI Map 1 (Big Button)": "◈ Looper State",
-  };
 
   var color_names = ["Off", "Blue 1", "Blue 2", "Red 1", "Red 2", "Green 1", "Green 2", "Pink 1", "Pink 2", "Purple 1", "Purple 2", "Yellow 1", "Yellow 2", "Orange 1", "Orange 2", "White 1", "White 2"]
   var colors = [0, 125, 21, 14, 56, 126, 62, 11, 42, 66, 106, 33, 4, 43, 16, 120, 49];
@@ -532,13 +554,135 @@
   // CREATE TABLES AND FUNCTIONS
   ///////////////////////////////////
 
+  function create_options_table(div) {
+    var divClass = document.getElementById(div);
+    var optionsTable = document.createElement('table');
+    optionsTable.className = "type_options";
+    var optionsTable_row0 = optionsTable.insertRow(0);
+    var optionsTable_row1 = optionsTable.insertRow(1);
+    var optionsTable_row2 = optionsTable.insertRow(2);
+    text_cell = document.createElement('td')
+    text_cell.innerHTML = "Options"
+    // text_cell.className = "type_options";
+    text_cell.setAttribute("colspan", "4");
+    var options_cell = [document.createElement('td'), document.createElement('td'), document.createElement('td'), document.createElement('td'), document.createElement('td'), document.createElement('td'), document.createElement('td'), document.createElement('td'), document.createElement('td')];
+    
+    for (var i = 0; i < 9; i++) {
+    options_cell[i].className = "type_options";
+    }
+
+    tempo_option = create_bpm_option("Options");
+    session_box_option = create_session_box_option("Options");
+    led_brightness_option = create_led_brightness_option("Options");
+    display_brightness_option = create_display_brightness_option("Options");
+    midi_thru_option = create_midi_thru_option("Options");
+    options_cell[0].appendChild(tempo_option[0]);
+    options_cell[0].appendChild(tempo_option[1]);
+    options_cell[1].appendChild(session_box_option[0]);
+    options_cell[1].appendChild(session_box_option[1]);
+
+    options_cell[2].appendChild(led_brightness_option[1]);
+    options_cell[2].appendChild(led_brightness_option[0]);
+    options_cell[3].appendChild(display_brightness_option[1]);
+    options_cell[3].appendChild(display_brightness_option[0]);
+    options_cell[4].innerHTML = "Forward MIDI In to:"
+    options_cell[5].appendChild(midi_thru_option);
+
+    // optionsTable_row0.appendChild(text_cell);
+    
+    var statusLabel = document.createElement('label');
+    statusLabel.id = "Status Label";
+    options_cell[6].className = "connect_cell";
+    options_cell[6].id = "connect_cell";
+    options_cell[6].appendChild(statusLabel)
+    options_cell[6].setAttribute("rowspan", "2");
+
+
+    // optionsTable_row1.appendChild(options_cell[7]);
+    // optionsTable_row2.appendChild(options_cell[8]);
+    optionsTable_row1.appendChild(options_cell[0]);
+    optionsTable_row2.appendChild(options_cell[1]);
+    optionsTable_row1.appendChild(options_cell[2]);
+    optionsTable_row2.appendChild(options_cell[3]);
+    optionsTable_row1.appendChild(options_cell[4]);
+    optionsTable_row2.appendChild(options_cell[5]);
+    optionsTable_row1.appendChild(options_cell[6])
+    divClass.appendChild(optionsTable);
+  }
+
+  function create_preset_cell(div){
+    var divClass = document.getElementsByClassName(div);
+    // var preset_name = document.createElement('input');
+    // preset_name.id = "inputFileNameToSaveAs";
+    // var preset_load_name = document.createElement('input');
+    // preset_load_name.id = "fileToLoad";
+    // preset_name.appendChild(document.createTextNode('Preset'));
+    // <input type="file" id="file-input" />
+
+
+    var preset_buttons = [document.createElement('label'), document.createElement('label')];
+    var save_button =  document.createElement('input');
+    var load_button =  document.createElement('input');
+    var upload_button =  document.createElement('input');
+    save_button.type = "button"
+    save_button.value = "Save"
+    save_button.onclick = function() {
+      var obj2 = {
+        button_short_type : button_short_type[current_layout],
+        button_short_control: button_short_control[current_layout],
+        button_short_channel: button_short_channel[current_layout], 
+        button_short_toggle: button_short_toggle[current_layout], 
+        button_short_snap: button_short_snap[current_layout], 
+        button_long_type: button_long_type[current_layout], 
+        button_long_control: button_long_control[current_layout], 
+        button_long_channel: button_long_channel[current_layout], 
+        button_long_toggle: button_long_toggle[current_layout], 
+        button_double_type: button_double_type[current_layout], 
+        button_double_control: button_double_control[current_layout], 
+        button_double_channel: button_double_channel[current_layout], 
+        button_double_toggle: button_double_toggle[current_layout], 
+        led_type: led_type[current_layout], 
+        led_control: led_control[current_layout], 
+        led_channel: led_channel[current_layout], 
+        encoder_short_press_type: encoder_short_press_type[current_layout], 
+        encoder_short_press_control: encoder_short_press_control[current_layout], 
+        encoder_short_press_channel: encoder_short_press_channel[current_layout], 
+        encoder_control: encoder_control[current_layout], 
+        encoder_channel: encoder_channel[current_layout], 
+        encoder_hold_control: encoder_hold_control[current_layout], 
+        encoder_hold_channel: encoder_hold_channel[current_layout], 
+        slider_control: slider_control[current_layout], 
+        slider_channel: slider_channel[current_layout], 
+        display: display[current_layout]
+      }
+      saveText( JSON.stringify(obj2), "Page.json" );
+    }
+    load_label = document.createElement('label');
+    load_label.appendChild(document.createTextNode('Load'));
+    load_label.htmlFor = "file-input"
+    load_button.type = "file"
+    load_button.id = "file-input"
+    load_button.accept = ".json"
+    load_button.addEventListener('change', readSingleFile, false);
+    upload_button.type = "button"
+    upload_button.value = "Upload"
+    upload_button.onclick = function() {uploadPreset()}
+    preset_buttons[0].appendChild(save_button);
+    // preset_buttons[1].appendChild(load_label);
+    preset_buttons[0].appendChild(load_button);
+    preset_buttons[0].appendChild(upload_button);
+    return (preset_buttons[0])
+  }
+
   function create_bpm_option(div) {
     var divClass = document.getElementsByClassName(div);
+    var tempo_label = document.createElement('label');
     var tempo_checkbox = document.createElement('input');
     tempo_checkbox.type = "checkbox";
     tempo_checkbox.id = "metro";
+    tempo_checkbox.className = "demo2"
+    tempo_label.htmlFor = tempo_checkbox.id
 
-    var tempo_label = document.createElement('label');
     tempo_label.appendChild(document.createTextNode(' Metronome blinking'));
 
     tempo_checkbox.addEventListener('change', (event) => {
@@ -556,11 +700,13 @@
 
   function create_session_box_option(div) {
     var divClass = document.getElementsByClassName(div);
+    var session_box_label = document.createElement('label');
     var session_box_checkbox = document.createElement('input');
     session_box_checkbox.type = "checkbox";
     session_box_checkbox.id = "session_box";
+    session_box_checkbox.className = "demo2"
+    session_box_label.htmlFor = session_box_checkbox.id
 
-    var session_box_label = document.createElement('label');
     session_box_label.appendChild(document.createTextNode(' Create Session Box'));
 
     session_box_checkbox.addEventListener('change', (event) => {
@@ -574,47 +720,6 @@
       }
     })
     return ([session_box_checkbox, session_box_label])
-  }
-
-  function create_midi_thru_option(div) {
-    var divClass = document.getElementsByClassName(div);
-    var thru_div = document.createElement('div');
-    var usb_thru_checkbox = document.createElement('input');
-    usb_thru_checkbox.type = "checkbox";
-    usb_thru_checkbox.id = "usb_thru_box";
-    var usb_thru_label = document.createElement('label');
-    usb_thru_label.appendChild(document.createTextNode('USB   '));
-    usb_thru_checkbox.addEventListener('change', (event) => {
-      if (event.target.checked) {
-        options[1] = 0;
-        sendRawSysex([240, 122, 29, 1, 19, 25, 1, 247]);
-      }
-      else {
-        options[1] = 1;
-        sendRawSysex([240, 122, 29, 1, 19, 25, 0, 247]);
-      }
-    })
-    var midi_out_thru_checkbox = document.createElement('input');
-    midi_out_thru_checkbox.type = "checkbox";
-    midi_out_thru_checkbox.id = "usb_thru_box";
-    var midi_out_thru_label = document.createElement('label');
-    midi_out_thru_label.appendChild(document.createTextNode('MIDI Out'));
-    midi_out_thru_checkbox.addEventListener('change', (event) => {
-      if (event.target.checked) {
-        options[1] = 0;
-        sendRawSysex([240, 122, 29, 1, 19, 26, 1, 247]);
-      }
-      else {
-        options[1] = 1;
-        sendRawSysex([240, 122, 29, 1, 19, 26, 0, 247]);
-      }
-    })
-
-    thru_div.appendChild(usb_thru_checkbox);
-    thru_div.appendChild(usb_thru_label);
-    thru_div.appendChild(midi_out_thru_checkbox);
-    thru_div.appendChild(midi_out_thru_label);
-    return (thru_div)
   }
 
   function create_led_brightness_option(div) {
@@ -650,6 +755,51 @@
     return ([display_brightness_slider, display_brightness_slider_label]);
   }
 
+  function create_midi_thru_option(div) {
+    var divClass = document.getElementsByClassName(div);
+    var usb_thru_div = document.createElement('div');
+    var usb_thru_label = document.createElement('label');
+    var usb_thru_checkbox = document.createElement('input');
+    usb_thru_checkbox.type = "checkbox";
+    usb_thru_checkbox.id = "usb_thru_box";
+    usb_thru_checkbox.className = "demo2"
+    usb_thru_label.htmlFor = usb_thru_checkbox.id
+    usb_thru_label.appendChild(document.createTextNode('USB   '));
+    usb_thru_checkbox.addEventListener('change', (event) => {
+      if (event.target.checked) {
+        options[1] = 0;
+        sendRawSysex([240, 122, 29, 1, 19, 25, 1, 247]);
+      }
+      else {
+        options[1] = 1;
+        sendRawSysex([240, 122, 29, 1, 19, 25, 0, 247]);
+      }
+    })
+    var midi_out_thru_label = document.createElement('label');
+    var midi_out_thru_checkbox = document.createElement('input');
+    midi_out_thru_checkbox.type = "checkbox";
+    midi_out_thru_checkbox.id = "midi_thru_box";
+    midi_out_thru_checkbox.className = "demo2"
+    midi_out_thru_label.htmlFor = midi_out_thru_checkbox.id
+    midi_out_thru_label.appendChild(document.createTextNode('MIDI Out'));
+    midi_out_thru_checkbox.addEventListener('change', (event) => {
+      if (event.target.checked) {
+        options[1] = 0;
+        sendRawSysex([240, 122, 29, 1, 19, 26, 1, 247]);
+      }
+      else {
+        options[1] = 1;
+        sendRawSysex([240, 122, 29, 1, 19, 26, 0, 247]);
+      }
+    })
+
+    usb_thru_div.appendChild(usb_thru_checkbox);
+    usb_thru_div.appendChild(usb_thru_label);
+    usb_thru_div.appendChild(midi_out_thru_checkbox);
+    usb_thru_div.appendChild(midi_out_thru_label);
+    return (usb_thru_div)
+  }
+
   function create_sel(num, options_dict, id, display) {
     var select = document.createElement('select')
     var options_str = "";
@@ -682,8 +832,10 @@
     divClass.className = "Layout";
     var mainTable_row0 = mainTable.insertRow(0);
     var mainTable_row1 = mainTable.insertRow(1);
+    var mainTable_row2 = mainTable.insertRow(2);
     var main_cell = document.createElement('td');
-    var status_cell = document.createElement('td');
+    // var status_cell = document.createElement('td');
+    var preset_cell = document.createElement('td');
     var main_cell_table = document.createElement('table');
     var layout_icon_cell = main_cell_table.insertRow(-1).insertCell(0);
     var layout_select_cell = main_cell_table.insertRow(-1).insertCell(0);
@@ -692,71 +844,22 @@
 
     layout_icon_cell.innerHTML = "Select Page";
     sel_layout = create_sel(90, layout_actions, 'page', 'block');
-    layout_color_cell.innerHTML = "Page LED Color ";
-    sel_color = create_color_sel(90);
+    // layout_color_cell.innerHTML = "Page LED Color ";
+    // sel_color = create_color_sel(90);
     layout_icon_cell.className = "layout";
 
     divClass.appendChild(mainTable);
     main_cell.appendChild(layout_icon_cell);
     main_cell.appendChild(sel_layout);
-    main_cell.appendChild(layout_color_cell);
-    layout_color_cell.appendChild(sel_color);
+    // main_cell.appendChild(layout_color_cell);
+    // layout_color_cell.appendChild(sel_color);
+
+    preset_cell_content = create_preset_cell("Options");
+    preset_cell.appendChild(preset_cell_content);
+
     mainTable_row0.appendChild(main_cell);
-  }
 
-  function create_options_table(div) {
-    var divClass = document.getElementById(div);
-    var optionsTable = document.createElement('table');
-    optionsTable.className = "type_options";
-    var optionsTable_row0 = optionsTable.insertRow(0);
-    var optionsTable_row1 = optionsTable.insertRow(1);
-    var optionsTable_row2 = optionsTable.insertRow(2);
-    var optionsTable_row3 = optionsTable.insertRow(3);
-    var optionsTable_row4 = optionsTable.insertRow(4);
-    var optionsTable_row5 = optionsTable.insertRow(5);
-    var optionsTable_row6 = optionsTable.insertRow(6);
-    text_cell = document.createElement('td')
-    text_cell.innerHTML = "Options"
-    // text_cell.className = "type_options";
-    text_cell.setAttribute("colspan", "4");
-    var options_cell = [document.createElement('td'), document.createElement('td'), document.createElement('td'), document.createElement('td'), document.createElement('td'), document.createElement('td'), document.createElement('td')];
-    
-    for (var i = 0; i < 6; i++) {
-    options_cell[i].className = "type_options";
-    }
-    options_cell[6].className = "connect_cell";
-    options_cell[6].id = "connect_cell";
-    tempo_option = create_bpm_option("Options");
-    session_box_option = create_session_box_option("Options");
-    led_brightness_option = create_led_brightness_option("Options");
-    display_brightness_option = create_display_brightness_option("Options");
-    midi_thru_option = create_midi_thru_option("Options");
-    options_cell[0].appendChild(tempo_option[0]);
-    options_cell[0].appendChild(tempo_option[1]);
-    options_cell[1].appendChild(session_box_option[0]);
-    options_cell[1].appendChild(session_box_option[1]);
-
-    options_cell[2].appendChild(led_brightness_option[1]);
-    options_cell[2].appendChild(led_brightness_option[0]);
-    options_cell[3].appendChild(display_brightness_option[1]);
-    options_cell[3].appendChild(display_brightness_option[0]);
-    options_cell[4].innerHTML = "Forward MIDI In to:"
-    options_cell[5].appendChild(midi_thru_option);
-
-    // optionsTable_row0.appendChild(text_cell);
-    optionsTable_row1.appendChild(options_cell[0]);
-    optionsTable_row2.appendChild(options_cell[1]);
-    optionsTable_row1.appendChild(options_cell[2]);
-    optionsTable_row2.appendChild(options_cell[3]);
-    optionsTable_row1.appendChild(options_cell[4]);
-    optionsTable_row2.appendChild(options_cell[5]);
-    
-    var statusLabel = document.createElement('label');
-    statusLabel.id = "Status Label";
-    optionsTable_row1.appendChild(options_cell[6])
-    options_cell[6].appendChild(statusLabel)
-    options_cell[6].setAttribute("rowspan", "2");
-    divClass.appendChild(optionsTable);
+    mainTable_row1.appendChild(preset_cell);
   }
 
   function create_display_table(div) {
@@ -868,7 +971,7 @@
 
 
     cell[8].innerHTML = "Short";
-    cell[9].innerHTML = "Snap";
+    // cell[8].setAttribute("colspan", "2");
     cell[8].classList.add("type5");
     cell[9].classList.add("type5");
     row[4].appendChild(cell[8]);
@@ -878,11 +981,12 @@
     cell[10].appendChild(sel_short_button);
 
     snap_checkbox = create_snap(i);
-    cell[11].appendChild(snap_checkbox);
+    cell[11].appendChild(snap_checkbox[0]);
+    cell[11].appendChild(snap_checkbox[1]);
     row[5].appendChild(cell[10]);
     row[5].appendChild(cell[11]);
 
-    cc_table_short = cc_table_constructor(i, "custom_MIDI_table_short_button");
+    cc_table_short = custom_MIDI_constructor(i, "custom_MIDI_short_button", "button");
     cell[12].appendChild(cc_table_short);
     cc_table_short.style.visibility = "hidden";
     row[6].appendChild(cell[12]);
@@ -897,12 +1001,14 @@
     long_button_label.appendChild(document.createTextNode('Long'));
     long_button_label.id = "long_button_label"+i;
     cell[14].appendChild(long_button_label);
+    // cell[14].setAttribute("colspan", "2");
     sel_long_button = create_sel(i, button_actions, 'long_button', 'block');
     cell[16].appendChild(sel_long_button);
+    // cell[16].setAttribute("colspan", "2");
     row[7].appendChild(cell[14]);
     row[8].appendChild(cell[16]);
 
-    cc_table_long = cc_table_constructor(i, "custom_MIDI_table_long_button");
+    cc_table_long = custom_MIDI_constructor(i, "custom_MIDI_long_button", "button");
     cell[18].appendChild(cc_table_long);
     cell[18].style.visibility = "hidden";
     row[9].appendChild(cell[18]);
@@ -922,7 +1028,7 @@
     row[10].appendChild(cell[20]);
     row[11].appendChild(cell[22]);
 
-    cc_table_double = cc_table_constructor(i, "custom_MIDI_table_double_button");
+    cc_table_double = custom_MIDI_constructor(i, "custom_MIDI_double_button", "button");
     cell[24].appendChild(cc_table_double);
     cell[24].style.visibility = "hidden";
     row[12].appendChild(cell[24]);
@@ -939,32 +1045,34 @@
   }
 
   function create_snap(i) {
+    var snap_label = document.createElement('label');
     var snap = document.createElement('input');
     snap.type = "checkbox";
     snap.id = "checkbox" + i;
+    snap.className = "snap"
+    snap_label.htmlFor = snap.id
     snap.addEventListener('change', (event) => {
       if (event.target.checked) on_snap_changed(i, true);
       else on_snap_changed(i, false);
     })
-    return snap;
+    return [snap, snap_label];
   }
 
   function create_toggle(i, id) {
     var toggle_div = document.createElement('div');
     toggle_div.id = id + i;
+    var toggle_label = document.createElement('label');
     var toggle = document.createElement('input');
-    toggle.id = id+"_checkbox"+i;
     toggle.type = "checkbox";
-    console.log(toggle, toggle.id)
+    toggle.id = id+"_checkbox"+i;
+    toggle.className = "toggle"
+    toggle_label.htmlFor = toggle.id
     toggle.addEventListener('change', (event) => {
       if (event.target.checked) on_toggle_changed(i, true, id);
       else on_toggle_changed(i, false, id);
     })
-    var toggle_label = document.createElement('label');
-    toggle_label.id = "Toggle";
-    toggle_label.appendChild(document.createTextNode('Toggle'));
-    toggle_div.appendChild(toggle_label);
     toggle_div.appendChild(toggle);
+    toggle_div.appendChild(toggle_label);
     return toggle_div;
   }
 
@@ -990,7 +1098,7 @@ function create_encoder_cell_content(main_cell, i) {
 let main_cell_table = document.createElement('table');
 let row = [];
 let cell = [];
-for (var j = 0; j < 10; j++) {
+for (var j = 0; j < 11; j++) {
   row[j] = document.createElement("tr");
   cell[j] = document.createElement('td');
   cell[j].classList.add("type1");
@@ -1003,7 +1111,7 @@ sel_encoder = create_sel(i, encoder_actions, 'encoder', 'block');
 cell[1].appendChild(sel_encoder);
 row[1].appendChild(cell[1]);
 
-cc_table_encoder = cc_table_constructor(i, "custom_MIDI_table_encoder");
+cc_table_encoder = custom_MIDI_constructor(i, "custom_MIDI_encoder", "slider");
 cell[2].appendChild(cc_table_encoder);
 cell[2].style.visibility = "hidden";
 row[2].appendChild(cell[2]);
@@ -1014,8 +1122,7 @@ row[3].appendChild(cell[3]);
 sel_encoder_hold = create_sel(i, encoder_actions, 'encoder_hold', 'block');
 cell[4].appendChild(sel_encoder_hold);
 row[4].appendChild(cell[4]);
-
-cc_table_encoder_hold = cc_table_constructor(i, "custom_MIDI_table_encoder_hold");
+cc_table_encoder_hold = custom_MIDI_constructor(i, "custom_MIDI_encoder_hold", "slider");
 cell[5].appendChild(cc_table_encoder_hold);
 cell[5].style.visibility = "hidden";
 row[5].appendChild(cell[5]);
@@ -1028,17 +1135,15 @@ sel_short_button = create_sel(i, button_actions, 'encoder_short_press', 'block')
 cell[7].appendChild(sel_short_button);
 row[7].appendChild(cell[7]);
 
-cc_table_short = cc_table_constructor(i, "custom_MIDI_table_encoder_short_press");
-cell[8].appendChild(cc_table_short);
-cc_table_short.style.visibility = "hidden";
+cc_table_encoder_short = custom_MIDI_constructor(i, "custom_MIDI_encoder_short_press", "button");
+cell[8].appendChild(cc_table_encoder_short);
+cc_table_encoder_short.style.visibility = "hidden";
 row[8].appendChild(cell[8]);
 
-// toggle_checkbox = create_toggle(i);
-// cell[13].appendChild(toggle_checkbox);
-// // cell[13].innerHTML = "Toggle";
-// toggle_checkbox.style.visibility = "hidden";
-// row[8].appendChild(cell[13]);
-
+toggle_encoder_short_checkbox = create_toggle(i, "custom_MIDI_toggle_encoder_short_press");
+    cell[9].appendChild(toggle_encoder_short_checkbox);
+    toggle_encoder_short_checkbox.style.visibility = "hidden";
+    row[8].appendChild(cell[9]);
 
 for (var i = 0; i < 10; i++) {
   main_cell.appendChild(row[i]);
@@ -1072,9 +1177,14 @@ for (var j = 0; j < 5; j++) {
   cell[j].classList.add("type1");
 }
 
-cell[0].innerHTML = "Expression Pedal " + (i + 1).toString() + "</font><br> ____________________";
+cell[0].innerHTML = "Expression Pedal " + (i + 1).toString() + "</font><br>____________________";
 sel_slider = create_sel(i, slider_actions, 'slider', 'block');
 cell[1].appendChild(sel_slider);
+
+cc_table_slider = custom_MIDI_constructor(i, "custom_MIDI_slider", "slider");
+cell[2].appendChild(cc_table_slider);
+cell[2].style.visibility = "hidden";
+row[2].appendChild(cell[2]);
 
 cell[3].innerHTML = "____________________<br> Calibrate";
 calibrate_min_button = document.createElement("input");
@@ -1135,7 +1245,8 @@ function create_external_MIDI_table(div) {
       var MIDI_cell = document.createElement('td');
       var MIDI_cell_table = document.createElement('table');
 
-      cc_tab = cc_table_constructor(i, "external_MIDI");
+      if (i < 8) cc_tab = custom_MIDI_constructor(i, "external_MIDI", "button");
+      else cc_tab = custom_MIDI_constructor(i, "external_MIDI", "slider");
       MIDI_cell_table = cc_tab;
       external_MIDI_cell[0].appendChild(MIDI_cell_table);
       external_MIDI_cell[0].appendChild(MIDI_cell);
@@ -1145,7 +1256,7 @@ function create_external_MIDI_table(div) {
     divClass[0].appendChild(external_MIDI_table);
   }
 
-  function cc_table_constructor(i, id) {
+  function custom_MIDI_constructor(i, id, type) {
     var cc_table = document.createElement('table');
     var cc_table_row0 = cc_table.insertRow(0);
     var cell00 = cc_table_row0.insertCell(0);
@@ -1156,7 +1267,7 @@ function create_external_MIDI_table(div) {
     cc_table.id = id + i;
     type_sel = create_cc_sel(i, type_values, 'type_select', id);
     // if (id != "external_MIDI") cell00.appendChild(type_sel);
-    if (id == "custom_MIDI_table_short_button" || id == "custom_MIDI_table_long_button" || id == "custom_MIDI_table_double_button") cell00.appendChild(type_sel);
+    if (type != "slider") cell00.appendChild(type_sel);
     cc_sel = create_cc_sel(i, cc_values, 'cc_select', id);
     cell01.appendChild(cc_sel);
     if (id == "external_MIDI") ch_sel = create_cc_sel(i, ch_values, 'ch_select', id);
@@ -1179,7 +1290,7 @@ function create_external_MIDI_table(div) {
     select.num = num;
     select.id = source + "_" + id + num;
     // console.log(select.id)
-    select.onchange = function () { on_cc_change(select.num, select.value, id, source); };
+    select.onchange = function () { on_custom_MIDI_change(select.num, select.value, id, source); };
     return select
   }
 
@@ -1273,7 +1384,7 @@ function create_external_MIDI_table(div) {
     }
   }
 
-  function on_cc_change(num, value, datatype, source) {
+  function on_custom_MIDI_change(num, value, datatype, source) {
     console.log(num, value, datatype, source)
     // var sel = document.getElementById("sel" + num);
     value = parseInt(value);
@@ -1292,41 +1403,47 @@ function create_external_MIDI_table(div) {
       }
     }
     else {
-      if (source == "custom_MIDI_table_short_button"){
+      if (source == "custom_MIDI_short_button"){
       if (datatype == "type_select") button_short_type[current_layout][num] = value - 1;
       else if (datatype == "cc_select") button_short_control[current_layout][num] = value;
       else if (datatype == "ch_select") button_short_channel[current_layout][num] = value;
       sendRawSysex([240, 122, 29, 1, 19, 10, current_layout, num, button_short_control[current_layout][num], button_short_type[current_layout][num], button_short_channel[current_layout][num], 247]);
       }
-      else if (source == "custom_MIDI_table_long_button"){
+      else if (source == "custom_MIDI_long_button"){
       if (datatype == "type_select") button_long_type[current_layout][num] = value - 1;
       else if (datatype == "cc_select") button_long_control[current_layout][num] = value;
       else if (datatype == "ch_select") button_long_channel[current_layout][num] = value;
       sendRawSysex([240, 122, 29, 1, 19, 12, current_layout, num, button_long_control[current_layout][num], button_long_type[current_layout][num], button_long_channel[current_layout][num], 247]);
     }
-      else if (source == "custom_MIDI_table_double_button"){
+      else if (source == "custom_MIDI_double_button"){
       if (datatype == "type_select") button_double_type[current_layout][num] = value - 1;
       else if (datatype == "cc_select") button_double_control[current_layout][num] = value;
       else if (datatype == "ch_select") button_double_channel[current_layout][num] = value;
       sendRawSysex([240, 122, 29, 1, 19, 19, current_layout, num, button_double_control[current_layout][num], button_double_type[current_layout][num], button_double_channel[current_layout][num], 247]);
     }
-    else if (source == "custom_MIDI_table_encoder_short_press"){
+    else if (source == "custom_MIDI_encoder_short_press"){
       if (datatype == "type_select") encoder_short_press_type[current_layout][num] = value - 1;
       else if (datatype == "cc_select") encoder_short_press_control[current_layout][num] = value;
       else if (datatype == "ch_select") encoder_short_press_channel[current_layout][num] = value;
       sendRawSysex([240, 122, 29, 1, 19, 10, current_layout, num+NUM_BUTTONS, encoder_short_press_control[current_layout][num], encoder_short_press_type[current_layout][num], encoder_short_press_channel[current_layout][num], 247]);
 }
-    else if (source == "custom_MIDI_table_encoder_long_press"){
-      if (datatype == "type_select") encoder_long_press_type[current_layout][num] = value - 1;
-      else if (datatype == "cc_select") encoder_long_press_control[current_layout][num] = value;
-      else if (datatype == "ch_select") encoder_long_press_channel[current_layout][num] = value;
-      sendRawSysex([240, 122, 29, 1, 19, 12, current_layout, num+NUM_BUTTONS, encoder_long_press_control[current_layout][num], encoder_long_press_type[current_layout][num], encoder_long_press_channel[current_layout][num], 247]);
+else if (source == "custom_MIDI_slider"){
+      // if (datatype == "type_select") sli[current_layout][num] = value - 1;
+      if (datatype == "cc_select") slider_control[current_layout][num] = value;
+      else if (datatype == "ch_select") slider_channel[current_layout][num] = value;
+      sendRawSysex([240, 122, 29, 1, 19, 17, current_layout, num, slider_control[current_layout][num], 1, slider_channel[current_layout][num], 247]);
 }
-else if (source == "custom_MIDI_table_encoder_double_press"){
-      if (datatype == "type_select") encoder_double_press_type[current_layout][num] = value - 1;
-      else if (datatype == "cc_select") encoder_double_press_control[current_layout][num] = value;
-      else if (datatype == "ch_select") encoder_double_press_channel[current_layout][num] = value;
-      sendRawSysex([240, 122, 29, 1, 19, 19, current_layout, num+NUM_BUTTONS, encoder_double_press_control[current_layout][num], encoder_double_press_type[current_layout][num], encoder_double_press_channel[current_layout][num], 247]);
+else if (source == "custom_MIDI_encoder"){
+      // if (datatype == "type_select") sli[current_layout][num] = value - 1;
+      if (datatype == "cc_select") encoder_control[current_layout][num] = value;
+      else if (datatype == "ch_select") encoder_channel[current_layout][num] = value;
+      sendRawSysex([240, 122, 29, 1, 19, 16, current_layout, num, encoder_control[current_layout][num], 1, encoder_channel[current_layout][num], 247]);
+}
+else if (source == "custom_MIDI_encoder_hold"){
+      // if (datatype == "type_select") sli[current_layout][num] = value - 1;
+      if (datatype == "cc_select") encoder_hold_control[current_layout][num] = value;
+      else if (datatype == "ch_select") encoder_hold_channel[current_layout][num] = value;
+      sendRawSysex([240, 122, 29, 1, 19, 16, current_layout, num+2, encoder_hold_control[current_layout][num], 1, encoder_hold_channel[current_layout][num], 247]);
 }
 
 //Sending {240, 122, 29, 1, 19, 10, Layout Number, Button number, Note/CC Number, Type, Channel, 247}
@@ -1380,11 +1497,6 @@ else if (source == "custom_MIDI_table_encoder_double_press"){
       control_number = encoder_short_press_control[current_layout][i];
     }
 
-    if (id == 'encoder_long_press') {
-      control_type = encoder_long_press_type[current_layout][i];
-      control_channel = encoder_long_press_channel[current_layout][i];
-      control_number = encoder_long_press_control[current_layout][i];
-    }
     var s = document.getElementById(id + i);
     s.value = get_index(control_number, button_actions);
     if (control_type == 0 && control_channel == 16) s.value = Object.keys(button_actions).indexOf("① MIDI Map 1 (Big Button)");
@@ -1394,28 +1506,27 @@ else if (source == "custom_MIDI_table_encoder_double_press"){
     if (control_type == 0 && control_channel == 12) s.value = Object.keys(button_actions).indexOf("⑤ MIDI Map 5");
     if (control_type == 0 && control_channel == 11) s.value = Object.keys(button_actions).indexOf("⑥ MIDI Map 6");
 
-    if (control_channel < 16) {
+    if (control_channel < 11) {
       s.value = Object.keys(button_actions).indexOf("Custom MIDI");
-      var s1 = document.getElementById("custom_MIDI_table_" + id + i);
+      var s1 = document.getElementById("custom_MIDI_" + id + i);
       s1.style.visibility = "visible";
-      var s2 = document.getElementById("custom_MIDI_table_"+id+"_type_select" + i);
+      var s2 = document.getElementById("custom_MIDI_"+id+"_type_select" + i);
       s2.value = control_type + 1;
-      var s3 = document.getElementById("custom_MIDI_table_"+id+"_cc_select" + i);
+      var s3 = document.getElementById("custom_MIDI_"+id+"_cc_select" + i);
       s3.value = control_number;
-      var s4 = document.getElementById("custom_MIDI_table_"+id+"_ch_select" + i);
+      var s4 = document.getElementById("custom_MIDI_"+id+"_ch_select" + i);
       s4.value = control_channel;
       var s5 = document.getElementById("custom_MIDI_toggle_" + id+ i);
       s5.style.visibility = "visible";
       var s6 = document.getElementById("custom_MIDI_toggle_" + id+ "_checkbox"+ i);
-      // console.log("custom_MIDI_toggle_" + id+ "_checkbox"+ i, s6, toggle)
       s6.checked = toggle;
     }
   }
 
   function on_page_select_changed(layout) {
     current_layout = layout;
-    var s = document.getElementById("color_sel90"); // set Page color sel
-    s.value = options[2 + current_layout]
+    // var s = document.getElementById("color_sel90"); // set Page color sel
+    // s.value = options[2 + current_layout]
 
     for (var i = 0; i < NUM_BUTTONS; i++) {
       update_button_menus(current_layout, "short_button", i);
@@ -1446,10 +1557,30 @@ else if (source == "custom_MIDI_table_encoder_double_press"){
     }
 
     for (var i = 0; i < NUM_ENCODERS; i++) { // updates sliders
+      var options_list = Object.keys(encoder_actions)
+console.log("LOG", i)
       var s = document.getElementById("encoder" + i);
-      s.value = get_index(encoder_control[current_layout][i], encoder_actions);
+      if (encoder_channel[current_layout][i] < 11){
+        s.value = Object.keys(encoder_actions).indexOf("Custom MIDI");
+        set_encoder_custom_MIDI(i, "encoder", options_list[s.value])
+      var s3 = document.getElementById("custom_MIDI_encoder_cc_select" + i);
+      s3.value = encoder_control[current_layout][i];
+      var s4 = document.getElementById("custom_MIDI_encoder_ch_select" + i);
+      s4.value = encoder_channel[current_layout][i];
+      }
+      else s.value = get_index(encoder_control[current_layout][i], encoder_actions);
+
       var s = document.getElementById("encoder_hold" + i);
-      s.value = get_index(encoder_hold_control[current_layout][i], encoder_actions);
+      if (encoder_hold_channel[current_layout][i] < 11){
+        s.value = Object.keys(encoder_actions).indexOf("Custom MIDI");
+        set_encoder_custom_MIDI(i, "encoder_hold", options_list[s.value])
+      var s3 = document.getElementById("custom_MIDI_encoder_hold_cc_select" + i);
+      s3.value = encoder_control_hold[current_layout][i];
+      var s4 = document.getElementById("custom_MIDI_encoder_hold_ch_select" + i);
+      s4.value = encoder_channel_hold[current_layout][i];
+      }
+      else s.value = get_index(encoder_hold_control[current_layout][i], encoder_actions);
+
       update_button_menus(current_layout, "encoder_short_press", i);
     }
 
@@ -1467,55 +1598,54 @@ else if (source == "custom_MIDI_table_encoder_double_press"){
     if (id == "short_button") {
       sysex_byte = 10;
       button_short_control[current_layout][num] = cc_to_send;
+      sysex_num = num;
     }
     else if (id == "long_button") {
       sysex_byte = 12;
       button_long_control[current_layout][num] = cc_to_send;
+      sysex_num = num;
     }
     else if (id == "double_button") {
       sysex_byte = 19;
       button_double_control[current_layout][num] = cc_to_send;
+      sysex_num = num;
     }
     else if (id == "encoder_short_press") {
       sysex_byte = 10;
       encoder_short_press_control[current_layout][num] = cc_to_send;
-      num = num + NUM_BUTTONS;
-    }
-    else if (id == "encoder_long_press") {
-      sysex_byte = 12;
-      encoder_long_press_control[current_layout][num] = cc_to_send;
-      num = num + NUM_BUTTONS;
+      sysex_num = num + NUM_BUTTONS;
     }
     if (options_list[value] == "① MIDI Map 1 (Big Button)") {
-      sendSysex(sysex_byte, current_layout, num, 1, 0, 16);
+      sendSysex(sysex_byte, current_layout, sysex_num, 1, 0, 16);
       // var s = document.getElementById(id + num);
       // s.style.display = "none";
     }
     else if (options_list[value] == "② MIDI Map 2 (Clear)") {
-      sendSysex(sysex_byte, current_layout, num, 1, 0, 15);
+      sendSysex(sysex_byte, current_layout, sysex_num, 1, 0, 15);
     }
     else if (options_list[value] == "③ MIDI Map 3") {
-      sendSysex(sysex_byte, current_layout, num, 1, 0, 14);
+      sendSysex(sysex_byte, current_layout, sysex_num, 1, 0, 14);
     }
     else if (options_list[value] == "④ MIDI Map 4") {
-      sendSysex(sysex_byte, current_layout, num, 1, 0, 13);
+      sendSysex(sysex_byte, current_layout, sysex_num, 1, 0, 13);
     }
     else if (options_list[value] == "⑤ MIDI Map 5") {
-      sendSysex(sysex_byte, current_layout, num, 1, 0, 12);
+      sendSysex(sysex_byte, current_layout, sysex_num, 1, 0, 12);
     }
     else if (options_list[value] == "⑥ MIDI Map 6") {
-      sendSysex(sysex_byte, current_layout, num, 1, 0, 11);
+      sendSysex(sysex_byte, current_layout, sysex_num, 1, 0, 11);
     }
-    else sendSysex(sysex_byte, current_layout, num, cc_to_send, 1, 16);
+    else sendSysex(sysex_byte, current_layout, sysex_num, cc_to_send, 1, 16);
+    
     if (options_list[value] == "Custom MIDI") {
-      var s = document.getElementById("custom_MIDI_table_" + id + num);
+      var s = document.getElementById("custom_MIDI_" + id + num);
       s.style.visibility = "visible";
       var s = document.getElementById("custom_MIDI_toggle_" + id + num);
       s.style.visibility = "visible";
     }
     else {
       on_toggle_changed(num, 0, "custom_MIDI_toggle_"+id)
-      var s = document.getElementById("custom_MIDI_table_" + id + num);
+      var s = document.getElementById("custom_MIDI_" + id + num);
       s.style.visibility = "hidden";
       var s = document.getElementById("custom_MIDI_toggle_" + id + num);
       s.style.visibility = "hidden";
@@ -1540,16 +1670,16 @@ else if (source == "custom_MIDI_table_encoder_double_press"){
     var l1 = document.getElementById("long_button_label" + num);
     var l2 = document.getElementById("double_button_label" + num);
     if (value == 1) {
-      s1.style.display = "none";
-      s2.style.display = "none";
-      l1.style.display = "none";
-      l2.style.display = "none";
+      s1.style.visibility = "hidden";
+      s2.style.visibility = "hidden";
+      l1.style.visibility = "hidden";
+      l2.style.visibility = "hidden";
     }
     else {
-      s1.style.display = "block";
-      s2.style.display = "block";
-      l1.style.display = "block";
-      l2.style.display = "block";
+      s1.style.visibility = "visible";
+      s2.style.visibility = "visible";
+      l1.style.visibility = "visible";
+      l2.style.visibility = "visible";
     }
     button_short_snap[current_layout][num] = value;
   }
@@ -1574,19 +1704,23 @@ else if (source == "custom_MIDI_table_encoder_double_press"){
   function set_encoder(id, num, value) {
     var options_list = Object.keys(encoder_actions)
     cc_to_send = encoder_actions[options_list[value]];
+    set_encoder_custom_MIDI(num, id, options_list[value]);
     if (id == "encoder_hold") {
     encoder_hold_control[current_layout][num] = cc_to_send;
     num = num+2;
     }
     else encoder_control[current_layout][num] = cc_to_send;
     sendSysex(16, current_layout, num, cc_to_send, 1, 16);
+  }
 
-    if (options_list[value] == "Custom MIDI") {
-      var s = document.getElementById("custom_MIDI_table_" + id + num);
+  function set_encoder_custom_MIDI(num, id, option) {
+    if (option == "Custom MIDI") {
+      var s = document.getElementById("custom_MIDI_" + id + num);
       s.style.visibility = "visible";
+
     }
     else {
-      var s = document.getElementById("custom_MIDI_table_"+ id + num);
+      var s = document.getElementById("custom_MIDI_"+ id + num);
       s.style.visibility = "hidden";
     }
   }
@@ -1596,6 +1730,15 @@ else if (source == "custom_MIDI_table_encoder_double_press"){
     cc_to_send = slider_actions[options_list[value]];
     slider_control[current_layout][num] = cc_to_send;
     sendSysex(17, current_layout, num, cc_to_send, 1, 16);
+
+    if (options_list[value] == "Custom MIDI") {
+      var s = document.getElementById("custom_MIDI_slider" + num);
+      s.style.visibility = "visible";
+    }
+    else {
+      var s = document.getElementById("custom_MIDI_slider" + num);
+      s.style.visibility = "hidden";
+    }
   }
 
   function set_display(num, value) {
@@ -1635,23 +1778,87 @@ else if (source == "custom_MIDI_table_encoder_double_press"){
   // PRESETS
   ///////////////////////////////////
  
+  function readSingleFile(e) {
+  var file = e.target.files[0];
+  if (!file) {
+    return;
+  }
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var contents = e.target.result;
+    displayContents(contents);
+  };
+  reader.readAsText(file);
+}
+
+function displayContents(contents) {
+  // var elements = Array(24);
+  elements = JSON.parse(contents);
+  console.log("ok")
+  console.log(contents)
+  console.log(elements["button_short_type"])
+  // console.log("elemets", contents[0])
+  button_short_type[current_layout] = elements["button_short_type"];
+  button_short_control[current_layout] = elements["button_short_control"];
+  button_short_channel[current_layout] = elements["button_short_channel"];
+  button_short_toggle[current_layout] = elements["button_short_toggle"];
+  button_short_snap[current_layout] = elements["button_short_snap"];
+  button_long_type[current_layout] = elements["button_long_type"];
+  button_long_control[current_layout] = elements["button_long_control"];
+  button_long_channel[current_layout] = elements["button_long_channel"];
+  button_long_toggle[current_layout] = elements["button_long_toggle"];
+  button_double_type[current_layout] = elements["button_double_type"];
+  button_double_control[current_layout] = elements["button_double_control"];
+  button_double_channel[current_layout] = elements["button_double_channel"];
+  button_double_toggle[current_layout] = elements["button_double_toggle"];
+  led_type[current_layout] = elements["led_type"];
+  led_control[current_layout] = elements["led_control"];
+  led_channel[current_layout] = elements["led_channel"];
+  encoder_short_press_type[current_layout] = elements["encoder_short_press_type"];
+  encoder_short_press_control[current_layout] = elements["encoder_short_press_control"];
+  encoder_short_press_channel[current_layout] = elements["encoder_short_press_channel"];
+  encoder_control[current_layout] = elements["encoder_control"];
+  encoder_channel[current_layout] = elements["encoder_channel"];
+  encoder_hold_control[current_layout] = elements["encoder_hold_control"];
+  encoder_hold_channel[current_layout] = elements["encoder_hold_channel"];
+  slider_control[current_layout] = elements["slider_control"];
+  slider_channel[current_layout] = elements["slider_channel"];
+  display[current_layout] = elements["display"];
+
+  on_page_select_changed(current_layout);
+}
+
+
+  function saveText(text, filename){
+  var a = document.createElement('a');
+  a.setAttribute('href', 'data:text/plain;charset=utf-8,'+encodeURIComponent(text));
+  a.setAttribute('download', filename);
+  a.click()
+}
+
   function saveTextAsFile() {
-    // var textToSave = [];
-    // var textToSave = [control_type[current_layout], control_number[current_layout], control_channel[current_layout]];
-    // // document.getElementById("inputTextToSave").value;
-    // var textToSaveAsBlob = new Blob([textToSave], { type: "text/plain" });
-    // var textToSaveAsURL = window.URL.createObjectURL(textToSaveAsBlob);
-    // var fileNameToSaveAs = document.getElementById("inputFileNameToSaveAs").value;
 
-    // var downloadLink = document.createElement("a");
-    // downloadLink.download = fileNameToSaveAs;
-    // downloadLink.innerHTML = "Download File";
-    // downloadLink.href = textToSaveAsURL;
-    // downloadLink.onclick = destroyClickedElement;
-    // downloadLink.style.display = "none";
-    // document.body.appendChild(downloadLink);
+    var textToSave = [];
+    var textToSave = [button_short_type[current_layout], button_short_control[current_layout], button_short_channel[current_layout], button_short_toggle[current_layout], button_short_snap[current_layout], button_long_type[current_layout], button_long_control[current_layout], button_long_channel[current_layout], button_long_toggle[current_layout], button_double_type[current_layout], button_double_control[current_layout], button_double_channel[current_layout], button_double_toggle[current_layout]
+, led_type[current_layout], led_control[current_layout], led_channel[current_layout]
+, encoder_short_press_type[current_layout], encoder_short_press_control[current_layout], encoder_short_press_channel[current_layout], encoder_control[current_layout], encoder_channel[current_layout], encoder_hold_control[current_layout], encoder_hold_channel[current_layout]
+, slider_control[current_layout], slider_channel[current_layout]
+, display[current_layout]]
+console.log(textToSave)
+    // document.getElementById("inputTextToSave").value;
+    var textToSaveAsBlob = new Blob([textToSave], { type: "text/plain" });
+    var textToSaveAsURL = window.URL.createObjectURL(textToSaveAsBlob);
+    var fileNameToSaveAs = document.getElementById("inputFileNameToSaveAs").value;
 
-    // downloadLink.click();
+    var downloadLink = document.createElement("a");
+    downloadLink.download = fileNameToSaveAs;
+    downloadLink.innerHTML = "Download File";
+    downloadLink.href = textToSaveAsURL;
+    downloadLink.onclick = destroyClickedElement;
+    downloadLink.style.display = "none";
+    document.body.appendChild(downloadLink);
+
+    downloadLink.click();
   }
 
   function destroyClickedElement(event) {
@@ -1664,7 +1871,7 @@ else if (source == "custom_MIDI_table_encoder_double_press"){
 
   function loadFileAsText() {
     var fileToLoad = document.getElementById("fileToLoad").files[0];
-    //   console.log("fileToLoad", fileToLoad)
+      console.log("fileToLoad", fileToLoad)
     var filez
     var bigArray = [];
     const reader = new FileReader()
@@ -1723,7 +1930,6 @@ else if (source == "custom_MIDI_table_encoder_double_press"){
     }
 
     table {
-      /* table-layout: fixed; */
       width: 100%;
       border-collapse: collapse;
       border: 3px none rgb(128, 0, 128);
@@ -1761,13 +1967,13 @@ else if (source == "custom_MIDI_table_encoder_double_press"){
     div.Sliders {
       align-items: center;
       width: 800px;
-      padding-left: 272px;
+      padding-left: 254px;
     }
 
     div.Encoders {
       align-items: center;
       width: 800px;
-      padding-left: 270px;
+      padding-left: 224px;
     }
 
     div.Display {
@@ -2004,27 +2210,53 @@ else if (source == "custom_MIDI_table_encoder_double_press"){
     }
 
 
+    input[type="checkbox"].demo2 {
+  display: none;
+}
+input[type="checkbox"].demo2 + label::before {
+  content:'';
+  border: 1px solid #f5f5f5;
+  font-size: 10px;
+  padding: 2 8px;
+  /* padding-top: 6 6px; */
+  padding-bottom: 0 16px;
+  margin-right: 0.3rem;
+}
+input[type="checkbox"].demo2:checked + label::before {
+  background-color: #00B7E8;
+}
+input[type="checkbox"].snap {
+  display: none;
+}
+input[type="checkbox"].snap + label::before {
+  content:'Snap';
+  border: 1px solid #f5f5f5;
+  font-size: 10px;
+  padding: 2 4px;
+  margin-right: 0.3rem;
+}
+input[type="checkbox"].snap:checked + label::before {
+  background-color: #00B7E8;
+}
+input[type="checkbox"].toggle {
+  display: none;
+}
+input[type="checkbox"].toggle + label::before {
+  content:'Toggle';
+  border: 1px solid #f5f5f5;
+  font-size: 10px;
+  padding: 2 4px;
+  margin-right: 0.3rem;
+}
+input[type="checkbox"].toggle:checked + label::before {
+  background-color: #00B7E8;
+}
 }
   </style>
 </head>
 <title>open·control editor</title>
 
 <body>
-
-  <!-- <table>
-        <tr>
-            <td>Preset name:</td>
-            <td><input id="inputFileNameToSaveAs"></input></td>
-            <td><button onclick="saveTextAsFile()">Save Preset</button></td>
-        </tr>
-        <tr>
-            <td>Select a Preset:</td>
-            <td><input type="file" id="fileToLoad"></td>
-            <td><button onclick="loadFileAsText()">Load Preset</button><td>
-        </tr>
-    </table>
-<button onclick="uploadPreset()">Upload to Device</button>  -->
-
 
 <div id="Options">
   <script>create_options_table("Options")</script>
