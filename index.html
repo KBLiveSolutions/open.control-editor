@@ -298,6 +298,7 @@
   //====================== MIDI ==========================
 
   var midi = null;
+  var open_control_output = null
   var open_control_input_id = null
   var open_control_output_id = null
   var selected_layout = 0
@@ -331,43 +332,32 @@
     // Print information about the (dis)connected MIDI controller
     midi.outputs.forEach(output => {
       // console.log("OUTPUT NAME", output.name);
-      if (output.name == "open·control" && !open_control_detected) detect_output();
-      else {
-        open_control_detected = false;
-    var connect_cell = document.getElementById("connect_cell");
-    connect_cell.style.backgroundColor = "red";
-    statusLabel.innerHTML = "<b> Please connect open·control </b>";
-      }
+      if (output.name == "open·control" && !open_control_detected) detect_output(output);
+    //   IF OUTPUT = Number of ports and opencontrol not detected {
+    //     console.log("not detected")
+    //     open_control_detected = false;
+    // var connect_cell = document.getElementById("connect_cell");
+    // connect_cell.style.backgroundColor = "red";
+    // statusLabel.innerHTML = "<b> Please connect open·control </b>";
+    //   }
+
     });
   }
-  function detect_output() {
+
+  function detect_output(output) {
     open_control_detected = true
-    // Print information about the (dis)connected MIDI controller
-    midi.outputs.forEach(output => {
-      console.log("OUTPUT NAME", output.name);
-      // sendSysexHandshakeRequest(midi.outputs.get(output.id));
-      if (output.name == "open·control") {
         console.log("send handshake")
         var requestMessage = [240, 122, 29, 1, 19, 1, 247];
         open_control_output = midi.outputs.get(output.id);
         open_control_output.send(requestMessage);
-        // console.log("output", midi.outputs.get(output.id))
-    }
-    });
+        console.log("output", open_control_output)
+
   }
 
-  function sendSysexHandshakeRequest(output) {
-    if (output.name == "open·control") {
-    console.log("send handshake")
-      var requestMessage = [240, 122, 29, 1, 19, 1, 247];
-      open_control_output = output;
-      open_control_output.send(requestMessage);
-      console.log("output", output)
-    }
-  }
 
   function onOpenControlDetected(maj_ver, min_ver) {
-    midi.outputs.forEach(output => {
+    // midi.outputs.forEach(output => {
+        console.log("output2", open_control_output)
         var connect_cell = document.getElementById("connect_cell");
         statusLabel.style.color = "#000000";
         console.log("check")
@@ -382,7 +372,12 @@
         var requestMessage = [240, 122, 29, 1, 19, 4, 247];
         open_control_detected = true;
         open_control_output.send(requestMessage);
-    });
+    // });
+  }
+
+  function request_Live_update(){
+    var requestMessage = [240, 122, 29, 1, 19, 5, 247];
+        open_control_output.send(requestMessage);
   }
 
   function MIDIMessageEventHandler(event) {
@@ -486,6 +481,11 @@
     }
   }
 
+  function show_receive_message(){
+      var   message = [240, 122, 29, 1, 19, 54, 3, 7, 82, 69, 67, 69, 73, 86, 69, 247];
+      open_control_output.send(message);
+  }
+
   function sendSysex(sysex_id, layout, id, value, type, channel) {
     // Sending {240, 122, 29, 1, 19, 10, Layout Number, Button number, Note/CC Number, Type, Channel, 247} changes the corresponding button
     var sysexMessage = [240, 122, 29, 1, 19, sysex_id, layout, id, value, type, channel, 247];
@@ -498,21 +498,6 @@
     //var output = midi.outputs.get(open_control_output_id);
     if (open_control_detected) open_control_output.send(sysex_message);
   }
-
-  function uploadPreset() {
-    // console.log("control_number2", control_number);
-    // for (layout = 0; layout < 3; layout++) {
-    //   for (control = 0; control < NUM_CONTROLS - 3; control++) {
-    //     sendSysex(layout, control, control_number[layout][control], 1, 16);
-    //     // sel = document.getElementById("sel" + control);
-    //     // sel.value = Object.values(button_actions).indexOf([control_number[layout][control]]);
-    //   }
-    //   //sendSysexHandshakeRequest();
-    // }
-
-    // // on_page_select_changed(0);
-  }
-
 
   //====================== JAVASCRIPT ==========================
 
@@ -612,20 +597,12 @@
 
   function create_preset_cell(div){
     var divClass = document.getElementsByClassName(div);
-    // var preset_name = document.createElement('input');
-    // preset_name.id = "inputFileNameToSaveAs";
-    // var preset_load_name = document.createElement('input');
-    // preset_load_name.id = "fileToLoad";
-    // preset_name.appendChild(document.createTextNode('Preset'));
-    // <input type="file" id="file-input" />
-
-
     var preset_buttons = [document.createElement('label'), document.createElement('label')];
     var save_button =  document.createElement('input');
-    var load_button =  document.createElement('input');
-    var upload_button =  document.createElement('input');
+    save_button.id = "save"
     save_button.type = "button"
     save_button.value = "Save"
+    save_button.className = "preset"
     save_button.onclick = function() {
       var obj2 = {
         button_short_type : button_short_type[current_layout],
@@ -655,21 +632,39 @@
         slider_channel: slider_channel[current_layout], 
         display: display[current_layout]
       }
-      saveText( JSON.stringify(obj2), "Page.json" );
+      saveText( JSON.stringify(obj2), "Page "+(current_layout+1)+".json" );
     }
-    load_label = document.createElement('label');
-    load_label.appendChild(document.createTextNode('Load'));
-    load_label.htmlFor = "file-input"
+    save_label = document.createElement('label');
+    save_label.className = "preset"
+    save_label.appendChild(document.createTextNode('Export'));
+    save_label.htmlFor = "save"
+    
+    var load_button =  document.createElement('input');
     load_button.type = "file"
     load_button.id = "file-input"
     load_button.accept = ".json"
+    load_button.className = "preset"
     load_button.addEventListener('change', readSingleFile, false);
+    load_label = document.createElement('label');
+    load_label.className = "preset"
+    load_label.appendChild(document.createTextNode('Import'));
+    load_label.htmlFor = "file-input"
+
+    var upload_button =  document.createElement('input');
     upload_button.type = "button"
     upload_button.value = "Upload"
+    upload_button.id = "upload"
+    upload_button.className = "preset"
     upload_button.onclick = function() {uploadPreset()}
+    upload_label = document.createElement('label');
+    upload_label.className = "preset"
+    upload_label.htmlFor = "upload"
+    upload_label.appendChild(document.createTextNode('Upload'));
+    preset_buttons[0].appendChild(save_label);
     preset_buttons[0].appendChild(save_button);
-    // preset_buttons[1].appendChild(load_label);
+    preset_buttons[0].appendChild(load_label);
     preset_buttons[0].appendChild(load_button);
+    preset_buttons[0].appendChild(upload_label);
     preset_buttons[0].appendChild(upload_button);
     return (preset_buttons[0])
   }
@@ -1300,9 +1295,11 @@ function create_external_MIDI_table(div) {
 
   function on_select_change(id, num, value) {
     console.log("debug1", id, num, value)
+    if (id == "page") on_page_select_changed(value);
+    else{
+    show_receive_message()
     var sel = document.getElementById("sel" + id);
     value = parseInt(value);
-    if (id == "page") on_page_select_changed(value);
     if (id == "short_button") set_button(id, num, value);
     else if (id == "long_button") set_button(id, num, value);
     else if (id == "double_button") set_button(id, num, value);
@@ -1312,6 +1309,8 @@ function create_external_MIDI_table(div) {
     else if (id == "encoder_hold") set_encoder(id, num, value);
     else if (id == "encoder_short_press") set_button(id, num, value);
     if (id == "display") set_display(num, value);
+    request_Live_update();
+    }
   }
 
   function on_LEDs_brightness_change(value) {
@@ -1456,7 +1455,6 @@ else if (source == "custom_MIDI_encoder_hold"){
  
   
   function set_bpm_option(value) {
-    console.log("bpm", value)
     var s = document.getElementById("metro");
     s.value = value;
   }
@@ -1505,8 +1503,8 @@ else if (source == "custom_MIDI_encoder_hold"){
     if (control_type == 0 && control_channel == 13) s.value = Object.keys(button_actions).indexOf("④ MIDI Map 4");
     if (control_type == 0 && control_channel == 12) s.value = Object.keys(button_actions).indexOf("⑤ MIDI Map 5");
     if (control_type == 0 && control_channel == 11) s.value = Object.keys(button_actions).indexOf("⑥ MIDI Map 6");
-
-    if (control_channel < 11) {
+console.log(id, control_channel)
+    if (control_channel < 11 && control_channel != 0) {
       s.value = Object.keys(button_actions).indexOf("Custom MIDI");
       var s1 = document.getElementById("custom_MIDI_" + id + i);
       s1.style.visibility = "visible";
@@ -1520,6 +1518,12 @@ else if (source == "custom_MIDI_encoder_hold"){
       s5.style.visibility = "visible";
       var s6 = document.getElementById("custom_MIDI_toggle_" + id+ "_checkbox"+ i);
       s6.checked = toggle;
+    }
+    else {
+      var s1 = document.getElementById("custom_MIDI_" + id + i);
+      s1.style.visibility = "hidden";
+      var s5 = document.getElementById("custom_MIDI_toggle_" + id+ i);
+      s5.style.visibility = "hidden";
     }
   }
 
@@ -1558,7 +1562,6 @@ else if (source == "custom_MIDI_encoder_hold"){
 
     for (var i = 0; i < NUM_ENCODERS; i++) { // updates sliders
       var options_list = Object.keys(encoder_actions)
-console.log("LOG", i)
       var s = document.getElementById("encoder" + i);
       if (encoder_channel[current_layout][i] < 11){
         s.value = Object.keys(encoder_actions).indexOf("Custom MIDI");
@@ -1597,24 +1600,33 @@ console.log("LOG", i)
 
     if (id == "short_button") {
       sysex_byte = 10;
+      button_short_type[current_layout][num] = 1;
       button_short_control[current_layout][num] = cc_to_send;
+      button_short_channel[current_layout][num] = 16;
       sysex_num = num;
     }
     else if (id == "long_button") {
       sysex_byte = 12;
+      button_long_type[current_layout][num] = 1;
       button_long_control[current_layout][num] = cc_to_send;
+      button_long_channel[current_layout][num] = 16;
       sysex_num = num;
     }
     else if (id == "double_button") {
       sysex_byte = 19;
+      button_double_type[current_layout][num] = 1;
       button_double_control[current_layout][num] = cc_to_send;
+      button_double_channel[current_layout][num] = 16;
       sysex_num = num;
     }
     else if (id == "encoder_short_press") {
       sysex_byte = 10;
+      encoder_short_press_type[current_layout][num] = 1;
       encoder_short_press_control[current_layout][num] = cc_to_send;
+      encoder_short_press_channel[current_layout][num] = 16;
       sysex_num = num + NUM_BUTTONS;
     }
+    
     if (options_list[value] == "① MIDI Map 1 (Big Button)") {
       sendSysex(sysex_byte, current_layout, sysex_num, 1, 0, 16);
       // var s = document.getElementById(id + num);
@@ -1751,7 +1763,7 @@ console.log("LOG", i)
   function set_External_MIDI(num, btn_ctrl, btn_chnl, btn_type) {
     var cc_sel = document.getElementById("external_MIDI_cc_select" + num);
     var ch_sel = document.getElementById("external_MIDI_ch_select" + num);
-    console.log("EXT", num, btn_type, btn_ctrl, btn_chnl)
+    // console.log("EXT", num, btn_type, btn_ctrl, btn_chnl)
     cc_sel.value = btn_ctrl;
     ch_sel.value = btn_chnl;
     if (num<8){
@@ -1792,12 +1804,7 @@ console.log("LOG", i)
 }
 
 function displayContents(contents) {
-  // var elements = Array(24);
   elements = JSON.parse(contents);
-  console.log("ok")
-  console.log(contents)
-  console.log(elements["button_short_type"])
-  // console.log("elemets", contents[0])
   button_short_type[current_layout] = elements["button_short_type"];
   button_short_control[current_layout] = elements["button_short_control"];
   button_short_channel[current_layout] = elements["button_short_channel"];
@@ -1836,74 +1843,67 @@ function displayContents(contents) {
   a.click()
 }
 
-  function saveTextAsFile() {
 
-    var textToSave = [];
-    var textToSave = [button_short_type[current_layout], button_short_control[current_layout], button_short_channel[current_layout], button_short_toggle[current_layout], button_short_snap[current_layout], button_long_type[current_layout], button_long_control[current_layout], button_long_channel[current_layout], button_long_toggle[current_layout], button_double_type[current_layout], button_double_control[current_layout], button_double_channel[current_layout], button_double_toggle[current_layout]
-, led_type[current_layout], led_control[current_layout], led_channel[current_layout]
-, encoder_short_press_type[current_layout], encoder_short_press_control[current_layout], encoder_short_press_channel[current_layout], encoder_control[current_layout], encoder_channel[current_layout], encoder_hold_control[current_layout], encoder_hold_channel[current_layout]
-, slider_control[current_layout], slider_channel[current_layout]
-, display[current_layout]]
-console.log(textToSave)
-    // document.getElementById("inputTextToSave").value;
-    var textToSaveAsBlob = new Blob([textToSave], { type: "text/plain" });
-    var textToSaveAsURL = window.URL.createObjectURL(textToSaveAsBlob);
-    var fileNameToSaveAs = document.getElementById("inputFileNameToSaveAs").value;
+var pause = 2;
 
-    var downloadLink = document.createElement("a");
-    downloadLink.download = fileNameToSaveAs;
-    downloadLink.innerHTML = "Download File";
-    downloadLink.href = textToSaveAsURL;
-    downloadLink.onclick = destroyClickedElement;
-    downloadLink.style.display = "none";
-    document.body.appendChild(downloadLink);
+  function uploadPreset() { 
+    console.log("bing")
+    for (var i = 0; i < 6; i++) {
+    show_receive_message();
+   // "short_button"
+   sendSysex(10, current_layout, i, button_short_control[current_layout][i], button_short_type[current_layout][i], button_short_channel[current_layout][i]);
+sleep(pause)
+   // "long_button") 
+   sendSysex(12, current_layout, i, button_long_control[current_layout][i], button_long_type[current_layout][i], button_long_channel[current_layout][i]);
+   sleep(pause)
+ // "double_button"
+   sendSysex(12, current_layout, i, button_double_control[current_layout][i], button_double_type[current_layout][i], button_double_channel[current_layout][i]);
+   sleep(pause)
+ // "led"
+    sendSysex(14, current_layout, i, led_control[current_layout][i], 1, 16);
+    sleep(pause)
+ // snap
+sendRawSysex([240, 122, 29, 1, 19, 11, current_layout, i, button_short_snap[current_layout][i], 247]);
+sleep(pause)
+ // toggle short
+        sendRawSysex([240, 122, 29, 1, 19, 13, current_layout, i, button_short_toggle[current_layout][i], 0, 247]);
+        sleep(pause)
+ // toggle long
+        sendRawSysex([240, 122, 29, 1, 19, 13, current_layout, i, button_long_toggle[current_layout][i], 1, 247]);
+sleep(pause)
+// toggle double 
+        sendRawSysex([240, 122, 29, 1, 19, 13, current_layout, i, button_double_toggle[current_layout][i], 2, 247]);
+}
 
-    downloadLink.click();
+show_receive_message();
+    for (var i = 0; i < 2; i++) {
+// "slider"
+sleep(pause)
+     sendSysex(17, current_layout, i, slider_control[current_layout][i], 1, slider_channel[current_layout][i]);
+// encoder
+sleep(pause)
+     sendSysex(16, current_layout, i, encoder_control[current_layout][i] , 1, encoder_channel[current_layout][i]);
+// "encoder_hold"
+sleep(pause)
+     sendSysex(16, current_layout, i+2, encoder_hold_control[current_layout][i] , 1, encoder_hold_channel[current_layout][i]);
+// "encoder_short_press"
+sleep(pause)
+   sendSysex(10, current_layout, i+6, encoder_short_press_control[current_layout][i], encoder_short_press_type[current_layout][i], encoder_short_press_channel[current_layout][i]);
+    }
+
+// display
+sleep(pause)
+   sendSysex(18, current_layout, 1, display[current_layout], 1, 16);
+   request_Live_update()
   }
 
-  function destroyClickedElement(event) {
-    document.body.removeChild(event.target);
-  }
-
-  //   tp = [bigArray.slice(0, 20)];
-  //           cc = [bigArray.slice(21, 41)];
-  //           ch = [bigArray.slice(52, 72)];
-
-  function loadFileAsText() {
-    var fileToLoad = document.getElementById("fileToLoad").files[0];
-      console.log("fileToLoad", fileToLoad)
-    var filez
-    var bigArray = [];
-    const reader = new FileReader()
-    reader.onload = event => filez = event.target.result
-    console.log("filez", filez)
-    // console.log("readAsText", reader.readAsText(fileToLoad)) 
-    var textFromFileLoaded = reader.readAsText(fileToLoad)
-    bigArray = textFromFileLoaded.split("\n");
-    console.log("bigArray ", bigArray);
-    //   var fileReader = new FileReader();
-    //   fileReader.onload = function(fileLoadedEvent)
-    //   {console.log("textFromFileLoaded ", fileLoadedEvent.target.result);
-    //       var textFromFileLoaded = fileLoadedEvent.target.result;
-    //     //   document.getElementById("inputTextToSave").value = textFromFileLoaded;
-    //       console.log("textFromFileLoaded ", textFromFileLoaded);
-    //       bigArray = textFromFileLoaded.split("\n");
-    //       console.log("bigArray ", bigArray);
-    //     //   control_type = [[bigArray.slice(0, 24)], [bigArray.slice(25, 49)], [bigArray.slice(50, 74)]];
-    //     //   control_number[current_layout] = [[bigArray.slice(75, 99)], [bigArray.slice(100, 124)], [bigArray.slice(125, 149)]];
-    //     // control_type[current_layout] = [bigArray.slice(0, 20)];
-    //     //   control_number[current_layout] = [bigArray.slice(21, 41)];
-    //     //   control_channel[current_layout] = [bigArray.slice(22, 42)];
-    //     //   control_channel = [[bigArray.slice(150, 174)], [bigArray.slice(175, 199)], [bigArray.slice(200, 224)]];
-    //   };
-    receive_Preset();
-    // fileReader.readAsText(fileToLoad, "UTF-8");
-  }
-
-  function receive_Preset() {
-    // control_number = cc;
-    console.log("control_number4");
-  }
+  function sleep(milliseconds) {
+  const date = Date.now();
+  let currentDate = null;
+  do {
+    currentDate = Date.now();
+  } while (currentDate - date < milliseconds);
+}
 
 </script>
 
@@ -2082,7 +2082,7 @@ console.log(textToSave)
       background: rgb(39, 39, 39);
       /* border-style: none; */
       border: var(--border) solid var(--border_color);
-      border-radius: var(--radius);
+      border-radius: 4px;
       height: 18px;
       /* width: 800px; */
       padding-left: 5px;
@@ -2095,7 +2095,7 @@ console.log(textToSave)
       border-collapse: separate;
       background: rgb(39, 39, 39);
       border: var(--border) solid rgb(39, 39, 39);
-      border-radius: var(--radius);
+      /* border-radius: var(--radius); */
       height: 18px;
       width: 25%;
       /* padding-left: 20px;
@@ -2209,6 +2209,25 @@ console.log(textToSave)
       padding: 0 65px 0 45px;
     }
 
+    input[type="button"].preset {
+  display: none;
+}
+
+input[type="file"].preset {
+  display: none;
+}
+
+
+label.preset {
+  content:'';
+  border: 1px solid #f5f5f5;
+  font-size: 10px;
+  padding: 2 8px;
+  /* padding-top: 6 6px; */
+  padding-bottom: 0 16px;
+  margin-right: 0.3rem;
+  margin-top: 5px;
+}
 
     input[type="checkbox"].demo2 {
   display: none;
@@ -2251,7 +2270,7 @@ input[type="checkbox"].toggle + label::before {
 input[type="checkbox"].toggle:checked + label::before {
   background-color: #00B7E8;
 }
-}
+
   </style>
 </head>
 <title>open·control editor</title>
