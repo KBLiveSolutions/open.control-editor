@@ -190,14 +190,14 @@
     "🎚 Master Volume": 89,
     "🎧 Cue Volume": 90,
     "± BPM +/- 1": 87,
-    "↔ Track Select": 0,
+    "↔ Track Select": 101,
     "--- Arrangement ---": 0,
     "≪≫ Skip Fwd/Bckwd": 83,
     "⤞ Loop Position": 84,
     "⩉ Loop Length": 85,
     "↹ Jump to Next/Prev Marker": 88,
     "↔ Horizontal Zoom": 99,
-    "↔ Horizontal Scroll": 99,
+    "↔ Horizontal Scroll": 101,
     "↕ Vertical Zoom": 0,
     "--- Session ---": 0,
     "↕ Scene Select": 86,
@@ -438,7 +438,6 @@
 
   function detect_output(output) {
     open_control_detected = true
-        console.log("send handshake")
         var requestMessage = [240, 122, 29, 1, 19, 1, 247];
         open_control_output = midi.outputs.get(output.id);
         open_control_output.send(requestMessage);
@@ -447,11 +446,8 @@
   }
 
   function onOpenControlDetected(maj_ver, min_ver) {
-    // midi.outputs.forEach(output => {
-        console.log("output2", open_control_output)
         var connect_cell = document.getElementById("connect_cell");
         statusLabel.style.color = "#000000";
-        console.log("check")
         if (LATEST_FIRMWARE_MINOR_VERSION > min_ver){
         connect_cell.style.backgroundColor = "#FFA500";
         statusLabel.innerHTML = "<b> open·control detected</b> <br> <a href=https://github.com/KBLiveSolutions/open.control-firmware target=_blank style=color:#000000;> new firmware available</a> <br> Current: " + maj_ver + "." + min_ver +" | New: " + LATEST_FIRMWARE_MAJOR_VERSION + "." + LATEST_FIRMWARE_MINOR_VERSION;
@@ -463,7 +459,6 @@
         var requestMessage = [240, 122, 29, 1, 19, 4, 247];
         open_control_detected = true;
         open_control_output.send(requestMessage);
-    // });
   }
 
   function request_Live_update(){
@@ -472,17 +467,14 @@
   }
 
   function MIDIMessageEventHandler(event) {
-    if (event.data[1] == 122 && event.data[2] == 29 && event.data[3] == 1 && event.data[4] == 19) {
-
-      var sysex_byte = event.data[5];
-
-      if (sysex_byte == 68) {
+    if (event.data[1] == 122 && event.data[2] == 29 && event.data[3] == 1 && event.data[4] == 19 && event.data[5] == 68) {
         console.log("open control detected");
         onOpenControlDetected(event.data[6], event.data[7]);
-      }
+    }
 
-      else { // Receiving Data from opencontrol after a Dump request
+    if (event.data[1] == 122 && event.data[2] == 29 && event.data[3] == 1 && event.data[4] == 20) { // Receiving Data from opencontrol after a Dump request
 
+        var sysex_byte = event.data[5];
         var rcvd_layout = event.data[6]; 
         var num = event.data[7];
         var id = sysex_to_id[sysex_byte];
@@ -497,19 +489,18 @@
           s.checked = !event.data[7];
         }
         else {
-          if (id=="button_short" && num>=NUM_BUTTONS) {
-            id="encoder_short";
-            num = num-NUM_BUTTONS;
-          } 
-        type[id][rcvd_layout][num] = event.data[10];
-        control[id][rcvd_layout][num] = event.data[8];
-        channel[id][rcvd_layout][num] = event.data[9];
-        if (id=="external_MIDI") set_External_MIDI(num, control[id][0][num], channel[id][0][num], type[id][0][num] + 1);
-        }
+            if (id=="button_short" && num>=NUM_BUTTONS) {
+              id="encoder_short";
+              num = num-NUM_BUTTONS;
+            } 
+          type[id][rcvd_layout][num] = event.data[10];
+          control[id][rcvd_layout][num] = event.data[8];
+          channel[id][rcvd_layout][num] = event.data[9];}
+          if (id=="external_MIDI") set_External_MIDI(num, control[id][0][num], channel[id][0][num], type[id][0][num] + 1);
+        on_page_select_changed(0);
       }
-      on_page_select_changed(0);
     }
-  }
+
 
   function show_receive_message(){
       var   message = [240, 122, 29, 1, 19, 54, 3, 7, 82, 69, 67, 69, 73, 86, 69, 247];
@@ -528,9 +519,6 @@
   }
 
   //====================== JAVASCRIPT ==========================
-
-  var current_layout = 0;
-  var NUM_CONTROLS = 25;
 
   var color_names = ["Off", "Blue 1", "Blue 2", "Red 1", "Red 2", "Green 1", "Green 2", "Pink 1", "Pink 2", "Purple 1", "Purple 2", "Yellow 1", "Yellow 2", "Orange 1", "Orange 2", "White 1", "White 2"]
   var colors = [0, 125, 21, 14, 56, 126, 62, 11, 42, 66, 106, 33, 4, 43, 16, 120, 49];
@@ -594,16 +582,18 @@
     options_cell[1].appendChild(session_box_option[0]);
     options_cell[1].appendChild(session_box_option[1]);
 
-    options_cell[2].appendChild(led_brightness_option[1]);
-    options_cell[2].appendChild(led_brightness_option[0]);
-    options_cell[3].appendChild(display_brightness_option[1]);
-    options_cell[3].appendChild(display_brightness_option[0]);
-    options_cell[4].innerHTML = "Forward MIDI In to:"
+    options_cell[2].appendChild(display_brightness_option[0]);
+    options_cell[2].appendChild(display_brightness_option[1]);
+    options_cell[2].appendChild(display_brightness_option[2]);
+    options_cell[3].appendChild(led_brightness_option[1]);
+    options_cell[3].appendChild(led_brightness_option[0]);
+    options_cell[4].innerHTML = "Forward MIDI In to :"
     options_cell[5].appendChild(midi_thru_option);
 
     
     var statusLabel = document.createElement('label');
     statusLabel.id = "Status Label";
+    statusLabel.innerHTML = "<b><font color=#000000> Please connect open·control </font></b>";
     options_cell[6].className = "connect_cell";
     options_cell[6].id = "connect_cell";
     options_cell[6].appendChild(statusLabel)
@@ -686,18 +676,31 @@
 
   function create_display_brightness_option(div) {
     var divClass = document.getElementsByClassName(div);
-    var display_brightness_slider = document.createElement('input');
-    display_brightness_slider.type = 'range';
-    display_brightness_slider.steps = "1";
-    display_brightness_slider.min = "40";
-    display_brightness_slider.max = "127";
-    display_brightness_slider.class = "slider";
+    // var display_brightness_slider = document.createElement('input');
+    // display_brightness_slider.type = 'range';
+    // display_brightness_slider.steps = "1";
+    // display_brightness_slider.min = "40";
+    // display_brightness_slider.max = "127";
+    // display_brightness_slider.class = "slider";
     // brightness_slider.id = "brightness_slider";
+
+
+    var display_brightness_label = document.createElement('label');
+    var display_brightness = document.createElement('input');
+    display_brightness.type = "checkbox";
+    display_brightness.id = "display_brightness_checkbox";
+    display_brightness.className = "display_brightness"
+    display_brightness_label.htmlFor = display_brightness.id
+    display_brightness.addEventListener('change', (event) => {
+      if (event.target.checked) on_display_brightness_changed(127);
+      else on_display_brightness_changed(70);
+    })
+    // display_brightness_cell = [display_brightness, display_brightness_label];
 
     var display_brightness_slider_label = document.createElement('label');
     display_brightness_slider_label.appendChild(document.createTextNode(' Display Brightness'));
-    display_brightness_slider.oninput = function () { on_display_brightness_change(display_brightness_slider.value); };
-    return ([display_brightness_slider, display_brightness_slider_label]);
+    // display_brightness_slider.oninput = function () { on_display_brightness_change(display_brightness_slider.value); };
+    return ([display_brightness_slider_label, display_brightness, display_brightness_label]);
   }
 
   function create_midi_thru_option(div) {
@@ -1247,7 +1250,9 @@
   function on_select_change(id, i, value)  {  // called when any of the Select object changes
     var num = i
     console.log(id, num, value)
-    if (id == "page") on_page_select_changed(value);  // if the Page Select is changed, just update the UI
+    if (id == "page") {
+      on_page_select_changed(value);  // if the Page Select is changed, just update the UI
+    }
     else {  // if any other Select is changed, send a Sysex message to change the corresponding control
       var options_list = Object.keys(actions[id]); // retrieves the list of button actions
       cc_to_send = actions[id][options_list[value]]; // gets the cc corresponding to the action selected
@@ -1305,7 +1310,11 @@
     sendRawSysex([240, 122, 29, 1, 19, 23, value, 247]);
   }
 
-  function on_display_brightness_change(value) {
+  // function on_display_brightness_change(value) {
+  //   sendRawSysex([240, 122, 29, 1, 19, 22, value, 247]);
+  // }
+
+  function on_display_brightness_changed(value) {
     sendRawSysex([240, 122, 29, 1, 19, 22, value, 247]);
   }
 
@@ -1356,38 +1365,40 @@
   //////////////////////////////////////////////////////////////////////
   // UPDATE DISPLAY AT STARTUP AND ON PAGE CHANGE
   //////////////////////////////////////////////////////////////////////
- 
+
   
   function on_page_select_changed(layout) {
     current_layout = layout;
     for (var i = 0; i < NUM_BUTTONS; i++) { // update Buttons Selects
-      update_button_selects("button_short", i);
-      update_button_selects("button_long", i);
-      update_button_selects("button_double", i);
+      id = "button_short"
+      update_button_selects(id, i, type[id][current_layout][i], control[id][current_layout][i], channel[id][current_layout][i], toggle[id][current_layout][i], snap[id][current_layout][i]);
+      id = "button_long"
+      update_button_selects(id, i, type[id][current_layout][i], control[id][current_layout][i], channel[id][current_layout][i], toggle[id][current_layout][i]);
+      id = "button_double"
+      update_button_selects(id, i, type[id][current_layout][i], control[id][current_layout][i], channel[id][current_layout][i], toggle[id][current_layout][i]);
     }
     for (var i = 0; i < NUM_LEDS; i++) { // update LEDs
-     update_led_selects("led", i)
+      id = "led"
+      update_led_selects(id, i, type[id][current_layout][i], control[id][current_layout][i], channel[id][current_layout][i])
     }
 
     for (var i = 0; i < NUM_SLIDERS; i++) { // updates sliders
-      update_select("slider", i)
+      id = "slider"
+      update_select(id, i, control[id][current_layout][i], channel[id][current_layout][i])
     }
 
     for (var i = 0; i < NUM_ENCODERS; i++) { // updates encoders
-      update_select("encoder", i);
-      update_select("encoder_hold", i);
-      update_button_selects("encoder_short", i);
+      id = "encoder"
+      update_select(id, i, control[id][current_layout][i], channel[id][current_layout][i])
+      id = "encoder_hold"
+      update_select(id, i, control[id][current_layout][i], channel[id][current_layout][i])
+      id = "encoder_short"
+      update_button_selects(id, i, type[id][current_layout][i], control[id][current_layout][i], channel[id][current_layout][i]);
     }
-
-    update_display_select()
+    update_display_select(control["display"][current_layout][0])
   }
 
-  function update_button_selects(id, i) {
-      _type = type[id][current_layout][i];
-      _channel = channel[id][current_layout][i];
-      _control = control[id][current_layout][i];
-      _toggle = toggle[id][current_layout][i];
-
+  function update_button_selects(id, i, _type, _control, _channel, _toggle, _snap=null) {
     var s = document.getElementById(id + i);
     if (_type == 0 && _channel == 16) s.value = Object.keys(button_actions).indexOf("① MIDI Map 1 (Big Button)");
     else if (_type == 0 && _channel == 15) s.value = Object.keys(button_actions).indexOf("② MIDI Map 2 (Clear)");
@@ -1404,34 +1415,28 @@
       }
       else update_custom_MIDI(id, i, "hidden");
     }
-    if (id=="button_short")
-      if (id == "button_short") {
-        var s = document.getElementById("snap_checkbox" + i);
-        s.checked = snap[id][current_layout][i];
-        update_snap_box(i, snap[id][current_layout][i]);
-      } 
+    if (_snap != null)
+      { var s = document.getElementById("snap_checkbox" + i);
+      s.checked = _snap;
+      update_snap_box(i, _snap);
+    }
   }
 
-  function update_led_selects(id, i){
+  function update_led_selects(id, i, _type, _control, _channel){
       var s = document.getElementById("led" + i);
       var c = document.getElementById("color_sel" + (i));
       c.style.display = "none";
-      _type = type["led"][current_layout][i];
-      _channel = channel["led"][current_layout][i];
-      _number = control["led"][current_layout][i];
       if (_channel == 10) {
         s.value = 1;
         s.value = 0;
         c.style.display = "block";
         c.value = _number;
       }
-      else s.value = get_index(control["led"][current_layout][i], led_actions);
+      else s.value = get_index(_control, led_actions);
       s.style.display = "block";
   }
 
-  function update_select(id, i){
-      _channel = channel[id][current_layout][i];
-      _control = control[id][current_layout][i];
+  function update_select(id, i, _control, _channel){
       var s = document.getElementById(id + i);
       value = get_index(_control, actions[id]);
       s.value = value
@@ -1442,53 +1447,52 @@
       else update_custom_MIDI(id, i, "hidden");
   }
   
-  function update_display_select(){
+  function update_display_select(value){
     var s = document.getElementById("display0");
-    s.value = get_index(control["display"][current_layout][0], display_actions);
+    s.value = get_index(value, display_actions);
   }
 
   function update_snap_box(num, value) {
-    var s1 = document.getElementById("button_long" + num);
-    var s2 = document.getElementById("button_double" + num);
-    var l1 = document.getElementById("button_long_label" + num);
-    var l2 = document.getElementById("button_double_label" + num);
-    if (value == 1) {
-      s1.style.visibility = "hidden";
-      s2.style.visibility = "hidden";
-      l1.style.visibility = "hidden";
-      l2.style.visibility = "hidden";
-    }
-    else {
-      s1.style.visibility = "visible";
-      s2.style.visibility = "visible";
-      l1.style.visibility = "visible";
-      l2.style.visibility = "visible";
+    a = ["long", "double"]
+    for (_a of a) {
+      var s = document.getElementById("button_" + _a + num);
+      var l = document.getElementById("button_" + _a + "_label" + num);
+      if (value == 1) {
+        s.style.visibility = "hidden";
+        l.style.visibility = "hidden";
+      }
+      else {
+        s.style.visibility = "visible";
+        l.style.visibility = "visible";
+      }
     }
   }
 
   function update_custom_MIDI(id, i, state) {
-    if (control_type[id] == "button") _type = type[id][current_layout][i];
+    is_not_encoder_short = (control_type[id] == "button" && id!="encoder_short")
+    is_button = (control_type[id] == "button")
+    if (is_button) _type = type[id][current_layout][i];
     _channel = channel[id][current_layout][i];
     _control = control[id][current_layout][i];
-    if (control_type[id] == "button") _toggle = toggle[id][current_layout][i];
+    if (is_button) _toggle = toggle[id][current_layout][i];
       var s1 = document.getElementById("custom_MIDI_" + id + i);
-      if (control_type[id] == "button")  var s2 = document.getElementById(id+"_type_select" + i);
+      if (is_button)  var s2 = document.getElementById(id+"_type_select" + i);
       var s3 = document.getElementById(id+"_cc_select" + i);
       var s4 = document.getElementById(id+"_ch_select" + i);
-      if (control_type[id] == "button")  var s5 = document.getElementById("toggle_" + id + i);
-      if (control_type[id] == "button")  var s6 = document.getElementById(id+ "_toggle_checkbox"+ i);
+      if (is_not_encoder_short)  var s5 = document.getElementById("toggle_" + id + i);
+      if (is_not_encoder_short)  var s6 = document.getElementById(id+ "_toggle_checkbox"+ i);
 
     if (_channel < 11 && _channel != 0) {
       s1.style.visibility = state;
-      if (control_type[id] == "button")  s2.value = _type + 1;
+      if (is_button)  s2.value = _type + 1;
       s3.value = _control;
       s4.value = _channel;
-      if (control_type[id] == "button")  s5.style.visibility = state;
-      if (control_type[id] == "button")  s6.checked = _toggle;
+      if (is_not_encoder_short)  s5.style.visibility = state;
+      if (is_not_encoder_short)  s6.checked = _toggle;
     }
     else {
       s1.style.visibility = state;
-      if (control_type[id] == "button")  s5.style.visibility = state;
+      if (is_not_encoder_short)  s5.style.visibility = state;
     }
   }
   
@@ -1500,14 +1504,15 @@
   function set_External_MIDI(num, btn_ctrl, btn_chnl, btn_type) {
     var cc_sel = document.getElementById("external_MIDI_cc_select" + num);
     var ch_sel = document.getElementById("external_MIDI_ch_select" + num);
-    // console.log("EXT", num, btn_type, btn_ctrl, btn_chnl)
     cc_sel.value = btn_ctrl;
     ch_sel.value = btn_chnl;
     if (num<8){
       var type_sel = document.getElementById("external_MIDI_type_select" + num);
       type_sel.value = btn_type;
     }
-    external_MIDI[num] = [btn_type, btn_ctrl, btn_chnl];
+    control["external_MIDI"][0][num] = btn_ctrl;
+    type["external_MIDI"][0][num] = btn_type
+    channel["external_MIDI"][0][num] = btn_chnl
   }
 
   function create_preset_cell(div){
@@ -1575,12 +1580,12 @@
     upload_label.className = "preset"
     upload_label.htmlFor = "upload"
     upload_label.appendChild(document.createTextNode('Upload'));
-    preset_buttons[0].appendChild(save_label);
     preset_buttons[0].appendChild(save_button);
-    preset_buttons[0].appendChild(load_label);
+    preset_buttons[0].appendChild(save_label);
     preset_buttons[0].appendChild(load_button);
-    preset_buttons[0].appendChild(upload_label);
+    preset_buttons[0].appendChild(load_label);
     preset_buttons[0].appendChild(upload_button);
+    preset_buttons[0].appendChild(upload_label);
     return (preset_buttons[0])
   }
 
@@ -1596,9 +1601,56 @@
   };
   reader.readAsText(file);
 }
+var elements
 
 function displayContents(contents) {
   elements = JSON.parse(contents);
+
+//   on_page_select_loaded(current_layout);
+// }
+
+// function on_page_select_loaded(layout) {
+    // current_layout = layout;
+    for (var i = 0; i < NUM_BUTTONS; i++) { // update Buttons Selects
+      id = "button_short"
+      update_button_selects(id, i, elements["type_"+id][i], elements["control_"+id][i], elements["channel_"+id][i], elements["toggle_"+id][i],  elements["snap_"+id][i]);
+      id = "button_long"
+      update_button_selects(id, i,  elements["type_"+id][i], elements["control_"+id][i], elements["channel_"+id][i], elements["toggle_"+id][i]);
+      id = "button_double"
+      update_button_selects(id, i,  elements["type_"+id][i], elements["control_"+id][i], elements["channel_"+id][i], elements["toggle_"+id][i]);
+    }
+    for (var i = 0; i < NUM_LEDS; i++) { // update LEDs
+      id = "led"
+      update_led_selects(id, i, elements["type_"+id][i], elements["control_"+id][i], elements["channel_"+id][i])
+    }
+
+    for (var i = 0; i < NUM_SLIDERS; i++) { // updates sliders
+      id = "slider"
+      update_select(id, i, elements["control_"+id][i], elements["channel_"+id][i])
+    }
+
+    for (var i = 0; i < NUM_ENCODERS; i++) { // updates encoders
+      id = "encoder"
+      update_select(id, i, elements["control_"+id][i], elements["channel_"+id][i])
+      id = "encoder_hold"
+      update_select(id, i, elements["control_"+id][i], elements["channel_"+id][i])
+      id = "encoder_short"
+      update_button_selects(id, i, elements["type_"+id][i], elements["control_"+id][i], elements["channel_"+id][i], 0);
+    }
+    update_display_select(elements["display"][0])
+  }
+  
+  function saveText(text, filename){
+  var a = document.createElement('a');
+  a.setAttribute('href', 'data:text/plain;charset=utf-8,'+encodeURIComponent(text));
+  a.setAttribute('download', filename);
+  a.click()
+}
+
+var pause = 2;
+
+  function uploadPreset() { 
+    console.log("bing")
   type["button_short"][current_layout] = elements["type_button_short"];
   control["button_short"][current_layout] = elements["control_button_short"];
   channel["button_short"][current_layout] = elements["channel_button_short"];
@@ -1625,22 +1677,6 @@ function displayContents(contents) {
   control["slider"][current_layout] = elements["control_slider"];
   channel["slider"][current_layout] = elements["channel_slider"];
   control["display"][current_layout] = elements["display"];
-
-  on_page_select_changed(current_layout);
-}
-
-
-  function saveText(text, filename){
-  var a = document.createElement('a');
-  a.setAttribute('href', 'data:text/plain;charset=utf-8,'+encodeURIComponent(text));
-  a.setAttribute('download', filename);
-  a.click()
-}
-
-var pause = 2;
-
-  function uploadPreset() { 
-    console.log("bing")
     for (var i = 0; i < 6; i++) {
     show_receive_message();
    // "button_short"
@@ -1717,9 +1753,16 @@ sleep(pause)
     }
 
     body {
-      background-color: #777777;
+      /* background-color: #777777; */
       font-family: Helvetica;
       font-size: 100%;
+  background: linear-gradient(
+    to top,
+    rgb(129, 128, 128) 0%,
+    rgb(71, 71, 71) 93.5%,
+    rgb(39, 39, 39) 93.5%,
+    rgb(39, 39, 39) 100%
+  );
     }
 
     table {
@@ -1734,7 +1777,7 @@ sleep(pause)
     }
 
     td {
-      border: var(--border) none rgb(19, 170, 39);
+      /* border: var(--border) none rgb(19, 170, 39); */
       text-align: center;
       width: 50%;
     }
@@ -1753,8 +1796,13 @@ sleep(pause)
       /* padding-top: 10px; */
     }
 
+    div.Options {
+      /* padding-top: 10px; */
+      width: 100%;
+    }
+
     div.Layout {
-      padding-top: 10px;
+      padding-top: 20px;
     }
 
     div.Sliders {
@@ -1890,7 +1938,7 @@ sleep(pause)
       border-collapse: separate;
       background: rgb(39, 39, 39);
       /* border-style: none; */
-      border: var(--border) solid var(--border_color);
+      border: var(--border) none var(--border_color);
       border-radius: 4px;
       height: 18px;
       /* width: 800px; */
@@ -1907,6 +1955,8 @@ sleep(pause)
       /* border-radius: var(--radius); */
       height: 18px;
       width: 25%;
+      padding-top: 5px;
+      padding-bottom: 5px;
       /* padding-left: 20px;
       padding-right: 20px; */
       align-items: left;
@@ -2010,13 +2060,17 @@ sleep(pause)
       padding-top: 360px;
     }
 
-    .slider {
+    /* .slider {
       height: 80px;
       width: 380px;
       background: #fff;
       border-radius: 10px;
       padding: 0 65px 0 45px;
     }
+
+    input[type=range].slider {
+      padding-left: 45px;
+} */
 
     input[type="button"].preset {
   display: none;
@@ -2038,21 +2092,29 @@ label.preset {
   margin-top: 5px;
 }
 
+input[type="file"].preset:checked + label::before {
+  background-color: #3882E8;
+}
+
     input[type="checkbox"].demo2 {
   display: none;
 }
 input[type="checkbox"].demo2 + label::before {
   content:'';
   border: 1px solid #f5f5f5;
-  font-size: 10px;
-  padding: 2 8px;
-  /* padding-top: 6 6px; */
-  padding-bottom: 0 16px;
+  font-size: 8px;
+  /* padding: 1 6px; */
+  padding-left: 6px;
+  padding-right: 6px;
+  padding-top: 4px;
+  /* padding-bottom: 1px; */
   margin-right: 0.3rem;
+  margin-left: 0.3rem;
 }
 input[type="checkbox"].demo2:checked + label::before {
-  background-color: #00B7E8;
+  background-color: #3882E8;
 }
+
 input[type="checkbox"].snap {
   display: none;
 }
@@ -2064,8 +2126,27 @@ input[type="checkbox"].snap + label::before {
   margin-right: 0.3rem;
 }
 input[type="checkbox"].snap:checked + label::before {
-  background-color: #00B7E8;
+  background-color: #3882E8;
 }
+
+
+input[type="checkbox"].display_brightness {
+  display: none;
+}
+input[type="checkbox"].display_brightness + label::before {
+  content:'Low';
+  border: 1px solid #f5f5f5;
+  font-size: 10px;
+  padding: 2 4px;
+  margin-right: 0.3rem;
+  margin-left: 0.5rem;
+}
+input[type="checkbox"].display_brightness:checked + label::before {
+  content:'High';
+  background-color: #3882E8;
+}
+
+
 input[type="checkbox"].toggle {
   display: none;
 }
@@ -2077,19 +2158,18 @@ input[type="checkbox"].toggle + label::before {
   margin-right: 0.3rem;
 }
 input[type="checkbox"].toggle:checked + label::before {
-  background-color: #00B7E8;
+  background-color: #3882E8;
 }
+
 
   </style>
 </head>
 <title>open·control editor</title>
 
 <body>
-
-<div id="Options">
+<div id="Options" class="Options">
   <script>create_options_table("Options")</script>
 </div>
-
   <div id="Layout">
     <script>create_layout_table("Layout")</script>
   </div>
