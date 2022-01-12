@@ -676,14 +676,6 @@
 
   function create_display_brightness_option(div) {
     var divClass = document.getElementsByClassName(div);
-    // var display_brightness_slider = document.createElement('input');
-    // display_brightness_slider.type = 'range';
-    // display_brightness_slider.steps = "1";
-    // display_brightness_slider.min = "40";
-    // display_brightness_slider.max = "127";
-    // display_brightness_slider.class = "slider";
-    // brightness_slider.id = "brightness_slider";
-
 
     var display_brightness_label = document.createElement('label');
     var display_brightness = document.createElement('input');
@@ -693,7 +685,7 @@
     display_brightness_label.htmlFor = display_brightness.id
     display_brightness.addEventListener('change', (event) => {
       if (event.target.checked) on_display_brightness_changed(127);
-      else on_display_brightness_changed(70);
+      else on_display_brightness_changed(80);
     })
     // display_brightness_cell = [display_brightness, display_brightness_label];
 
@@ -827,6 +819,7 @@
     mainCell.className = "type_display";
 
     display_icon_cell.innerHTML = "Display";
+    display_icon_cell.className = "layout";
     sel_display = create_sel(0, display_actions, 'display', 'block');
     sel_display.className = 'display_select'
 
@@ -1758,8 +1751,8 @@ sleep(pause)
       font-size: 100%;
   background: linear-gradient(
     to top,
-    rgb(129, 128, 128) 0%,
-    rgb(71, 71, 71) 93.5%,
+    rgb(137, 138, 138) 0%,
+    rgb(93, 97, 100) 93.5%,
     rgb(39, 39, 39) 93.5%,
     rgb(39, 39, 39) 100%
   );
@@ -1826,14 +1819,15 @@ sleep(pause)
     }
 
     td.type_display {
+      text-align: center;
       border-collapse: separate;
       background: rgb(0, 0, 0);
       border: var(--border) solid var(--border_color);
       border-radius: var(--radius);
       height: 18px;
       padding-left: 50px;
-      padding-bottom: 25px;
-      padding-top: 25px;
+      padding-bottom: 15px;
+      padding-top: 18 px;
     }
 
     select.display_select {
@@ -1857,8 +1851,9 @@ sleep(pause)
       border-radius: var(--radius);
       height: 18px;
       width: 200px;
-      padding-left: 40px;
-      padding-right: 5px;
+      /* padding-left: 40px;
+      padding-right: 5px; */
+      padding-bottom: 8px;
     }
 
 
@@ -1873,6 +1868,7 @@ sleep(pause)
       padding-left: 2px;
       padding-right: 2px;
       align-items: center;
+      padding-bottom: 2px;
     }
 
     td.main_cell {
