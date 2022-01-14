@@ -315,7 +315,7 @@
    "button_short" : [...Array(NUM_LAYOUTS)].map(e => Array(NUM_BUTTONS))
   };
 
-  sysex_bytes = {
+  id_to_sysex = {
    "button_short" : 10,
    "button_long" : 12,
    "button_double" : 19,
@@ -351,7 +351,7 @@
    "encoder_hold" : "slider",
    "slider" : "slider",
     "led" : "slider",
-    "display": "display"
+    "display": "display",
   }
   
   sysex_to_id = {
@@ -503,8 +503,19 @@
 
 
   function show_receive_message(){
-      var   message = [240, 122, 29, 1, 19, 54, 3, 7, 82, 69, 67, 69, 73, 86, 69, 247];
+   init_led_color_red = [80, 0, 17, 100, 124, 90];
+   init_led_color_green = [0, 78, 23, 100, 49, 0];
+   init_led_color_blue = [100, 46, 80, 0, 0, 12];
+      var   message = [240, 122, 29, 1, 19, 54, 32, 247];
+      open_control_output.send(message);  
+    for (var i = 0; i < 6; i++) {
+      var   message = [240, 122, 29, 1, 19, 28, i, init_led_color_red[i], init_led_color_green[i], init_led_color_blue[i], 247];
       open_control_output.send(message);
+    }
+    for (var i = 0; i < 6; i++) {
+      var   message = [240, 122, 29, 1, 19, 28, i, 0, 0, 0, 247];
+      open_control_output.send(message);
+    }
   }
 
   function sendSysex(sysex_id, layout, id, value, type, channel) {
@@ -1288,7 +1299,7 @@
       
       show_receive_message();
       sleep(pause)
-      sendSysex(sysex_bytes[id], current_layout, num_to_send, cc_to_send, type[id][current_layout][num], channel[id][current_layout][num]);
+      sendSysex(id_to_sysex[id], current_layout, num_to_send, cc_to_send, type[id][current_layout][num], channel[id][current_layout][num]);
       sleep(pause)
       request_Live_update();
 
@@ -1349,7 +1360,7 @@
     else num_to_send = num;
     show_receive_message();
     sleep(pause)
-    sendSysex(sysex_bytes[id], current_layout, num_to_send, control[id][current_layout][num], type[id][current_layout][num], channel[id][current_layout][num]);
+    sendSysex(id_to_sysex[id], current_layout, num_to_send, control[id][current_layout][num], type[id][current_layout][num], channel[id][current_layout][num]);
     sleep(pause)
     request_Live_update();
   }
@@ -1640,7 +1651,7 @@ function displayContents(contents) {
   a.click()
 }
 
-var pause = 2;
+var pause = 10;
 
   function uploadPreset() { 
     console.log("bing")
@@ -1673,49 +1684,50 @@ var pause = 2;
     for (var i = 0; i < 6; i++) {
     show_receive_message();
    // "button_short"
-   sendSysex(10, current_layout, i, control["button_short"][current_layout][i], type["button_short"][current_layout][i], channel["button_short"][current_layout][i]);
+   id = "button_short";
+   sendSysex(id_to_sysex[id], current_layout, i, control[id][current_layout][i], type[id][current_layout][i], channel[id][current_layout][i]);
 sleep(pause)
-   // "button_long") 
-   sendSysex(12, current_layout, i, control["button_long"][current_layout][i], type["button_long"][current_layout][i], channel["button_long"][current_layout][i]);
+id = "button_long"
+   sendSysex(id_to_sysex[id], current_layout, i, control[id][current_layout][i], type[id][current_layout][i], channel[id][current_layout][i]);
    sleep(pause)
- // "button_double"
-   sendSysex(12, current_layout, i, control["button_double"][current_layout][i], type["button_double"][current_layout][i], channel["button_double"][current_layout][i]);
+   id = "button_double"
+   sendSysex(id_to_sysex[id], current_layout, i, control[id][current_layout][i], type[id][current_layout][i], channel[id][current_layout][i]);
    sleep(pause)
- // "led"
-    sendSysex(14, current_layout, i, control["led"][current_layout][i], 1, 16);
+   id = "led"
+    sendSysex(id_to_sysex[id], current_layout, i, control[id][current_layout][i], 1, 16);
     sleep(pause)
- // snap
-sendRawSysex([240, 122, 29, 1, 19, 11, current_layout, i, snap["button_short"][current_layout][i], 247]);
+    id =  "snap"
+sendRawSysex([240, 122, 29, 1, 19, id_to_sysex[id], current_layout, i, snap["button_short"][current_layout][i], 247]);
 sleep(pause)
- // toggle short
-        sendRawSysex([240, 122, 29, 1, 19, 13, current_layout, i, toggle["button_short"][current_layout][i], 0, 247]);
+id =  "toggle_short"
+        sendRawSysex([240, 122, 29, 1, 19, id_to_sysex[id], current_layout, i, toggle["button_short"][current_layout][i], 0, 247]);
         sleep(pause)
- // toggle long
-        sendRawSysex([240, 122, 29, 1, 19, 13, current_layout, i, toggle["button_long"][current_layout][i], 1, 247]);
+        id = "toggle_long"
+        sendRawSysex([240, 122, 29, 1, 19, id_to_sysex[id], current_layout, i, toggle["button_long"][current_layout][i], 1, 247]);
 sleep(pause)
-// toggle double 
-        sendRawSysex([240, 122, 29, 1, 19, 13, current_layout, i, toggle["button_double"][current_layout][i], 2, 247]);
+id =  "toggle_double"
+        sendRawSysex([240, 122, 29, 1, 19, id_to_sysex[id], current_layout, i, toggle["button_double"][current_layout][i], 2, 247]);
 }
 
 show_receive_message();
     for (var i = 0; i < 2; i++) {
-// "slider"
+      id =  "slider"
 sleep(pause)
-     sendSysex(17, current_layout, i, control["slider"][current_layout][i], 1, channel["slider"][current_layout][i]);
-// encoder
+     sendSysex(id_to_sysex[id], current_layout, i, control[id][current_layout][i], 1, channel[id][current_layout][i]);
+     id =  "encoder"
 sleep(pause)
-     sendSysex(16, current_layout, i, control["encoder"][current_layout][i] , 1, channel["encoder"][current_layout][i]);
-// "encoder_hold"
+     sendSysex(id_to_sysex[id], current_layout, i, control[id][current_layout][i], 1, channel[id][current_layout][i]);
+     id =  "encoder_hold"
 sleep(pause)
-     sendSysex(16, current_layout, i+2, control["encoder_hold"][current_layout][i] , 1, channel["encoder_hold"][current_layout][i]);
-// "encoder_short"
+     sendSysex(id_to_sysex[id], current_layout, i+2, control[id][current_layout][i], 1, channel[id][current_layout][i]);
+id =  "encoder_short"
 sleep(pause)
-   sendSysex(10, current_layout, i+6, control["encoder_short"][current_layout][i], type["encoder_short"][current_layout][i], channel["encoder_short"][current_layout][i]);
+   sendSysex(id_to_sysex[id], current_layout, i+6, control[id][current_layout][i], type[id][current_layout][i], channel[id][current_layout][i]);
     }
 
-// display
-sleep(pause)
-   sendSysex(18, current_layout, 1, display[current_layout][0], 1, 16);
+    sleep(pause)
+    id =  "display"
+   sendSysex(id_to_sysex[id], current_layout, 1, control[id][current_layout][0], 1, 16);
    request_Live_update()
   }
 
