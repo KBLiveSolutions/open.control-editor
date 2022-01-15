@@ -577,9 +577,9 @@
     text_cell.innerHTML = "Options"
     // text_cell.className = "type_options";
     text_cell.setAttribute("colspan", "4");
-    var options_cell = [document.createElement('td'), document.createElement('td'), document.createElement('td'), document.createElement('td'), document.createElement('td'), document.createElement('td'), document.createElement('td'), document.createElement('td'), document.createElement('td')];
+    var options_cell = [document.createElement('td'), document.createElement('td'), document.createElement('td'), document.createElement('td'), document.createElement('td'), document.createElement('td'), document.createElement('td'), document.createElement('td'), document.createElement('td'), document.createElement('td'), document.createElement('td')];
     
-    for (var i = 0; i < 9; i++) {
+    for (var i = 0; i < 10; i++) {
     options_cell[i].className = "type_options";
     }
 
@@ -598,7 +598,7 @@
     options_cell[2].appendChild(display_brightness_option[2]);
     options_cell[3].appendChild(led_brightness_option[1]);
     options_cell[3].appendChild(led_brightness_option[0]);
-    options_cell[4].innerHTML = "Forward MIDI In to :"
+    options_cell[4].innerHTML = "Forward MIDI In to:"
     options_cell[5].appendChild(midi_thru_option);
 
     
@@ -610,6 +610,12 @@
     options_cell[6].appendChild(statusLabel)
     options_cell[6].setAttribute("rowspan", "2");
 
+
+    options_cell[7].innerHTML = "<a href= http://opencontrol.me><img src=https://kblivesolutions.github.io/open.control/assets/images/logo_big.png width=110px></a>"
+    options_cell[7].setAttribute("rowspan", "2");
+
+    optionsTable_row1.appendChild(options_cell[7]);
+    // optionsTable_row2.appendChild(options_cell[8]);
     optionsTable_row1.appendChild(options_cell[0]);
     optionsTable_row2.appendChild(options_cell[1]);
     optionsTable_row1.appendChild(options_cell[2]);
@@ -1962,7 +1968,7 @@ sleep(pause)
       border: var(--border) solid rgb(39, 39, 39);
       /* border-radius: var(--radius); */
       height: 18px;
-      width: 25%;
+      width: 20%;
       padding-top: 5px;
       padding-bottom: 5px;
       /* padding-left: 20px;
