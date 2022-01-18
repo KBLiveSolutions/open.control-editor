@@ -63,6 +63,10 @@
     "⬇ Sel Next Scene": 15,
     "⬆+4 Jump 4 Scenes Up": 105,
     "⬇-4 Jump 4 Scenes Down": 106,
+    "⦷ Fixed Length Rec 1 Bars": 107,
+    "⦷ Fixed Length Rec 2 Bars": 108,
+    "⦷ Fixed Length Rec 4 Bars": 109,
+    "⦷ Fixed Length Rec 8 Bars": 110,
     "⥴ Jump to Playing Scene": 16,
     "⥅ Insert Scene": 17,
     "⇴ Capture and Insert Scene": 43,
@@ -410,6 +414,7 @@
     statusLabel.style.color = "#000000";
     var connect_cell = document.getElementById("connect_cell");
     connect_cell.style.backgroundColor = "red";
+    connect_cell.className = "connect_cell";
     statusLabel.innerHTML = "<b> Please connect open·control </b>";
 
     var inputs = midiAccess.inputs.values();
