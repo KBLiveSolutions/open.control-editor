@@ -255,7 +255,7 @@
   };
 
   var LATEST_FIRMWARE_MAJOR_VERSION = 1
-  var LATEST_FIRMWARE_MINOR_VERSION = 1
+  var LATEST_FIRMWARE_MINOR_VERSION = 2
 
   var NUM_BUTTONS = 6;
   var NUM_LEDS = 6;
@@ -263,6 +263,7 @@
   var NUM_ENCODERS = 2;
   var NUM_LAYOUTS = 3;
   var NUM_DISPLAY = 1;
+  var min_ver = 0;
 
   var type = {
    "button_short" : [...Array(NUM_LAYOUTS)].map(e => Array(NUM_BUTTONS)),
@@ -274,6 +275,7 @@
    "slider" : [...Array(NUM_LAYOUTS)].map(e => Array(NUM_SLIDERS)),
     "led" : [...Array(NUM_LAYOUTS)].map(e => Array(NUM_LEDS)),
     "display" : [...Array(NUM_LAYOUTS)].map(e => Array(NUM_DISPLAY)),
+    "linked_to" : [...Array(NUM_LAYOUTS)].map(e => Array(NUM_DISPLAY)),
     "external_MIDI" : [...Array(1)].map(e => Array(10))
   }
 
@@ -287,6 +289,7 @@
    "slider" : [...Array(NUM_LAYOUTS)].map(e => Array(NUM_SLIDERS)),
     "led" : [...Array(NUM_LAYOUTS)].map(e => Array(NUM_LEDS)),
     "display" : [...Array(NUM_LAYOUTS)].map(e => Array(NUM_DISPLAY)),
+    "linked_to" : [...Array(NUM_LAYOUTS)].map(e => Array(NUM_DISPLAY)),
     "external_MIDI" : [...Array(1)].map(e => Array(10))
   }
 
@@ -300,6 +303,7 @@
    "slider" : [...Array(NUM_LAYOUTS)].map(e => Array(NUM_SLIDERS)),
     "led" : [...Array(NUM_LAYOUTS)].map(e => Array(NUM_LEDS)),
     "display" : [...Array(NUM_LAYOUTS)].map(e => Array(NUM_DISPLAY)),
+    "linked_to" : [...Array(NUM_LAYOUTS)].map(e => Array(NUM_DISPLAY)),
     "external_MIDI" : [...Array(1)].map(e => Array(10))
   }
 
@@ -370,7 +374,8 @@
           11 : "snap",
           13 : "toggle",
           21 : "external_MIDI",
-          30 : "options"
+          30 : "options",
+          24 : "linked_to"
         }
 
   toggle_to_id = {
@@ -428,16 +433,7 @@
   function ConnectEventHandler(event) {
     // Print information about the (dis)connected MIDI controller
     midi.outputs.forEach(output => {
-      // console.log("OUTPUT NAME", output.name);
       if (output.name == "open·control" && !open_control_detected) detect_output(output);
-    //   IF OUTPUT = Number of ports and opencontrol not detected {
-    //     console.log("not detected")
-    //     open_control_detected = false;
-    // var connect_cell = document.getElementById("connect_cell");
-    // connect_cell.style.backgroundColor = "red";
-    // statusLabel.innerHTML = "<b> Please connect open·control </b>";
-    //   }
-
     });
   }
 
@@ -533,8 +529,6 @@
     // Sending {{240, 122, 29, 1, 19, 10, Layout Number, Button number, Note/CC Number, Type, Channel, 247} changes the corresponding button
     if (open_control_detected) open_control_output.send(sysex_message);
   }
-
-  //====================== JAVASCRIPT ==========================
 
   var color_names = ["Off", "Blue 1", "Blue 2", "Red 1", "Red 2", "Green 1", "Green 2", "Pink 1", "Pink 2", "Purple 1", "Purple 2", "Yellow 1", "Yellow 2", "Orange 1", "Orange 2", "White 1", "White 2"]
   var colors = [0, 125, 21, 14, 56, 126, 62, 11, 42, 66, 106, 33, 4, 43, 16, 120, 49];
@@ -801,28 +795,97 @@
     var main_cell_table = document.createElement('table');
     var layout_icon_cell = main_cell_table.insertRow(-1).insertCell(0);
     var layout_select_cell = main_cell_table.insertRow(-1).insertCell(0);
-    var layout_color_cell = main_cell_table.insertRow(-1).insertCell(0);
+    var link_to_label_cell = mainTable_row1.insertCell(0);
+    // var link_to_buttons_cell = mainTable_row2.insertCell(0);
     mainTable.className = "type_layout";
 
     layout_icon_cell.innerHTML = "Select Page";
     sel_layout = create_sel(90, layout_actions, 'page', 'block');
-    // layout_color_cell.innerHTML = "Page LED Color ";
-    // sel_color = create_color_sel(90);
     layout_icon_cell.className = "layout";
 
     divClass.appendChild(mainTable);
     main_cell.appendChild(layout_icon_cell);
     main_cell.appendChild(sel_layout);
-    // main_cell.appendChild(layout_color_cell);
-    // layout_color_cell.appendChild(sel_color);
 
     preset_cell_content = create_preset_cell("Options");
     preset_cell.appendChild(preset_cell_content);
     preset_cell.className = "preset";
 
-    mainTable_row0.appendChild(main_cell);
+    link_to_label_cell.innerHTML = "<font size=2><br></font>";
+    var link_to_buttons_cell = create_link_option("Options");
+    link_to_buttons_cell.className = "link_to";
+    link_to_buttons_cell.setAttribute("rowspan", "2");
 
+    mainTable_row0.appendChild(main_cell);
+    mainTable_row0.appendChild(link_to_label_cell);
     mainTable_row1.appendChild(preset_cell);
+    mainTable_row0.appendChild(link_to_buttons_cell);
+  }
+
+  function create_link_option(div){
+    var divClass = document.getElementsByClassName(div);
+    var linkTable = document.createElement('table');
+    linkTable.className = "link_to";
+    var linkTable_row0 = linkTable.insertRow(0);
+    var linkTable_row1 = linkTable.insertRow(1);
+    var linkTable_row2 = linkTable.insertRow(2);
+    link_to_label = document.createElement('td');
+    linkButton0 = document.createElement('td');
+    linkButton1 = document.createElement('td');
+    linkButton2 = document.createElement('td');
+    var link_buttons = [document.createElement('label'), document.createElement('label')];
+    var link_to_session_button =  document.createElement('input');
+    link_to_session_button.id = "link_to_session_button"
+    link_to_session_button.type = "checkbox"
+    link_to_session_button.className = "link_to_session"
+    link_to_session_button.addEventListener('change', (event) => {
+      if (event.target.checked) on_link_to_changed(1);
+      else on_link_to_changed(0);
+    })
+    link_to_session_label = document.createElement('label');
+    link_to_session_label.className = "link_to"
+    // link_to_session_label.appendChild(document.createTextNode('Session'));
+    link_to_session_label.htmlFor = "link_to_session_button"
+    
+    var link_to_arr_button =  document.createElement('input');
+    link_to_arr_button.type = "checkbox"
+    link_to_arr_button.id = "link_to_arr_button"
+    link_to_arr_button.className = "link_to_arr"
+    link_to_arr_button.addEventListener('change', (event) => {
+      if (event.target.checked) on_link_to_changed(2);
+      else on_link_to_changed(0);
+    })
+    link_to_arr_label = document.createElement('label');
+    link_to_arr_label.className = "link_to"
+    // link_to_arr_label.appendChild(document.createTextNode('Arrang.'));
+    link_to_arr_label.htmlFor = "link_to_arr_button"
+
+    linkButton0.className = "link_to";
+    linkButton1.className = "link_to";
+    linkButton2.className = "link_to";
+
+    // link_to_label.innerHTML = "<font size=2>Link to:<br></font>";
+    if (min_ver < 2) link_to_label.innerHTML = "<font size=2>Link to:<br></font><font color=red size=1>Needs firmware 1.2</font>";
+    else link_to_label.innerHTML = "<font size=2>Link to:<br></font>";
+    linkButton0.appendChild(link_to_session_button);
+    linkButton0.appendChild(link_to_session_label);
+    linkButton1.appendChild(link_to_arr_button);
+    linkButton1.appendChild(link_to_arr_label);
+    linkTable_row0.appendChild(link_to_label);
+    linkTable_row1.appendChild(linkButton0);
+    linkTable_row2.appendChild(linkButton1);
+    return (linkTable)
+
+  }
+
+  function on_link_to_changed(linked_view){
+    control["linked_to"][current_layout] = linked_view
+    update_linked_to()
+    for (var j = 0; j < NUM_LAYOUTS; j++) {
+      if (j != current_layout && control["linked_to"][j] == linked_view) control["linked_to"][j] = 0;
+    }
+    show_receive_message();
+    sendRawSysex([240, 122, 29, 1, 19, 24, current_layout, linked_view, 247]);
   }
 
   function create_display_table(div) {
@@ -1307,6 +1370,11 @@
           channel[id][current_layout][num] = 11;
           type[id][current_layout][num] = 0;
       }
+
+      if (id=="led"){
+        if (value==0) channel[id][current_layout][num] = 10;
+        update_led_selects(id, num, type[id][current_layout][num], control[id][current_layout][num], channel[id][current_layout][num])
+      }
       
       show_receive_message();
       sleep(pause)
@@ -1350,13 +1418,14 @@
   }
 
   function on_snap_changed(i, value) {
+    show_receive_message();
     sendRawSysex([240, 122, 29, 1, 19, 11, current_layout, i, value, 247]);
     snap["button_short"][current_layout][i] = value;
     update_snap_box(i, value);
   }
 
   function on_toggle_changed(i, val, id) {
-    console.log(i, val, id) 
+    show_receive_message();
     toggle[id][current_layout][i] = val;
     sendSysex(13, current_layout, i, val, id_to_toggle[id], 1);
   }
@@ -1411,6 +1480,16 @@
       update_button_selects(id, i, type[id][current_layout][i], control[id][current_layout][i], channel[id][current_layout][i]);
     }
     update_display_select(control["display"][current_layout][0])
+    update_linked_to()
+  }
+
+  function update_linked_to(){    
+    var session_checkbox = document.getElementById("link_to_session_button");
+    var arr_checkbox = document.getElementById("link_to_arr_button");
+    session_checkbox.checked = false;
+    arr_checkbox.checked = false;
+    if (control["linked_to"][current_layout] == 1) session_checkbox.checked = true;
+    if (control["linked_to"][current_layout] == 2) arr_checkbox.checked = true;
   }
 
   function update_button_selects(id, i, _type, _control, _channel, _toggle, _snap=null) {
@@ -1873,7 +1952,7 @@ sleep(pause)
       border: var(--border) solid rgb(0, 0, 0);
       border-radius: var(--radius);
       height: 18px;
-      width: 200px;
+      width: 180px;
       /* padding-left: 40px;
       padding-right: 5px; */
       padding-bottom: 8px;
@@ -1924,6 +2003,24 @@ sleep(pause)
       padding-top: 10px;
     }
 
+
+    td.link_to {
+      text-align:left;
+      border-collapse: separate;
+      background: rgb(0, 0, 0);
+      border: var(--border) solid var(--border_color);
+      border-radius: var(--radius);
+      height: 18px;
+      width: 10px;
+      /* padding-left: 5px;
+  padding-right: 5px; */
+      margin-top: 20px;
+      align-items: center;
+      padding-bottom: 10px;
+      margin-bottom: 10px;
+      padding-top: 10px;
+    }
+
     td.color_sel {
       /* text-align: center; */
       border-collapse: separate;
@@ -1946,7 +2043,7 @@ sleep(pause)
       border: var(--border) solid var(--border_color);
       border-radius: var(--radius);
       height: 18px;
-      width: 220px;
+      width: 250px;
       padding-left: 5px;
       padding-right: 5px;
     }
@@ -1974,6 +2071,22 @@ sleep(pause)
       /* border-radius: var(--radius); */
       height: 18px;
       width: 20%;
+      padding-top: 5px;
+      padding-bottom: 5px;
+      /* padding-left: 20px;
+      padding-right: 20px; */
+      align-items: left;
+    }
+
+    td.link_to {
+      text-align: center;
+      border-collapse: separate;
+      background: rgb(0, 0, 0);
+      border: var(--border) solid rgb(0, 0, 0);
+      /* border-radius: var(--radius); */
+      height: 18px;
+      width: 20%;
+      margin-top: 20px;
       padding-top: 5px;
       padding-bottom: 5px;
       /* padding-left: 20px;
@@ -2079,19 +2192,7 @@ sleep(pause)
       padding-top: 360px;
     }
 
-    /* .slider {
-      height: 80px;
-      width: 380px;
-      background: #fff;
-      border-radius: 10px;
-      padding: 0 65px 0 45px;
-    }
-
-    input[type=range].slider {
-      padding-left: 45px;
-} */
-
-    input[type="button"].preset {
+input[type="button"].preset {
   display: none;
 }
 
@@ -2103,6 +2204,8 @@ input[type="file"].preset {
 label.preset {
   content:'';
   border: 1px solid #f5f5f5;
+  border-radius: var(--radius);
+  background: rgb(66, 66, 66);
   font-size: 10px;
   padding: 2 8px;
   /* padding-top: 6 6px; */
@@ -2111,16 +2214,19 @@ label.preset {
   margin-top: 5px;
 }
 
+
 input[type="file"].preset:checked + label::before {
   background-color: #3882E8;
 }
 
-    input[type="checkbox"].demo2 {
+input[type="checkbox"].demo2 {
   display: none;
 }
+
 input[type="checkbox"].demo2 + label::before {
   content:'';
   border: 1px solid #f5f5f5;
+  background: rgb(37, 37, 37);
   font-size: 8px;
   /* padding: 1 6px; */
   padding-left: 6px;
@@ -2140,6 +2246,7 @@ input[type="checkbox"].snap {
 input[type="checkbox"].snap + label::before {
   content:'Snap';
   border: 1px solid #f5f5f5;
+  background: rgb(37, 37, 37);
   font-size: 10px;
   padding: 2 4px;
   margin-right: 0.3rem;
@@ -2148,13 +2255,13 @@ input[type="checkbox"].snap:checked + label::before {
   background-color: #3882E8;
 }
 
-
 input[type="checkbox"].display_brightness {
   display: none;
 }
 input[type="checkbox"].display_brightness + label::before {
   content:'Low';
   border: 1px solid #f5f5f5;
+  background: rgb(37, 37, 37);
   font-size: 10px;
   padding: 2 4px;
   margin-right: 0.3rem;
@@ -2169,6 +2276,7 @@ input[type="checkbox"].display_brightness:checked + label::before {
 input[type="checkbox"].toggle {
   display: none;
 }
+
 input[type="checkbox"].toggle + label::before {
   content:'Toggle';
   border: 1px solid #f5f5f5;
@@ -2178,6 +2286,50 @@ input[type="checkbox"].toggle + label::before {
 }
 input[type="checkbox"].toggle:checked + label::before {
   background-color: #3882E8;
+}
+
+
+input[type="checkbox"].link_to_session {
+  display: none;
+}
+
+input[type="checkbox"].link_to_session:checked + label::before {
+  background-color: #257549;
+}
+
+
+input[type="checkbox"].link_to_session + label::before {
+  content:'Session';
+  border: 1px solid #257549;
+  background: rgb(37, 37, 37);
+  font-size: 10px;
+  padding: 2 8px;
+  /* padding-top: 6 6px; */
+  padding-bottom: 0 16px;
+  margin-right: 0.3rem;
+  margin-top: 5px;
+}
+
+
+input[type="checkbox"].link_to_arr {
+  display: none;
+}
+
+input[type="checkbox"].link_to_arr:checked + label::before {
+  background-color: #257549;
+}
+
+
+input[type="checkbox"].link_to_arr + label::before {
+  content:'Arrang. ';
+  border: 1px solid #257549;
+  background: rgb(37, 37, 37);
+  font-size: 10px;
+  padding: 2 10px;
+  /* padding-top: 6 6px; */
+  padding-bottom: 0 16px;
+  margin-right: 0.3rem;
+  margin-top: 5px;
 }
 
 
