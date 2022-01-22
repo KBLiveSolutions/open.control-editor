@@ -255,7 +255,7 @@
   };
 
   var LATEST_FIRMWARE_MAJOR_VERSION = 1
-  var LATEST_FIRMWARE_MINOR_VERSION = 1
+  var LATEST_FIRMWARE_MINOR_VERSION = 2
 
   var NUM_BUTTONS = 6;
   var NUM_LEDS = 6;
@@ -263,6 +263,7 @@
   var NUM_ENCODERS = 2;
   var NUM_LAYOUTS = 3;
   var NUM_DISPLAY = 1;
+  var min_ver = 0;
 
   var type = {
    "button_short" : [...Array(NUM_LAYOUTS)].map(e => Array(NUM_BUTTONS)),
@@ -648,9 +649,6 @@
     return ([tempo_checkbox, tempo_label])
   }
 
-
-
-
   function create_session_box_option(div) {
     var divClass = document.getElementsByClassName(div);
     var session_box_label = document.createElement('label');
@@ -866,7 +864,9 @@
     linkButton1.className = "link_to";
     linkButton2.className = "link_to";
 
-    link_to_label.innerHTML = "<font size=2>Link to:<br></font>";
+    // link_to_label.innerHTML = "<font size=2>Link to:<br></font>";
+    if (min_ver < 2) link_to_label.innerHTML = "<font size=2>Link to:<br></font><font color=red size=1>Needs firmware 1.2</font>";
+    else link_to_label.innerHTML = "<font size=2>Link to:<br></font>";
     linkButton0.appendChild(link_to_session_button);
     linkButton0.appendChild(link_to_session_label);
     linkButton1.appendChild(link_to_arr_button);
@@ -1369,6 +1369,11 @@
           cc_to_send = 1;
           channel[id][current_layout][num] = 11;
           type[id][current_layout][num] = 0;
+      }
+
+      if (id=="led"){
+        if (value==0) channel[id][current_layout][num] = 10;
+        update_led_selects(id, num, type[id][current_layout][num], control[id][current_layout][num], channel[id][current_layout][num])
       }
       
       show_receive_message();
