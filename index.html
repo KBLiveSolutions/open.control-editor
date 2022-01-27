@@ -23,18 +23,18 @@
     "Page 3": 2
   };
   var display_actions = {
-    "≡  Scene Name": 0,
-    "↾  Arrangement Marker": 4,
-    "⦀ Track Name": 1,
-    "⊙  Looper Number": 2,
-    "≡  Setlist Song": 5,
-    "≔  Variation Number / Device": 3,
+    "☲  Scene Name": 0,
+    "⌈  Arrangement Marker": 4,
+    "♫  Setlist Song": 5,
+    "🎹 Track Name": 1,
+    "Ⓛ  Looper Number": 2,
+    "⌸  Variation Number / Device": 3,
   };
   var button_actions = {
     "Off": 0,
     "--- Global ---": 0,
     "■/▶ Start/Stop": 1,
-    "❚▶ Continue Playing": 100,
+    "❚❚ Pause": 100,
     "●○ Metronome": 2,
     "⤶ Undo": 4,
     "⤷ Redo": 40,
@@ -62,8 +62,8 @@
     "▶ Launch Scene": 13,
     "⬆ Sel Prev Scene": 14,
     "⬇ Sel Next Scene": 15,
-    "⬆+4 Jump 4 Scenes Up": 105,
-    "⬇-4 Jump 4 Scenes Down": 106,
+    "⇈+4 Jump 4 Scenes Up": 105,
+    "⇊ -4 Jump 4 Scenes Down": 106,
     "⦷ Fixed Length Rec 1 Bars": 107,
     "⦷ Fixed Length Rec 2 Bars": 108,
     "⦷ Fixed Length Rec 4 Bars": 109,
@@ -73,6 +73,12 @@
     "⇴ Capture and Insert Scene": 43,
     "⧈ Stop All Clips": 3,
     // "➟ Disable Follow Actions": 12,
+    "--- Setlist ---": 0,
+    "⏮️ Prev Song": 33,
+    "⏭️ Next Song": 34,
+    "▶️ Launch Song": 44,
+    "▶️Ⓠ Launch Song No Q": 45,
+    "▷ Refresh Setlist": 46,
     "--- Tracks ---": 0,
     "← Sel Prev Track": 18,
     "→ Sel Next Track": 19,
@@ -100,12 +106,6 @@
     "⌸ Show Looper": 32,
     "+ Add Looper": 47,
     "∅ Clear All": 36,
-    "--- Setlist ---": 0,
-    "⍇ Prev Song": 33,
-    "⍈ Next Song": 34,
-    "▷ Launch Song": 44,
-    "▷ Launch Song No Q": 45,
-    "▷ Refresh Setlist": 46,
     "--- Variations ---": 0,
     "⍇ Prev Device": 65,
     "⍈ Next Device": 66,
@@ -127,6 +127,7 @@
     "Custom Color": 0,
     "--- Global ---": 0,
     "■/▶ Start/Stop": 1,
+    "❚❚ Pause": 100,
     "●○ Metronome": 2,
     "← Re-enable Automation": 41,
     "▢ Capture": 5,
@@ -142,7 +143,11 @@
     "▶ Selected Scene Color": 13,
     "⬆ Prev Scene Color": 14,
     "⬇ Next Scene Color": 15,
-    "➟ Disable Follow Actions": 12,
+    // "➟ Disable Follow Actions": 12,
+    "--- Setlist ---": 0,
+    "⏮️ Prev Song Color": 33,
+    "⏭️ Next Song Color": 34,
+    "▶️ Current Song Color": 44,
     "--- Tracks ---": 0,
     "✽ Selected Track Color": 54,
     "← Prev Track Color": 18,
@@ -152,10 +157,6 @@
     "S Solo": 25,
     "⌻ Arm": 26,
     "■ Stop": 27,
-    "--- Setlist ---": 0,
-    "⍇ Prev Song": 33,
-    "⍈ Next Song": 34,
-    "▷ Launch Song": 44,
     "--- Looper ---": 0,
     "⧀ Prev Looper Track Color": 48,
     "⧁ Next Looper Track Color": 49,
@@ -168,10 +169,6 @@
     "◈ State (LOOPER4)": 80,
     "◈ State (LOOPER5)": 81,
     "◈ State (LOOPER6)": 82,
-    // "--- Pages ---": 0,
-    // "⇆ Page Color": 58,
-    // "--- Custom ---": 0,
-    // "Custom MIDI": 122
   };
   var slider_actions = {
     "Off": 0,
@@ -190,10 +187,6 @@
     "② Parameter 2": 62,
     "③ Parameter 3": 63,
     "④ Parameter 4": 64,
-    // "❶ Device 1 Param 1": 92,
-    // "❷ Device 1 Param 2": 93,
-    // "❸ Device 1 Param 3": 94,
-    // "❹ Device 1 Param 4": 95,
     "--- Custom ---": 0,
     "Custom MIDI": 122
   };
@@ -518,7 +511,7 @@
    init_led_color_red = [80, 0, 17, 100, 124, 90];
    init_led_color_green = [0, 78, 23, 100, 49, 0];
    init_led_color_blue = [100, 46, 80, 0, 0, 12];
-      var   message = [240, 122, 29, 1, 19, 54, 32, 247];
+      var   message = [240, 122, 29, 1, 19, 54, 0, 247];
       open_control_output.send(message);  
     for (var i = 0; i < 6; i++) {
       var   message = [240, 122, 29, 1, 19, 28, i, init_led_color_red[i], init_led_color_green[i], init_led_color_blue[i], 247];
@@ -875,9 +868,9 @@
     linkButton1.className = "link_to";
     linkButton2.className = "link_to";
 
-    // link_to_label.innerHTML = "<font size=2>Link to:<br></font>";
-    if (min_ver < 2) link_to_label.innerHTML = "<font size=2>Link to:<br></font><font color=red size=1>Needs firmware 1.2</font>";
-    else link_to_label.innerHTML = "<font size=2>Link to:<br></font>";
+    link_to_label.innerHTML = "<font size=2>Link to:<br></font>";
+    // if (min_ver < 2) link_to_label.innerHTML = "<font size=2>Link to:<br></font><font color=red size=1>Needs firmware 1.2</font>";
+    // else link_to_label.innerHTML = "<font size=2>Link to:<br></font>";
     linkButton0.appendChild(link_to_session_button);
     linkButton0.appendChild(link_to_session_label);
     linkButton1.appendChild(link_to_arr_button);
