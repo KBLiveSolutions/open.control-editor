@@ -29,6 +29,7 @@
     "🎹 Track Name": 1,
     "Ⓛ  Looper Number": 2,
     "⌸  Variation Number / Device": 3,
+    "⌸  Browser": 6,
   };
   var button_actions = {
     "Off": 0,
@@ -79,6 +80,11 @@
     "▶️ Launch Song": 44,
     "▶️Ⓠ Launch Song No Q": 45,
     // "▷ Refresh Setlist": 46,
+    "--- Browser ---": 0,
+    "⏮️ Prev Item": 111,
+    "⏭️ Next Item": 112,
+    "Hotswap": 113,
+    "Load Item": 114,
     "--- Tracks ---": 0,
     "← Sel Prev Track": 18,
     "→ Sel Next Track": 19,
@@ -793,6 +799,7 @@
     var mainTable_row0 = mainTable.insertRow(0);
     var mainTable_row1 = mainTable.insertRow(1);
     var mainTable_row2 = mainTable.insertRow(2);
+    var mainTable_row3 = mainTable.insertRow(3);
     var main_cell = document.createElement('td');
     // var status_cell = document.createElement('td');
     var preset_cell = document.createElement('td');
@@ -833,11 +840,15 @@
     var linkTable_row0 = linkTable.insertRow(0);
     var linkTable_row1 = linkTable.insertRow(1);
     var linkTable_row2 = linkTable.insertRow(2);
+    var linkTable_row3 = linkTable.insertRow(3);
     link_to_label = document.createElement('td');
     linkButton0 = document.createElement('td');
     linkButton1 = document.createElement('td');
     linkButton2 = document.createElement('td');
-    var link_buttons = [document.createElement('label'), document.createElement('label')];
+    linkButton3 = document.createElement('td');
+    linkButton4 = document.createElement('td');
+    // var link_buttons = [document.createElement('label'), document.createElement('label'), document.createElement('label'), document.createElement('label')];
+
     var link_to_session_button =  document.createElement('input');
     link_to_session_button.id = "link_to_session_button"
     link_to_session_button.type = "checkbox"
@@ -864,20 +875,72 @@
     // link_to_arr_label.appendChild(document.createTextNode('Arrang.'));
     link_to_arr_label.htmlFor = "link_to_arr_button"
 
+    var link_to_track_button =  document.createElement('input');
+    link_to_track_button.type = "checkbox"
+    link_to_track_button.id = "link_to_track_button"
+    link_to_track_button.className = "link_to_track"
+    link_to_track_button.addEventListener('change', (event) => {
+      if (event.target.checked) on_link_to_changed(3);
+      else on_link_to_changed(0);
+    })
+    link_to_track_label = document.createElement('label');
+    link_to_track_label.className = "link_to"
+    // link_to_arr_label.appendChild(document.createTextNode('Arrang.'));
+    link_to_track_label.htmlFor = "link_to_track_button"
+
+    var link_to_looper_button =  document.createElement('input');
+    link_to_looper_button.type = "checkbox"
+    link_to_looper_button.id = "link_to_looper_button"
+    link_to_looper_button.className = "link_to_looper"
+    link_to_looper_button.addEventListener('change', (event) => {
+      if (event.target.checked) on_link_to_changed(4);
+      else on_link_to_changed(0);
+    })
+    link_to_looper_label = document.createElement('label');
+    link_to_looper_label.className = "link_to"
+    // link_to_arr_label.appendChild(document.createTextNode('Arrang.'));
+    link_to_looper_label.htmlFor = "link_to_looper_button"
+
+
+    var link_to_setlist_button =  document.createElement('input');
+    link_to_setlist_button.type = "checkbox"
+    link_to_setlist_button.id = "link_to_setlist_button"
+    link_to_setlist_button.className = "link_to_setlist"
+    link_to_setlist_button.addEventListener('change', (event) => {
+      if (event.target.checked) on_link_to_changed(4);
+      else on_link_to_changed(0);
+    })
+    link_to_setlist_label = document.createElement('label');
+    link_to_setlist_label.className = "link_to"
+    // link_to_arr_label.appendChild(document.createTextNode('Arrang.'));
+    link_to_setlist_label.htmlFor = "link_to_setlist_button"
+
     linkButton0.className = "link_to";
     linkButton1.className = "link_to";
     linkButton2.className = "link_to";
+    linkButton3.className = "link_to";
+    linkButton4.className = "link_to";
 
     link_to_label.innerHTML = "<font size=2>Link to:<br></font>";
+    link_to_label.setAttribute("colspan", "4");
     // if (min_ver < 2) link_to_label.innerHTML = "<font size=2>Link to:<br></font><font color=red size=1>Needs firmware 1.2</font>";
     // else link_to_label.innerHTML = "<font size=2>Link to:<br></font>";
     linkButton0.appendChild(link_to_session_button);
     linkButton0.appendChild(link_to_session_label);
     linkButton1.appendChild(link_to_arr_button);
     linkButton1.appendChild(link_to_arr_label);
+    linkButton2.appendChild(link_to_track_button);
+    linkButton2.appendChild(link_to_track_label);
+    linkButton3.appendChild(link_to_looper_button);
+    linkButton3.appendChild(link_to_looper_label);
+    linkButton4.appendChild(link_to_setlist_button);
+    linkButton4.appendChild(link_to_setlist_label);
     linkTable_row0.appendChild(link_to_label);
     linkTable_row1.appendChild(linkButton0);
-    linkTable_row2.appendChild(linkButton1);
+    linkTable_row1.appendChild(linkButton1);
+    linkTable_row2.appendChild(linkButton2);
+    linkTable_row2.appendChild(linkButton3);
+    linkTable_row3.appendChild(linkButton4);
     return (linkTable)
 
   }
@@ -1490,10 +1553,19 @@
   function update_linked_to(){    
     var session_checkbox = document.getElementById("link_to_session_button");
     var arr_checkbox = document.getElementById("link_to_arr_button");
+    var track_checkbox = document.getElementById("link_to_track_button");
+    var looper_checkbox = document.getElementById("link_to_looper_button");
+    var looper_checkbox = document.getElementById("link_to_setlist_button");
     session_checkbox.checked = false;
     arr_checkbox.checked = false;
+    track_checkbox.checked = false;
+    looper_checkbox.checked = false;
+    setlist_checkbox.checked = false;
     if (control["linked_to"][current_layout] == 1) session_checkbox.checked = true;
     if (control["linked_to"][current_layout] == 2) arr_checkbox.checked = true;
+    if (control["linked_to"][current_layout] == 3) track_checkbox.checked = true;
+    if (control["linked_to"][current_layout] == 4) looper_checkbox.checked = true;
+    if (control["linked_to"][current_layout] == 4) setlist_checkbox.checked = true;
   }
 
   function update_button_selects(id, i, _type, _control, _channel, _toggle, _snap=null) {
@@ -2318,12 +2390,9 @@ input[type="checkbox"].link_to_session + label::before {
 input[type="checkbox"].link_to_arr {
   display: none;
 }
-
 input[type="checkbox"].link_to_arr:checked + label::before {
   background-color: #257549;
 }
-
-
 input[type="checkbox"].link_to_arr + label::before {
   content:'Arrang. ';
   border: 1px solid #257549;
@@ -2336,8 +2405,61 @@ input[type="checkbox"].link_to_arr + label::before {
   margin-top: 5px;
 }
 
+input[type="checkbox"].link_to_track {
+  display: none;
+}
+input[type="checkbox"].link_to_track:checked + label::before {
+  background-color: #257549;
+}
+input[type="checkbox"].link_to_track + label::before {
+  content:' Track  ';
+  border: 1px solid #257549;
+  background: rgb(37, 37, 37);
+  font-size: 10px;
+  padding: 2 10px;
+  /* padding-top: 6 6px; */
+  padding-bottom: 0 16px;
+  margin-right: 0.3rem;
+  margin-top: 5px;
+}
 
-  </style>
+input[type="checkbox"].link_to_looper {
+  display: none;
+}
+input[type="checkbox"].link_to_looper:checked + label::before {
+  background-color: #257549;
+}
+input[type="checkbox"].link_to_looper + label::before {
+  content:'Looper';
+  border: 1px solid #257549;
+  background: rgb(37, 37, 37);
+  font-size: 10px;
+  padding: 2 10px;
+  /* padding-top: 6 6px; */
+  padding-bottom: 0 16px;
+  margin-right: 0.3rem;
+  margin-top: 5px;
+}
+
+input[type="checkbox"].link_to_setlist {
+  display: none;
+}
+input[type="checkbox"].link_to_setlist:checked + label::before {
+  background-color: #257549;
+}
+input[type="checkbox"].link_to_setlist + label::before {
+  content:'Setlist';
+  border: 1px solid #257549;
+  background: rgb(37, 37, 37);
+  font-size: 10px;
+  padding: 2 10px;
+  /* padding-top: 6 6px; */
+  padding-bottom: 0 16px;
+  margin-right: 0.3rem;
+  margin-top: 5px;
+}
+
+</style>
 </head>
 <title>open·control editor</title>
 
