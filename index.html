@@ -17,6 +17,8 @@
 
 
 <script>
+  var current_script_version = "1.2.1"
+
   var layout_actions = {
     "Page 1": 0,
     "Page 2": 1,
@@ -459,7 +461,7 @@
         }
         else {
         connect_cell.style.backgroundColor = "#00FF55";
-        statusLabel.innerHTML = "<b> open·control detected</b> <br> <font size=2>Firmware version: " + maj_ver + "." + min_ver + "<br> Remote Script version: 1.2</font>";
+        statusLabel.innerHTML = "<b> open·control detected</b> <br> <font size=2>Firmware version: " + maj_ver + "." + min_ver + "<br> Remote Script version: "+current_script_version;
         }
         var requestMessage = [240, 122, 29, 1, 19, 4, 247];
         open_control_detected = true;
@@ -505,7 +507,6 @@
         on_page_select_changed(0);
       }
     }
-
 
   function show_receive_message(){
    init_led_color_red = [80, 0, 17, 100, 124, 90];
