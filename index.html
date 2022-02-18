@@ -1617,12 +1617,53 @@
   function create_preset_cell(div){
     var divClass = document.getElementsByClassName(div);
     var preset_buttons = [document.createElement('label'), document.createElement('label')];
-    var save_button =  document.createElement('input');
-    save_button.id = "save"
-    save_button.type = "button"
-    save_button.value = "Save"
-    save_button.className = "preset"
-    save_button.onclick = function() {
+    // var save_button =  document.createElement('input');
+    // save_button.id = "save"
+    // save_button.type = "button"
+    // save_button.value = "Save"
+    // save_button.className = "preset"
+    // save_button.onclick = function() {
+    //   var obj2 = {
+    //     type_button_short : type["button_short"][current_layout],
+    //     control_button_short: control["button_short"][current_layout],
+    //     channel_button_short: channel["button_short"][current_layout], 
+    //     toggle_button_short: toggle["button_short"][current_layout], 
+    //     snap_button_short: snap["button_short"][current_layout], 
+    //     type_button_long: type["button_long"][current_layout], 
+    //     control_button_long : control["button_long"][current_layout], 
+    //     channel_button_long : channel["button_long"][current_layout], 
+    //     toggle_button_long : toggle["button_long"][current_layout], 
+    //     type_button_double : type["button_double"][current_layout], 
+    //     control_button_double : control["button_double"][current_layout], 
+    //     channel_button_double : channel["button_double"][current_layout], 
+    //     toggle_button_double : toggle["button_double"][current_layout], 
+    //     type_led : type["led"][current_layout], 
+    //     control_led : control["led"][current_layout], 
+    //     channel_led : channel["led"][current_layout], 
+    //     type_encoder_short : type["encoder_short"][current_layout], 
+    //     control_encoder_short : control["encoder_short"][current_layout], 
+    //     channel_encoder_short : channel["encoder_short"][current_layout], 
+    //     control_encoder : control["encoder"][current_layout], 
+    //     channel_encoder : channel["encoder"][current_layout], 
+    //     control_encoder_hold : control["encoder_hold"][current_layout], 
+    //     channel_encoder_hold : channel["encoder_hold"][current_layout], 
+    //     control_slider : control["slider"][current_layout], 
+    //     channel_slider : channel["slider"][current_layout], 
+    //     display:  control["display"][current_layout]
+    //   }
+    //   saveText( JSON.stringify(obj2), "Page "+(current_layout+1)+".json" );
+    // }
+    // save_label = document.createElement('label');
+    // save_label.className = "preset"
+    // save_label.appendChild(document.createTextNode('CSV'));
+    // save_label.htmlFor = "save"
+    
+    var csv_button =  document.createElement('input');
+    csv_button.id = "csv"
+    csv_button.type = "button"
+    csv_button.value = "csv"
+    csv_button.className = "preset"
+    csv_button.onclick = function() {
       var obj2 = {
         type_button_short : type["button_short"][current_layout],
         control_button_short: control["button_short"][current_layout],
@@ -1653,10 +1694,11 @@
       }
       saveText( JSON.stringify(obj2), "Page "+(current_layout+1)+".json" );
     }
-    save_label = document.createElement('label');
-    save_label.className = "preset"
-    save_label.appendChild(document.createTextNode('Export'));
-    save_label.htmlFor = "save"
+    csv_label = document.createElement('label');
+    csv_label.className = "preset"
+    csv_label.appendChild(document.createTextNode('CSV'));
+    csv_label.htmlFor = "csv"
+
     
     var load_button =  document.createElement('input');
     load_button.type = "file"
@@ -1679,8 +1721,10 @@
     upload_label.className = "preset"
     upload_label.htmlFor = "upload"
     upload_label.appendChild(document.createTextNode('Upload'));
-    preset_buttons[0].appendChild(save_button);
-    preset_buttons[0].appendChild(save_label);
+    // preset_buttons[0].appendChild(save_button);
+    // preset_buttons[0].appendChild(save_label);
+    preset_buttons[0].appendChild(csv_button);
+    preset_buttons[0].appendChild(csv_label);
     preset_buttons[0].appendChild(load_button);
     preset_buttons[0].appendChild(load_label);
     preset_buttons[0].appendChild(upload_button);
