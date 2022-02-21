@@ -98,12 +98,12 @@
     "--- Looper ---": 0,
     "⧀ Prev Looper": 48,
     "⧁ Next Looper": 49,
-    "① MIDI Map 1 (Big Button)": 0,
-    "② MIDI Map 2 (Clear)": 0,
-    "③ MIDI Map 3": 0,
-    "④ MIDI Map 4": 0,
-    "⑤ MIDI Map 5": 0,
-    "⑥ MIDI Map 6": 0,
+    "① MIDI Map 1 (Big Button)": 128,
+    "② MIDI Map 2 (Clear)": 129,
+    "③ MIDI Map 3": 130,
+    "④ MIDI Map 4": 131,
+    "⑤ MIDI Map 5": 132,
+    "⑥ MIDI Map 6": 133,
     // "▣ Stop Looper": 35,
     "⌻ Arm Track": 30,
     "⌧ Mute Track": 31,
@@ -486,7 +486,7 @@
         var num = event.data[7];
         var id = sysex_to_id[sysex_byte];
         
-        console.log(id, event.data[6], event.data[7], event.data[8], event.data[9], event.data[10])
+        // console.log(id, event.data[6], event.data[7], event.data[8], event.data[9], event.data[10])
 
         if (id=="toggle") toggle[toggle_to_id[event.data[9]]][rcvd_layout][num] = event.data[8];
         else if (id=="snap") snap["button_short"][rcvd_layout][num] = event.data[8];
@@ -1332,7 +1332,7 @@
 
   function on_select_change(id, i, value)  {  // called when any of the Select object changes
     var num = i
-    console.log(id, num, value)
+    // console.log(id, num, value)
     if (id == "page") {
       on_page_select_changed(value);  // if the Page Select is changed, just update the UI
     }
@@ -1347,31 +1347,37 @@
 
       if (options_list[value] == "① MIDI Map 1 (Big Button)") {
           cc_to_send = 1;
+          // control[id][current_layout][num] = 128;
           channel[id][current_layout][num] = 16;
           type[id][current_layout][num] = 0;
       }
       else if (options_list[value] == "② MIDI Map 2 (Clear)") {
           cc_to_send = 1;
+          // control[id][current_layout][num] = 129;
           channel[id][current_layout][num] = 15;
           type[id][current_layout][num] = 0;
       }
       else if (options_list[value] == "③ MIDI Map 3") {
           cc_to_send = 1;
+          // control[id][current_layout][num] = 130;
           channel[id][current_layout][num] = 14;
           type[id][current_layout][num] = 0;
       }
       else if (options_list[value] == "④ MIDI Map 4") {
           cc_to_send = 1;
+          // control[id][current_layout][num] = 131;
           channel[id][current_layout][num] = 13;
           type[id][current_layout][num] = 0;
       }
       else if (options_list[value] == "⑤ MIDI Map 5") {
           cc_to_send = 1;
+          // control[id][current_layout][num] = 132;
           channel[id][current_layout][num] = 12;
           type[id][current_layout][num] = 0;
       }
       else if (options_list[value] == "⑥ MIDI Map 6") {
           cc_to_send = 1;
+          // control[id][current_layout][num] = 133;
           channel[id][current_layout][num] = 11;
           type[id][current_layout][num] = 0;
       }
@@ -1614,56 +1620,21 @@
     channel["external_MIDI"][0][num] = btn_chnl
   }
 
+  function getKeyByValue(object, value) {
+  return Object.keys(object).find(key => object[key] === value);
+}
+
   function create_preset_cell(div){
     var divClass = document.getElementsByClassName(div);
     var preset_buttons = [document.createElement('label'), document.createElement('label')];
-    // var save_button =  document.createElement('input');
-    // save_button.id = "save"
-    // save_button.type = "button"
-    // save_button.value = "Save"
-    // save_button.className = "preset"
-    // save_button.onclick = function() {
-    //   var obj2 = {
-    //     type_button_short : type["button_short"][current_layout],
-    //     control_button_short: control["button_short"][current_layout],
-    //     channel_button_short: channel["button_short"][current_layout], 
-    //     toggle_button_short: toggle["button_short"][current_layout], 
-    //     snap_button_short: snap["button_short"][current_layout], 
-    //     type_button_long: type["button_long"][current_layout], 
-    //     control_button_long : control["button_long"][current_layout], 
-    //     channel_button_long : channel["button_long"][current_layout], 
-    //     toggle_button_long : toggle["button_long"][current_layout], 
-    //     type_button_double : type["button_double"][current_layout], 
-    //     control_button_double : control["button_double"][current_layout], 
-    //     channel_button_double : channel["button_double"][current_layout], 
-    //     toggle_button_double : toggle["button_double"][current_layout], 
-    //     type_led : type["led"][current_layout], 
-    //     control_led : control["led"][current_layout], 
-    //     channel_led : channel["led"][current_layout], 
-    //     type_encoder_short : type["encoder_short"][current_layout], 
-    //     control_encoder_short : control["encoder_short"][current_layout], 
-    //     channel_encoder_short : channel["encoder_short"][current_layout], 
-    //     control_encoder : control["encoder"][current_layout], 
-    //     channel_encoder : channel["encoder"][current_layout], 
-    //     control_encoder_hold : control["encoder_hold"][current_layout], 
-    //     channel_encoder_hold : channel["encoder_hold"][current_layout], 
-    //     control_slider : control["slider"][current_layout], 
-    //     channel_slider : channel["slider"][current_layout], 
-    //     display:  control["display"][current_layout]
-    //   }
-    //   saveText( JSON.stringify(obj2), "Page "+(current_layout+1)+".json" );
-    // }
-    // save_label = document.createElement('label');
-    // save_label.className = "preset"
-    // save_label.appendChild(document.createTextNode('CSV'));
-    // save_label.htmlFor = "save"
-    
-    var csv_button =  document.createElement('input');
-    csv_button.id = "csv"
-    csv_button.type = "button"
-    csv_button.value = "csv"
-    csv_button.className = "preset"
-    csv_button.onclick = function() {
+
+    // Export
+    var save_button =  document.createElement('input');
+    save_button.id = "save"
+    save_button.type = "button"
+    save_button.value = "Save"
+    save_button.className = "preset"
+    save_button.onclick = function() {
       var obj2 = {
         type_button_short : type["button_short"][current_layout],
         control_button_short: control["button_short"][current_layout],
@@ -1694,12 +1665,12 @@
       }
       saveText( JSON.stringify(obj2), "Page "+(current_layout+1)+".json" );
     }
-    csv_label = document.createElement('label');
-    csv_label.className = "preset"
-    csv_label.appendChild(document.createTextNode('CSV'));
-    csv_label.htmlFor = "csv"
-
+    save_label = document.createElement('label');
+    save_label.className = "preset"
+    save_label.appendChild(document.createTextNode('Export'));
+    save_label.htmlFor = "save"
     
+    // Import
     var load_button =  document.createElement('input');
     load_button.type = "file"
     load_button.id = "file-input"
@@ -1711,6 +1682,7 @@
     load_label.appendChild(document.createTextNode('Import'));
     load_label.htmlFor = "file-input"
 
+    // Upload
     var upload_button =  document.createElement('input');
     upload_button.type = "button"
     upload_button.value = "Upload"
@@ -1721,18 +1693,127 @@
     upload_label.className = "preset"
     upload_label.htmlFor = "upload"
     upload_label.appendChild(document.createTextNode('Upload'));
-    // preset_buttons[0].appendChild(save_button);
-    // preset_buttons[0].appendChild(save_label);
-    preset_buttons[0].appendChild(csv_button);
-    preset_buttons[0].appendChild(csv_label);
+
+
+    // CSV
+    var csv_button =  document.createElement('input');
+    csv_button.id = "csv"
+    csv_button.type = "button"
+    csv_button.value = "csv"
+    csv_button.className = "preset"
+    csv_button.onclick = function() {
+	var csvContent = "data:text/csv;charset=utf-8,";
+      var table = []
+      var i = 0
+      var index = ["   "]
+      var display = ["Display"]
+      for (button of control["display"][current_layout]){
+        display.push(getKeyByValue(display_actions, button))
+        }
+
+      var led = ["LED"]
+      for (button of control["led"][current_layout]){
+        i++
+        index.push(i.toString())
+        led.push(getKeyByValue(led_actions, button))
+        }
+
+      i = 0
+      var button_short = ["Button Short"]
+      for (button of control["button_short"][current_layout]){
+        var action = null
+        action = get_midi_map_button("button_short", i)
+        if (action == null) action = getKeyByValue(button_actions, button)
+        button_short.push(action)
+        i++
+        }
+
+      i = 0
+      var button_long = ["Button Long"]
+      for (button of control["button_long"][current_layout]){
+        var action = null
+        if (snap["button_short"][current_layout][i] == 1) action = "Off (Snap On)"
+        if (action == null) action = get_midi_map_button("button_long", i)
+        if (action == null) action = getKeyByValue(button_actions, button)
+        button_long.push(action)
+        i++
+        }
+        button_long.length -= 2;
+
+        i = 0
+      var button_double = ["Button Double"]
+      for (button of control["button_double"][current_layout]){
+        var action = null
+        if (snap["button_short"][current_layout][i] == 1) action = "Off (Snap On)"
+        if (action == null) action = get_midi_map_button("button_double", i)
+        if (action == null) action = getKeyByValue(button_actions, button)
+        button_double.push(action)
+        i++
+        }
+        button_double.length -= 2;
+
+      var encoder = ["Encoder"]
+      for (button of control["encoder"][current_layout]){
+        encoder.push(getKeyByValue(encoder_actions, button))
+        }
+        encoder.length += 4;
+      var encoder_hold = ["Encoder Hold"]
+      for (button of control["encoder_hold"][current_layout]){
+        encoder_hold.push(getKeyByValue(encoder_actions, button))
+        }
+        encoder_hold.length += 5;
+      var encoder_button = ["Encoder Button"]
+      for (button of control["encoder_short"][current_layout]){
+        encoder_button.push(getKeyByValue(button_actions, button))
+        }
+        encoder_button.length += 6;
+      var slider = ["Expression Pedal"]
+      for (button of control["slider"][current_layout]){
+        slider.push(getKeyByValue(slider_actions, button))
+        }
+        // encoder_short.length += 4;
+
+      table = [display, index, led, button_short, button_long, button_double, encoder, encoder_hold, encoder_button, slider]
+      table.forEach(function(infoArray, index){
+			dataString = infoArray.join(",");
+			csvContent += index < infoArray.length ? dataString+ "\n" : dataString;
+		});
+		var encodedUri = encodeURI(csvContent);
+		window.open(encodedUri);
+    }
+
+    csv_label = document.createElement('label');
+    csv_label.className = "preset"
+    csv_label.appendChild(document.createTextNode('CSV'));
+    csv_label.htmlFor = "csv"
+
+    preset_buttons[0].appendChild(save_button);
+    preset_buttons[0].appendChild(save_label);
     preset_buttons[0].appendChild(load_button);
     preset_buttons[0].appendChild(load_label);
     preset_buttons[0].appendChild(upload_button);
     preset_buttons[0].appendChild(upload_label);
+    preset_buttons[0].appendChild(csv_button);
+    preset_buttons[0].appendChild(csv_label);
     return (preset_buttons[0])
   }
 
-  function readSingleFile(e) {
+function get_midi_map_button(btn, index){
+  var result = null
+  var _type = type[btn][current_layout][index]
+  var _channel = channel[btn][current_layout][index]
+  if (_type == 0){
+    if (_channel == 16) result = "① MIDI Map 1 (Big Button)";
+    else if (_channel == 15) result = "② MIDI Map 2 (Clear)";
+    else if (_channel == 14) result = "③ MIDI Map 3";
+    else if (_channel == 13) result = "④ MIDI Map 4";
+    else if (_channel == 12) result = "⑤ MIDI Map 5";
+    else if (_channel == 11) result = "⑥ MIDI Map 6";
+  }
+  return result
+}
+
+function readSingleFile(e) {
   var file = e.target.files[0];
   if (!file) {
     return;
