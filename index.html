@@ -19,7 +19,7 @@
 <script>
   var current_script_version = "1.2.1"
   var LATEST_FIRMWARE_MAJOR_VERSION = 1
-  var LATEST_FIRMWARE_MINOR_VERSION = 2
+  var LATEST_FIRMWARE_MINOR_VERSION = 4
 
   var layout_actions = {
     "Page 1": 0,
@@ -517,8 +517,10 @@
     for (var i = 0; i < 6; i++) {
       var   message = [240, 122, 29, 1, 19, 28, i, init_led_color_red[i], init_led_color_green[i], init_led_color_blue[i], 247];
       open_control_output.send(message);
+      sleep(30)
     }
     for (var i = 0; i < 6; i++) {
+      sleep(30)
       var   message = [240, 122, 29, 1, 19, 28, i, 0, 0, 0, 247];
       open_control_output.send(message);
     }
@@ -650,6 +652,8 @@
         sendRawSysex([240, 122, 29, 1, 19, 30, 0, 1, 247]);
         options["metro"] = 1;
       }
+    show_receive_message();
+      request_Live_update();
     })
     return ([tempo_checkbox, tempo_label])
   }
@@ -674,6 +678,8 @@
         options["session_box"] = 1;
         sendRawSysex([240, 122, 29, 1, 19, 30, 1, 1, 247]);
       }
+    show_receive_message();
+      request_Live_update();
     })
     return ([session_box_checkbox, session_box_label])
   }
