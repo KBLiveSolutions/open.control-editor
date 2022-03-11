@@ -13,10 +13,26 @@ function build_sysex_array(element){
         fake_sysex.push(element)
         if (element===247){
             building_sysex = false;
+            sysexHandler(fake_sysex)
             console.log(fake_sysex);
         }
     }
+}
 
+let usb_webport;
+function sendWebUSB(array){
+  console.log(array);
+  usb_webport.send(arrayToArrayBuffer(array));
+}
+
+function arrayToArrayBuffer (array) {
+  var length = array.length;
+  var buffer = new Uint8Array(length);
+  for ( var i = 0; i < length; i++) {
+    buffer[i] = array[i];
+  }
+  console.log('unit8', buffer)
+  return buffer;
 }
 
 (function() {
@@ -37,7 +53,7 @@ function build_sysex_array(element){
           let my_array = new Uint8Array(data.buffer);
           console.log("DATA", my_array);
           my_array.forEach(element => { 
-                console.log("element", element)
+                // console.log("element", element)
                 build_sysex_array(element);
             });
 
@@ -55,6 +71,7 @@ function build_sysex_array(element){
 
     connectButton.addEventListener('click', function() {
       if (port) {
+        onOpenControlDetected(1, 4);
         port.disconnect();
         connectButton.textContent = 'Connect';
         statusDisplay.textContent = '';
@@ -75,6 +92,7 @@ function build_sysex_array(element){
       } else {
         statusDisplay.textContent = 'Connecting...';
         port = ports[0];
+        usb_webport = port;
         connect();
       }
     });
@@ -96,21 +114,13 @@ function build_sysex_array(element){
     //     return buffer;
     // }
 
-    function arrayToArrayBuffer (array) {
-        var length = array.length;
-        // var buffer = new TextEncoder("utf-8");
-        for ( var i = 0; i < length; i++) {
-            array[i] = String.fromCharCode(array[i]);
-        }
-        console.log(array)
-        return array;
-    }
 
     requestButton.addEventListener('click', function() {
-        let arr = [72, 10, 10];
-        port.send(new TextEncoder("utf-8").encode(arrayToArrayBuffer(arr)));
-        // port.send(arrayToArrayBuffer(arr));
+        let arr = [140, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0];
+        sendWebUSB(arr);
+        // port.send(new TextEncoder("utf-8").encode(arrayToArrayBuffer(arr)));
       });
+
 
   });
 })();

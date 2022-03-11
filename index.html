@@ -427,12 +427,6 @@ function print(message){
     console.log("MIDI ready!");
     // connect_label();
     midi.onstatechange = function (e) { ConnectEventHandler(e); };
-    statusLabel = document.getElementById("Status Label");
-    statusLabel.style.color = "#000000";
-    var connect_cell = document.getElementById("connect_cell");
-    connect_cell.style.backgroundColor = "red";
-    connect_cell.className = "connect_cell";
-    statusLabel.innerHTML = "<b> Please connect open·control </b>";
 
     var inputs = midiAccess.inputs.values();
     for (var input = inputs.next(); input && !input.done; input = inputs.next()) {
@@ -459,11 +453,17 @@ function print(message){
   }
 
   function onOpenControlDetected(maj_ver, min_ver) {
+    statusLabel = document.getElementById("Status Label");
+    statusLabel.style.color = "#000000";
+    var connect_cell = document.getElementById("connect_cell");
+    connect_cell.style.backgroundColor = "red";
+    connect_cell.className = "connect_cell";
+    statusLabel.innerHTML = "<b> Please connect open·control </b>";
         var connect_cell = document.getElementById("connect_cell");
         statusLabel.style.color = "#000000";
         if (LATEST_FIRMWARE_MINOR_VERSION > min_ver){
         connect_cell.style.backgroundColor = "#FFA500";
-        statusLabel.innerHTML = "<b> open·control detected</b> <br> <a href=https://github.com/KBLiveSolutions/open.control-firmware target=_blank style=color:#000000;> new firmware available</a> <br> Current: " + maj_ver + "." + min_ver +" | New: " + LATEST_FIRMWARE_MAJOR_VERSION + "." + LATEST_FIRMWARE_MINOR_VERSION;
+        statusLabel.innerHTML = "<b> open·control detected</b> <br> <a href=https://github.com/KBLiveSolutions/open.control-firmusbare target=_blank style=color:#000000;> new firmware available</a> <br> Current: " + maj_ver + "." + min_ver +" | New: " + LATEST_FIRMWARE_MAJOR_VERSION + "." + LATEST_FIRMWARE_MINOR_VERSION;
         }
         else {
         connect_cell.style.backgroundColor = "#00FF55";
@@ -471,12 +471,12 @@ function print(message){
         }
         var requestMessage = [240, 122, 29, 1, 19, 4, 247];
         open_control_detected = true;
-        open_control_output.send(requestMessage);
+        if (open_control_detected)  open_control_output.send(requestMessage);
   }
 
   function request_Live_update(){
     var requestMessage = [240, 122, 29, 1, 19, 5, 247];
-        open_control_output.send(requestMessage);
+    if (open_control_detected)    open_control_output (requestMessage);
   }
 
   function MIDIMessageEventHandler(event) {
@@ -491,67 +491,71 @@ function print(message){
     }
 
     if (event.data[1] == 122 && event.data[2] == 29 && event.data[3] == 1 && event.data[4] == 20) { // Receiving Data from opencontrol after a Dump request
-      messages_dispatch(event.data.slice(5));
+      sysexHandler(event.data);
       }
     }
 
-  function messages_dispatch(array){
-        var sysex_byte = array[0];
-        var rcvd_layout = array[1]; 
-        var num = array[2];
+
+    function sysexHandler(sysexArray) {
+    if (sysexArray[1] == 122 && sysexArray[2] == 29 && sysexArray[3] == 1 && sysexArray[4] == 20) { // Receiving Data from opencontrol after a Dump request
+
+        var sysex_byte = sysexArray[5];
+        var rcvd_layout = sysexArray[6]; 
+        var num = sysexArray[7];
         var id = sysex_to_id[sysex_byte];
         
-         console.log(id, array[0], array[1], array[2], array[3], array[4])
+        // console.log(id, sysexArray[6], sysexArray[7], sysexArray[8], sysexArray[9], sysexArray[10])
 
-        if (id=="toggle") toggle[toggle_to_id[array[4]]][rcvd_layout][num] = array[3];
-        else if (id=="snap") snap["button_short"][rcvd_layout][num] = array[3];
+        if (id=="toggle") toggle[toggle_to_id[sysexArray[9]]][rcvd_layout][num] = sysexArray[8];
+        else if (id=="snap") snap["button_short"][rcvd_layout][num] = sysexArray[8];
         else if (id=="options") {
-          options[options_to_id[event.data[1]]] = array[2];
-          s = document.getElementById(options_to_id[array[1]]);
-          s.checked = !array[2];
+          options[options_to_id[sysexArray[6]]] = sysexArray[7];
+          s = document.getElementById(options_to_id[sysexArray[6]]);
+          s.checked = !sysexArray[7];
         }
         else {
             if (id=="button_short" && num>=NUM_BUTTONS) {
               id="encoder_short";
               num = num-NUM_BUTTONS;
             } 
-          type[id][rcvd_layout][num] = array[5];
-          control[id][rcvd_layout][num] = array[3];
-          channel[id][rcvd_layout][num] = array[4];}
+          type[id][rcvd_layout][num] = sysexArray[10];
+          control[id][rcvd_layout][num] = sysexArray[8];
+          channel[id][rcvd_layout][num] = sysexArray[9];}
           if (id=="external_MIDI") set_External_MIDI(num, control[id][0][num], channel[id][0][num], type[id][0][num] + 1);
         on_page_select_changed(0);
+      }
+    }
 
-  }
 
   function show_receive_message(){
    init_led_color_red = [80, 0, 17, 100, 124, 90];
    init_led_color_green = [0, 78, 23, 100, 49, 0];
    init_led_color_blue = [100, 46, 80, 0, 0, 12];
       var   message = [240, 122, 29, 1, 19, 54, 0, 247];
-      open_control_output.send(message);  
+      if (open_control_detected)   open_control_output.send(message);  
     for (var i = 0; i < 6; i++) {
       var   message = [240, 122, 29, 1, 19, 28, i, init_led_color_red[i], init_led_color_green[i], init_led_color_blue[i], 247];
-      open_control_output.send(message);
+      if (open_control_detected)  open_control_output.send(message);
       sleep(30)
     }
     for (var i = 0; i < 6; i++) {
       sleep(30)
       var   message = [240, 122, 29, 1, 19, 28, i, 0, 0, 0, 247];
-      open_control_output.send(message);
+      if (open_control_detected)   open_control_output.send(message);
     }
   }
 
   function sendSysex(sysex_id, layout, id, value, type, channel) {
     // Sending {240, 122, 29, 1, 19, 10, Layout Number, Button number, Note/CC Number, Type, Channel, 247} changes the corresponding button
     var sysexMessage = [240, 122, 29, 1, 19, sysex_id, layout, id, value, type, channel, 247];
-    if (open_control_detected) open_control_output.send(sysexMessage);
-        open_control_output.close();
+    sendWebUSB(sysexMessage);
+     if (open_control_detected) open_control_output.send(sysexMessage);
   }
 
   function sendRawSysex(sysex_message) {
+    sendWebUSB(sysex_message);
     // Sending {{240, 122, 29, 1, 19, 10, Layout Number, Button number, Note/CC Number, Type, Channel, 247} changes the corresponding button
-    if (open_control_detected) open_control_output.send(sysex_message);
-        open_control_output.close();
+     if (open_control_detected) open_control_output.send(sysex_message);
   }
 
   var color_names = ["Off", "Blue 1", "Blue 2", "Red 1", "Red 2", "Green 1", "Green 2", "Pink 1", "Pink 2", "Purple 1", "Purple 2", "Yellow 1", "Yellow 2", "Orange 1", "Orange 2", "White 1", "White 2"]
@@ -583,201 +587,6 @@ function print(message){
   function range(size, startAt = 0) {
     return [...Array(size).keys()].map(i => i + startAt);
   }
-
-//====================== WEBUSB ==========================
-
-// serial.js
-// var serial = {};
-
-// usbweb_serial();
-// usbweb_application();
-
-// function usbweb_serial() {
-//   'use strict';
-
-//   serial.getPorts = function() {
-//     return navigator.usb.getDevices().then(devices => {
-//       return devices.map(device => new serial.Port(device));
-//     });
-//   };
-
-//   serial.requestPort = function() {
-//     const filters = [
-//       //{ 'vendorId': 0x239A }, // Adafruit boards
-//      // { 'vendorId': 0xcafe }, // TinyUSB example
-//     ];
-//     return navigator.usb.requestDevice({ 'filters': filters }).then(
-//       device => new serial.Port(device)
-//     );
-//   }
-//   serial.Port = function(device) {
-//     this.device_ = device;
-//     this.interfaceNumber = 0;
-//     this.endpointIn = 0;
-//     this.endpointOut = 0;
-//   };
-
-//   serial.Port.prototype.connect = function() {
-//     let readLoop = () => {
-//       this.device_.transferIn(this.endpointIn, 64).then(result => {
-//         this.onReceive(result.data);
-//         if (this.ilovebill)
-//           setTimeout(readLoop, 0);
-//         else
-//           readLoop();
-//       }, error => {
-//         this.onReceiveError(error);
-//       });
-//     };
-
-//     return this.device_.open()
-//         .then(() => {
-//           if (this.device_.configuration === null) {
-//             return this.device_.selectConfiguration(1);
-//           }
-//         })
-//         .then(() => {
-//           var interfaces = this.device_.configuration.interfaces;
-//           interfaces.forEach(element => {
-//             element.alternates.forEach(elementalt => {
-//               if (elementalt.interfaceClass==0xFF) {
-//                 this.interfaceNumber = element.interfaceNumber;
-//                 elementalt.endpoints.forEach(elementendpoint => {
-//                   if (elementendpoint.direction == "out") {
-//                     this.endpointOut = elementendpoint.endpointNumber;
-//                   }
-//                   if (elementendpoint.direction=="in") {
-//                     this.endpointIn =elementendpoint.endpointNumber;
-//                   }
-//                 })
-//               }
-//             })
-//           })
-//         })
-//         .then(() => this.device_.claimInterface(this.interfaceNumber))
-//         .then(() => this.device_.selectAlternateInterface(this.interfaceNumber, 0))
-//         .then(() => this.device_.controlTransferOut({
-//             'requestType': 'class',
-//             'recipient': 'interface',
-//             'request': 0x22,
-//             'value': 0x01,
-//             'index': this.interfaceNumber}))
-//         .then(() => {
-//           readLoop();
-//         });
-//   };
-
-//   serial.Port.prototype.disconnect = function() {
-//     return this.device_.controlTransferOut({
-//             'requestType': 'class',
-//             'recipient': 'interface',
-//             'request': 0x22,
-//             'value': 0x00,
-//             'index': this.interfaceNumber})
-//         .then(() => this.device_.close());
-//   };
-
-//   serial.Port.prototype.send = function(data) {
-//     return this.device_.transferOut(this.endpointOut, data);
-//   };
-// };
-
-
-// // application.js
-
-
-
-
-// function usbweb_application() {
-//   'use strict';
-
-//   document.addEventListener('DOMContentLoaded', event => {
-//     let connectButton = document.querySelector("#connect");
-//     let statusDisplay = document.querySelector('#status');
-//     let port;
-
-//     function addLine(linesId, text) {
-//       // var senderLine = document.createElement("div");
-//       // senderLine.className = 'line';
-//       // var textnode = document.createTextNode(text);
-//       // senderLine.appendChild(textnode);
-//       // document.getElementById(linesId).appendChild(senderLine);
-//       // return senderLine;
-//     }
-
-
-//  function chunkArray(myArray, chunk_size){
-//     var index = 0;
-//     var arrayLength = myArray.length;
-    
-//     for (index = 0; index < arrayLength; index += chunk_size) {
-//         let myChunk = myArray.slice(index, index+chunk_size);
-//        // messages_dispatch(myChunk);
-//     }
-// }
-
-//     function connect() {
-//       port.connect().then(() => {
-//         statusDisplay.textContent = '';
-//         connectButton.textContent = 'Disconnect';
-//         port.onReceive = data => {
-//           console.log("DATA", data);
-//           let array = new Uint8Array(data.buffer);
-//           console.log("array ",array);
-//           chunkArray(array, 6);
-//           // let textDecoder = new TextDecoder();
-//           // console.log(textDecoder.decode(data));
-//         };
-//         port.onReceiveError = error => {
-//           console.error(error);
-//         };
-//       }, error => {
-//         statusDisplay.textContent = error;
-//       });
-//     }
-
-//     connectButton.addEventListener('click', function() {
-//       if (port) {
-//         port.disconnect();
-//         connectButton.textContent = 'Connect';
-//         statusDisplay.textContent = '';
-//         port = null;
-//       } else {
-//         serial.requestPort().then(selectedPort => {
-//           port = selectedPort;
-//           connect();
-//         }).catch(error => {
-//           statusDisplay.textContent = error;
-//         });
-//       }
-//     });
-
-//     serial.getPorts().then(ports => {
-//       if (ports.length === 0) {
-//         statusDisplay.textContent = 'No device found.';
-//       } else {
-//         statusDisplay.textContent = 'Connecting...';
-//         port = ports[0];
-//         connect();
-//       }
-//     });
-
-
-//     // let commandLine = document.getElementById("command_line");
-
-//     // commandLine.addEventListener("keypress", function(event) {
-//     //   if (event.keyCode === 13) {
-//     //     if (commandLine.value.length > 0) {
-//     //       addLine('sender_lines', commandLine.value);
-//     //       commandLine.value = '';
-//     //     }
-//     //   }
-
-//     //   port.send(new TextEncoder('utf-8').encode(String.fromCharCode(event.which || event.keyCode)));
-//     // });
-//   });
-// };
-
 
   ///////////////////////////////////
   // CREATE TABLES AND FUNCTIONS
