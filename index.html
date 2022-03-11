@@ -416,7 +416,7 @@ function print(message){
   var open_control_detected = false
   var current_layout = 0
 
-    navigator.requestMIDIAccess({ sysex: true }).then(onMIDISuccess, onMIDIFailure);
+    // navigator.requestMIDIAccess({ sysex: true }).then(onMIDISuccess, onMIDIFailure);
 
   function onMIDIFailure(msg) {
     console.log("Failed to get MIDI access - " + msg);
@@ -587,212 +587,196 @@ function print(message){
 //====================== WEBUSB ==========================
 
 // serial.js
-var serial = {};
+// var serial = {};
 
-usbweb_application();
-usbweb_serial();
+// usbweb_serial();
+// usbweb_application();
 
-function usbweb_serial() {
-  'use strict';
+// function usbweb_serial() {
+//   'use strict';
 
-  serial.getPorts = function() {
-    return navigator.usb.getDevices().then(devices => {
-      return devices.map(device => new serial.Port(device));
-    });
-  };
+//   serial.getPorts = function() {
+//     return navigator.usb.getDevices().then(devices => {
+//       return devices.map(device => new serial.Port(device));
+//     });
+//   };
 
-  serial.requestPort = function() {
-    const filters = [
-      //{ 'vendorId': 0x239A }, // Adafruit boards
-     // { 'vendorId': 0xcafe }, // TinyUSB example
-    ];
-    return navigator.usb.requestDevice({ 'filters': filters }).then(
-      device => new serial.Port(device)
-    );
-  }
-  serial.Port = function(device) {
-    this.device_ = device;
-    this.interfaceNumber = 0;
-    this.endpointIn = 0;
-    this.endpointOut = 0;
-  };
+//   serial.requestPort = function() {
+//     const filters = [
+//       //{ 'vendorId': 0x239A }, // Adafruit boards
+//      // { 'vendorId': 0xcafe }, // TinyUSB example
+//     ];
+//     return navigator.usb.requestDevice({ 'filters': filters }).then(
+//       device => new serial.Port(device)
+//     );
+//   }
+//   serial.Port = function(device) {
+//     this.device_ = device;
+//     this.interfaceNumber = 0;
+//     this.endpointIn = 0;
+//     this.endpointOut = 0;
+//   };
 
-  serial.Port.prototype.connect = function() {
-    let readLoop = () => {
-      this.device_.transferIn(this.endpointIn, 64).then(result => {
-        this.onReceive(result.data);
-        readLoop();
-      }, error => {
-        this.onReceiveError(error);
-      });
-    };
+//   serial.Port.prototype.connect = function() {
+//     let readLoop = () => {
+//       this.device_.transferIn(this.endpointIn, 64).then(result => {
+//         this.onReceive(result.data);
+//         if (this.ilovebill)
+//           setTimeout(readLoop, 0);
+//         else
+//           readLoop();
+//       }, error => {
+//         this.onReceiveError(error);
+//       });
+//     };
 
-    return this.device_.open()
-        .then(() => {
-          if (this.device_.configuration === null) {
-            return this.device_.selectConfiguration(1);
-          }
-        })
-        .then(() => {
-          var interfaces = this.device_.configuration.interfaces;
-          interfaces.forEach(element => {
-            element.alternates.forEach(elementalt => {
-              if (elementalt.interfaceClass==0xFF) {
-                this.interfaceNumber = element.interfaceNumber;
-                elementalt.endpoints.forEach(elementendpoint => {
-                  if (elementendpoint.direction == "out") {
-                    this.endpointOut = elementendpoint.endpointNumber;
-                  }
-                  if (elementendpoint.direction=="in") {
-                    this.endpointIn =elementendpoint.endpointNumber;
-                  }
-                })
-              }
-            })
-          })
-        })
-        .then(() => this.device_.claimInterface(this.interfaceNumber))
-        .then(() => this.device_.selectAlternateInterface(this.interfaceNumber, 0))
-        .then(() => this.device_.controlTransferOut({
-            'requestType': 'class',
-            'recipient': 'interface',
-            'request': 0x22,
-            'value': 0x01,
-            'index': this.interfaceNumber}))
-        .then(() => {
-          readLoop();
-        });
-  };
+//     return this.device_.open()
+//         .then(() => {
+//           if (this.device_.configuration === null) {
+//             return this.device_.selectConfiguration(1);
+//           }
+//         })
+//         .then(() => {
+//           var interfaces = this.device_.configuration.interfaces;
+//           interfaces.forEach(element => {
+//             element.alternates.forEach(elementalt => {
+//               if (elementalt.interfaceClass==0xFF) {
+//                 this.interfaceNumber = element.interfaceNumber;
+//                 elementalt.endpoints.forEach(elementendpoint => {
+//                   if (elementendpoint.direction == "out") {
+//                     this.endpointOut = elementendpoint.endpointNumber;
+//                   }
+//                   if (elementendpoint.direction=="in") {
+//                     this.endpointIn =elementendpoint.endpointNumber;
+//                   }
+//                 })
+//               }
+//             })
+//           })
+//         })
+//         .then(() => this.device_.claimInterface(this.interfaceNumber))
+//         .then(() => this.device_.selectAlternateInterface(this.interfaceNumber, 0))
+//         .then(() => this.device_.controlTransferOut({
+//             'requestType': 'class',
+//             'recipient': 'interface',
+//             'request': 0x22,
+//             'value': 0x01,
+//             'index': this.interfaceNumber}))
+//         .then(() => {
+//           readLoop();
+//         });
+//   };
 
-  serial.Port.prototype.disconnect = function() {
-    return this.device_.controlTransferOut({
-            'requestType': 'class',
-            'recipient': 'interface',
-            'request': 0x22,
-            'value': 0x00,
-            'index': this.interfaceNumber})
-        .then(() => this.device_.close());
-  };
+//   serial.Port.prototype.disconnect = function() {
+//     return this.device_.controlTransferOut({
+//             'requestType': 'class',
+//             'recipient': 'interface',
+//             'request': 0x22,
+//             'value': 0x00,
+//             'index': this.interfaceNumber})
+//         .then(() => this.device_.close());
+//   };
 
-  serial.Port.prototype.send = function(data) {
-    return this.device_.transferOut(this.endpointOut, data);
-  };
-};
-
-
-// application.js
-
-
+//   serial.Port.prototype.send = function(data) {
+//     return this.device_.transferOut(this.endpointOut, data);
+//   };
+// };
 
 
-function usbweb_application() {
-  'use strict';
+// // application.js
 
-  document.addEventListener('DOMContentLoaded', event => {
-    let connectButton = document.querySelector("#connect");
-    let statusDisplay = document.querySelector('#status');
-    let port;
 
-    function addLine(linesId, text) {
-      // var senderLine = document.createElement("div");
-      // senderLine.className = 'line';
-      // var textnode = document.createTextNode(text);
-      // senderLine.appendChild(textnode);
-      // document.getElementById(linesId).appendChild(senderLine);
-      // return senderLine;
-    }
 
-    // let currentReceiverLine;
 
-    // function appendLine(linesId, text) {
-    //   if (currentReceiverLine) {
-    //     currentReceiverLine.innerHTML =  currentReceiverLine.innerHTML + text;
-    //   } else {
-    //     currentReceiverLine = addLine(linesId, text);
-    //   }
-    // }
+// function usbweb_application() {
+//   'use strict';
 
-//     function chunkArray(myArray, chunk_size){
-//     var results = [];
-    
-//     while (myArray.length) {
-//         results.push(myArray.splice(0, chunk_size));
+//   document.addEventListener('DOMContentLoaded', event => {
+//     let connectButton = document.querySelector("#connect");
+//     let statusDisplay = document.querySelector('#status');
+//     let port;
+
+//     function addLine(linesId, text) {
+//       // var senderLine = document.createElement("div");
+//       // senderLine.className = 'line';
+//       // var textnode = document.createTextNode(text);
+//       // senderLine.appendChild(textnode);
+//       // document.getElementById(linesId).appendChild(senderLine);
+//       // return senderLine;
 //     }
-//     console.log("results ",results);
-//     messages_dispatch(results);
+
+
+//  function chunkArray(myArray, chunk_size){
+//     var index = 0;
+//     var arrayLength = myArray.length;
+    
+//     for (index = 0; index < arrayLength; index += chunk_size) {
+//         let myChunk = myArray.slice(index, index+chunk_size);
+//        // messages_dispatch(myChunk);
+//     }
 // }
 
+//     function connect() {
+//       port.connect().then(() => {
+//         statusDisplay.textContent = '';
+//         connectButton.textContent = 'Disconnect';
+//         port.onReceive = data => {
+//           console.log("DATA", data);
+//           let array = new Uint8Array(data.buffer);
+//           console.log("array ",array);
+//           chunkArray(array, 6);
+//           // let textDecoder = new TextDecoder();
+//           // console.log(textDecoder.decode(data));
+//         };
+//         port.onReceiveError = error => {
+//           console.error(error);
+//         };
+//       }, error => {
+//         statusDisplay.textContent = error;
+//       });
+//     }
 
- function chunkArray(myArray, chunk_size){
-    var index = 0;
-    var arrayLength = myArray.length;
-    
-    for (index = 0; index < arrayLength; index += chunk_size) {
-        let myChunk = myArray.slice(index, index+chunk_size);
-        messages_dispatch(myChunk);
-    }
+//     connectButton.addEventListener('click', function() {
+//       if (port) {
+//         port.disconnect();
+//         connectButton.textContent = 'Connect';
+//         statusDisplay.textContent = '';
+//         port = null;
+//       } else {
+//         serial.requestPort().then(selectedPort => {
+//           port = selectedPort;
+//           connect();
+//         }).catch(error => {
+//           statusDisplay.textContent = error;
+//         });
+//       }
+//     });
 
-}
-
-    function connect() {
-      port.connect().then(() => {
-        statusDisplay.textContent = '';
-        connectButton.textContent = 'Disconnect';
-        port.onReceive = data => {
-          console.log("DATA", data);
-          let array = new Uint8Array(data.buffer);
-          console.log("array ",array);
-          chunkArray(array, 6);
-        };
-        port.onReceiveError = error => {
-          console.error(error);
-        };
-      }, error => {
-        statusDisplay.textContent = error;
-      });
-    }
-
-    connectButton.addEventListener('click', function() {
-      if (port) {
-        port.disconnect();
-        connectButton.textContent = 'Connect';
-        statusDisplay.textContent = '';
-        port = null;
-      } else {
-        serial.requestPort().then(selectedPort => {
-          port = selectedPort;
-          connect();
-        }).catch(error => {
-          statusDisplay.textContent = error;
-        });
-      }
-    });
-
-    serial.getPorts().then(ports => {
-      if (ports.length === 0) {
-        statusDisplay.textContent = 'No device found.';
-      } else {
-        statusDisplay.textContent = 'Connecting...';
-        port = ports[0];
-        connect();
-      }
-    });
+//     serial.getPorts().then(ports => {
+//       if (ports.length === 0) {
+//         statusDisplay.textContent = 'No device found.';
+//       } else {
+//         statusDisplay.textContent = 'Connecting...';
+//         port = ports[0];
+//         connect();
+//       }
+//     });
 
 
-    // let commandLine = document.getElementById("command_line");
+//     // let commandLine = document.getElementById("command_line");
 
-    // commandLine.addEventListener("keypress", function(event) {
-    //   if (event.keyCode === 13) {
-    //     if (commandLine.value.length > 0) {
-    //       addLine('sender_lines', commandLine.value);
-    //       commandLine.value = '';
-    //     }
-    //   }
+//     // commandLine.addEventListener("keypress", function(event) {
+//     //   if (event.keyCode === 13) {
+//     //     if (commandLine.value.length > 0) {
+//     //       addLine('sender_lines', commandLine.value);
+//     //       commandLine.value = '';
+//     //     }
+//     //   }
 
-    //   port.send(new TextEncoder('utf-8').encode(String.fromCharCode(event.which || event.keyCode)));
-    // });
-  });
-};
+//     //   port.send(new TextEncoder('utf-8').encode(String.fromCharCode(event.which || event.keyCode)));
+//     // });
+//   });
+// };
 
 
   ///////////////////////////////////
@@ -2203,6 +2187,10 @@ sleep(pause)
 
 <head>
 
+  <script src="serial.js"></script>
+  <script src="application.js"></script>
+  <link rel="stylesheet" href="application.css">
+
   <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
   
   <style>
@@ -2704,10 +2692,15 @@ input[type="checkbox"].link_to_arr + label::before {
 
 <body>
 
+  
   <div class="connect-container">
     <button id="connect" class="button black">Connect</button>
     <span id="status"></span>
   </div>
+  <div class="connect-container">
+    <button id="request" class="button black">Request</button>
+  </div>
+
 
 <div id="Options" class="Options">
   <script>create_options_table("Options")</script>
