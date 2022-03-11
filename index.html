@@ -447,7 +447,7 @@ function print(message){
     open_control_detected = true
         var requestMessage = [240, 122, 29, 1, 19, 1, 247];
         open_control_output = midi.outputs.get(output.id);
-        open_control_output.send(requestMessage);
+        sendRawSysex(requestMessage);
         console.log("output", open_control_output)
 
   }
@@ -471,12 +471,12 @@ function print(message){
         }
         var requestMessage = [240, 122, 29, 1, 19, 4, 247];
         open_control_detected = true;
-        if (open_control_detected)  open_control_output.send(requestMessage);
+        if (open_control_detected)  sendRawSysex(requestMessage);
   }
 
   function request_Live_update(){
     var requestMessage = [240, 122, 29, 1, 19, 5, 247];
-    if (open_control_detected)    open_control_output (requestMessage);
+    if (open_control_detected) sendRawSysex(requestMessage);
   }
 
   function MIDIMessageEventHandler(event) {
@@ -532,16 +532,16 @@ function print(message){
    init_led_color_green = [0, 78, 23, 100, 49, 0];
    init_led_color_blue = [100, 46, 80, 0, 0, 12];
       var   message = [240, 122, 29, 1, 19, 54, 0, 247];
-      if (open_control_detected)   open_control_output.send(message);  
+      if (open_control_detected)   sendRawSysex(message);  
     for (var i = 0; i < 6; i++) {
       var   message = [240, 122, 29, 1, 19, 28, i, init_led_color_red[i], init_led_color_green[i], init_led_color_blue[i], 247];
-      if (open_control_detected)  open_control_output.send(message);
+      if (open_control_detected)  sendRawSysex(message);
       sleep(30)
     }
     for (var i = 0; i < 6; i++) {
       sleep(30)
       var   message = [240, 122, 29, 1, 19, 28, i, 0, 0, 0, 247];
-      if (open_control_detected)   open_control_output.send(message);
+      if (open_control_detected)   sendRawSysex(message);
     }
   }
 
@@ -549,13 +549,13 @@ function print(message){
     // Sending {240, 122, 29, 1, 19, 10, Layout Number, Button number, Note/CC Number, Type, Channel, 247} changes the corresponding button
     var sysexMessage = [240, 122, 29, 1, 19, sysex_id, layout, id, value, type, channel, 247];
     sendWebUSB(sysexMessage);
-     if (open_control_detected) open_control_output.send(sysexMessage);
+     if (open_control_detected) sendRawSysex(sysexMessage);
   }
 
   function sendRawSysex(sysex_message) {
     sendWebUSB(sysex_message);
     // Sending {{240, 122, 29, 1, 19, 10, Layout Number, Button number, Note/CC Number, Type, Channel, 247} changes the corresponding button
-     if (open_control_detected) open_control_output.send(sysex_message);
+     if (open_control_detected) sendRawSysex(sysex_message);
   }
 
   var color_names = ["Off", "Blue 1", "Blue 2", "Red 1", "Red 2", "Green 1", "Green 2", "Pink 1", "Pink 2", "Purple 1", "Purple 2", "Yellow 1", "Yellow 2", "Orange 1", "Orange 2", "White 1", "White 2"]
@@ -2505,8 +2505,6 @@ input[type="checkbox"].link_to_arr + label::before {
   <div class="connect-container">
     <button id="connect" class="button black">Connect</button>
     <span id="status"></span>
-  </div>
-  <div class="connect-container">
     <button id="request" class="button black">Request</button>
   </div>
 
