@@ -1,5 +1,4 @@
 
-
   ///////////////////////////////////
   // CALLBACKS
   ///////////////////////////////////
@@ -62,16 +61,14 @@
         update_led_selects(id, num, type[id][current_layout][num], control[id][current_layout][num], channel[id][current_layout][num])
       }
       
-      show_receive_message();
-      sleep(pause)
-      sendSysex(id_to_sysex[id], current_layout, num_to_send, cc_to_send, type[id][current_layout][num], channel[id][current_layout][num]);
-      sleep(pause)
-      request_Live_update();
-
-      if (id != "led" && id != "display"){
-        if (value == Object.keys(actions[id]).indexOf("Custom MIDI")) update_custom_MIDI(id, num, "visible");
-        else update_custom_MIDI(id, num, "hidden")
+      if (value != Object.keys(actions[id]).indexOf("Custom MIDI") && value != Object.keys(actions[id]).indexOf("Custom Action")){
+        show_receive_message();
+        sleep(pause)
+        sendSysex(id_to_sysex[id], current_layout, num_to_send, cc_to_send, type[id][current_layout][num], channel[id][current_layout][num]);
+        sleep(pause)
       }
+      if (id != "led" && id != "display") update_custom_MIDI(id, num, true);
+      else request_Live_update();
     }
   }
 
@@ -126,6 +123,12 @@
     else num_to_send = num;
     show_receive_message();
     sleep(pause)
+
+    var s = document.getElementById(id + num);
+    if (s.value == Object.keys(actions[id]).indexOf("Custom Action")){
+      type[id][current_layout][num] = 1
+      channel[id][current_layout][num] = 15
+    }
     sendSysex(id_to_sysex[id], current_layout, num_to_send, control[id][current_layout][num], type[id][current_layout][num], channel[id][current_layout][num]);
     sleep(pause)
     request_Live_update();
@@ -189,11 +192,8 @@
     else {
       value = get_index(_control, actions[id]);
       s.value = value
-      if (0 < _channel && _channel < 11) {
-        s.value = Object.keys(actions[id]).indexOf("Custom MIDI");
-        update_custom_MIDI(id, i, "visible");
-      }
-      else update_custom_MIDI(id, i, "hidden");
+      update_custom_MIDI(id, i, false)
+      // update_custom_action(id, i, false)
     }
     if (_snap != null)
       { var s = document.getElementById("snap_checkbox" + i);
@@ -220,11 +220,8 @@
       var s = document.getElementById(id + i);
       value = get_index(_control, actions[id]);
       s.value = value
-      if (0 < _channel && _channel < 11) {
-        s.value = Object.keys(actions[id]).indexOf("Custom MIDI");
-        update_custom_MIDI(id, i, "visible");
-      }
-      else update_custom_MIDI(id, i, "hidden");
+      update_custom_MIDI(id, i, false)
+      // update_custom_action(id, i, false)
   }
   
   function update_display_select(value){
@@ -248,31 +245,76 @@
     }
   }
 
-  function update_custom_MIDI(id, i, state) {
-    is_not_encoder_short = (control_type[id] == "button" && id!="encoder_short")
-    is_button = (control_type[id] == "button")
-    if (is_button) _type = type[id][current_layout][i];
+  function update_custom_MIDI(id, i, switching) {
     _channel = channel[id][current_layout][i];
     _control = control[id][current_layout][i];
+    is_button = (control_type[id] == "button")
+    is_not_encoder_short = (control_type[id] == "button" && id!="encoder_short")
+    if (is_button) _type = type[id][current_layout][i];
     if (is_button) _toggle = toggle[id][current_layout][i];
-      var s1 = document.getElementById("custom_MIDI_" + id + i);
-      if (is_button)  var s2 = document.getElementById(id+"_type_select" + i);
-      var s3 = document.getElementById(id+"_cc_select" + i);
-      var s4 = document.getElementById(id+"_ch_select" + i);
-      if (is_not_encoder_short)  var s5 = document.getElementById("toggle_" + id + i);
-      if (is_not_encoder_short)  var s6 = document.getElementById(id+ "_toggle_checkbox"+ i);
+    custom_MIDI = false;
+    custom_Action = false;
 
-    if (_channel < 11 && _channel != 0) {
-      s1.style.visibility = state;
-      if (is_button)  s2.value = _type + 1;
-      s3.value = _control;
-      s4.value = _channel;
-      if (is_not_encoder_short)  s5.style.visibility = state;
-      if (is_not_encoder_short)  s6.checked = _toggle;
+    var main_sel = document.getElementById("custom_MIDI_" + id + i);
+    var sel_type = document.getElementById(id+"_type_select" + i);
+    var sel_cc = document.getElementById(id+"_cc_select" + i);
+    var sel_ch = document.getElementById(id+"_ch_select" + i);
+    if (is_not_encoder_short)  var sel_toggle = document.getElementById("toggle_" + id + i);
+    if (is_not_encoder_short)  var toggle_checkbox = document.getElementById(id+ "_toggle_checkbox"+ i);
+
+    var s = document.getElementById(id + i);
+    value = get_index(_control, actions[id]);
+    s.value = value
+    if (switching) {
+      state= "visible";
+      if (s.value == Object.keys(actions[id]).indexOf("Custom MIDI")) custom_MIDI = true;
+      else if (s.value == Object.keys(actions[id]).indexOf("Custom Action")) custom_Action = true;
     }
-    else {
-      s1.style.visibility = state;
-      if (is_not_encoder_short)  s5.style.visibility = state;
+    else{
+      if  (_channel < 11) custom_MIDI = true;
+      if (_channel == 15) custom_Action = true;
+    }
+
+    if (custom_MIDI) {
+      if (is_button) sel_type.style.visibility = "visible";
+      sel_cc.style.visibility = "visible";
+      sel_ch.style.visibility = "visible";
+      main_sel.style.visibility = "visible";
+      if (is_button)  sel_type.value = _type + 1;
+      sel_cc.value = _control;
+      sel_ch.value = _channel;
+      if (is_not_encoder_short)  sel_toggle.style.visibility = "visible";
+      if (is_not_encoder_short)  toggle_checkbox.checked = _toggle;
+      main_sel.style.visibility = "visible";
+      if (is_not_encoder_short)  sel_toggle.style.visibility = "visible";
+      s.value = Object.keys(actions[id]).indexOf("Custom MIDI");
+    }
+    else if (custom_Action) {    
+      if (is_button) sel_type.style.visibility = "hidden";
+      sel_cc.style.visibility = "visible";
+      sel_ch.style.visibility = "hidden";
+      main_sel.style.visibility = "hidden";
+      if (is_button)  sel_type.value = _type + 1;
+      sel_cc.value = _control;
+      sel_ch.value = _channel;
+      if (is_not_encoder_short)  sel_toggle.style.visibility = "visible";
+      if (is_not_encoder_short)  toggle_checkbox.checked = _toggle;
+      main_sel.style.visibility = "hidden";
+      if (is_not_encoder_short)  sel_toggle.style.visibility = "visible";
+      s.value = Object.keys(actions[id]).indexOf("Custom Action");
+    }
+    else  {    
+      if (is_button) sel_type.style.visibility = "hidden";
+      sel_cc.style.visibility = "hidden";
+      sel_ch.style.visibility = "hidden";
+      main_sel.style.visibility = "hidden";
+      if (is_button)  sel_type.value = _type + 1;
+      sel_cc.value = _control;
+      sel_ch.value = _channel;
+      if (is_not_encoder_short)  sel_toggle.style.visibility = "hidden";
+      if (is_not_encoder_short)  toggle_checkbox.checked = _toggle;
+      main_sel.style.visibility = "hidden";
+      if (is_not_encoder_short)  sel_toggle.style.visibility = "hidden";
     }
   }
   

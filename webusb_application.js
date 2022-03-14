@@ -14,14 +14,13 @@ function build_sysex_array(element){
         if (element===247){
             building_sysex = false;
             sysexHandler(fake_sysex)
-            console.log(fake_sysex);
         }
     }
 }
 
 let usb_webport;
 function sendWebUSB(array){
-  console.log(array);
+  // console.log(array);
   usb_webport.send(arrayToArrayBuffer(array));
 }
 
@@ -31,7 +30,7 @@ function arrayToArrayBuffer (array) {
   for ( var i = 0; i < length; i++) {
     buffer[i] = array[i];
   }
-  console.log('unit8', buffer)
+  // console.log('unit8', buffer)
   return buffer;
 }
 
@@ -46,19 +45,18 @@ function arrayToArrayBuffer (array) {
 
     function connect() {
       port.connect().then(() => {
+
         statusDisplay.textContent = '';
         connectButton.textContent = 'Disconnect';
+        onOpenControlDetected(1, 4);
+        let arr = [140, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0];
+        sendWebUSB(arr);
 
         port.onReceive = data => {
           let my_array = new Uint8Array(data.buffer);
-          console.log("DATA", my_array);
           my_array.forEach(element => { 
-                // console.log("element", element)
                 build_sysex_array(element);
             });
-
-            // let textDecoder = new TextDecoder();
-            // console.log("DAT4", textDecoder.decode(data));
           };
 
         port.onReceiveError = error => {
@@ -71,18 +69,20 @@ function arrayToArrayBuffer (array) {
 
     connectButton.addEventListener('click', function() {
       if (port) {
-        onOpenControlDetected(1, 4);
         port.disconnect();
         connectButton.textContent = 'Connect';
         statusDisplay.textContent = '';
         port = null;
+        console.log("WebUSB Connect");
       } else {
         serial.requestPort().then(selectedPort => {
           port = selectedPort;
           connect();
+          navigator.requestMIDIAccess({ sysex: true }).then(onMIDISuccess, onMIDIFailure);
         }).catch(error => {
           statusDisplay.textContent = error;
         });
+        console.log("MIDI Connect");
       }
     });
 
@@ -96,24 +96,6 @@ function arrayToArrayBuffer (array) {
         connect();
       }
     });
-
-    // let colorPicker = document.getElementById("color_picker");
-
-    // colorPicker.addEventListener("change", function(event) {
-    //     console.log(colorPicker.value)
-    //   port.send(new TextEncoder("utf-8").encode(colorPicker.value));
-    // });
-
-    // function arrayToArrayBuffer (array) {
-    //     var length = array.length;
-    //     var buffer = new ArrayBuffer( length * 2 );
-    //     var view = new Uint16Array(buffer);
-    //     for ( var i = 0; i < length; i++) {
-    //         view[i] = array[i];
-    //     }
-    //     return buffer;
-    // }
-
 
     requestButton.addEventListener('click', function() {
         let arr = [140, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0];

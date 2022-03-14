@@ -103,7 +103,8 @@
     "Page 1⇆2": 50,
     "Page 1⇆3": 51,
     "--- Custom ---": 0,
-    "Custom MIDI": 122
+    "Custom MIDI": 122,
+    "Custom Action": 123
   };
   var led_actions = {
     "Custom Color": 0,
