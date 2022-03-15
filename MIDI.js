@@ -80,6 +80,11 @@
     sendRawSysex(requestMessage);
   }
 
+  function refresh(){
+    let arr = [140, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0];
+    sendRawSysex(arr);
+  }
+
   function MIDIMessageEventHandler(event) {
     if (event.data[1] == 122 && event.data[2] == 29 && event.data[3] == 1 && event.data[4] == 19 && event.data[5] == 68) {
         console.log("open control detected");

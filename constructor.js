@@ -39,13 +39,43 @@
     options_cell[5].appendChild(midi_thru_option);
 
     
+
+
+    // Connect
+    var connect_button =  document.createElement('input');
+    connect_button.type = "button"
+    connect_button.value = "Connect"
+    connect_button.id = "connect"
+    connect_button.className = "preset"
+    // connect_button.onclick = function() {connect_webusb()}
+    connect_label = document.createElement('label');
+    connect_label.className = "preset"
+    connect_label.htmlFor = "connect"
+    connect_label.appendChild(document.createTextNode('Connect'));
+    // Refesh
+    var refresh_button =  document.createElement('input');
+    refresh_button.type = "button"
+    refresh_button.value = "Refesh"
+    refresh_button.id = "refresh"
+    refresh_button.className = "preset"
+    // refresh_button.onclick = function() {refresh_webusb()}
+    refresh_label = document.createElement('label');
+    refresh_label.className = "preset"
+    refresh_label.htmlFor = "refresh"
+    refresh_label.appendChild(document.createTextNode('Refesh'));
+
+
     var statusLabel = document.createElement('label');
     statusLabel.id = "Status Label";
     statusLabel.innerHTML = "<b><font color=#000000> Please connect open·control </font></b>";
     options_cell[6].className = "connect_cell";
     options_cell[6].id = "connect_cell";
+    // options_cell[6].appendChild(connect_button);
+    // options_cell[6].appendChild(connect_label);
     options_cell[6].appendChild(statusLabel)
     options_cell[6].setAttribute("rowspan", "2");
+    options_cell[6].appendChild(refresh_button);
+    options_cell[6].appendChild(refresh_label);
 
 
     options_cell[7].innerHTML = "<span style=vertical-align: middle> <a href=https://kblivesolutions.github.io/open.control/user_manual/ target=_blank><img src=./question_mark.png width=15px></a></span> <a href= http://opencontrol.me><img src=https://kblivesolutions.github.io/open.control/assets/images/logo_big.png  width=110px></a>"

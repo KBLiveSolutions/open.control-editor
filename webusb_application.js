@@ -38,16 +38,16 @@ function arrayToArrayBuffer (array) {
   'use strict';
 
   document.addEventListener('DOMContentLoaded', event => {
-    let connectButton = document.querySelector("#connect");
-    let requestButton = document.querySelector("#request");
-    let statusDisplay = document.querySelector('#status');
+    // let connectButton = document.querySelector("#connect");
+    let requestButton = document.querySelector("#refresh");
+    // let statusDisplay = document.querySelector('#status');
     let port;
 
     function connect() {
       port.connect().then(() => {
 
-        statusDisplay.textContent = '';
-        connectButton.textContent = 'Disconnect';
+        // statusDisplay.textContent = '';
+        // connectButton.textContent = 'Disconnect';
         onOpenControlDetected(1, 4);
         let arr = [140, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0];
         sendWebUSB(arr);
@@ -63,34 +63,34 @@ function arrayToArrayBuffer (array) {
           console.error(error);
         };
       }, error => {
-        statusDisplay.textContent = error;
+        // statusDisplay.textContent = error;
       });
     }
 
-    connectButton.addEventListener('click', function() {
-      if (port) {
-        port.disconnect();
-        connectButton.textContent = 'Connect';
-        statusDisplay.textContent = '';
-        port = null;
-        console.log("WebUSB Connect");
-      } else {
-        serial.requestPort().then(selectedPort => {
-          port = selectedPort;
-          connect();
-          navigator.requestMIDIAccess({ sysex: true }).then(onMIDISuccess, onMIDIFailure);
-        }).catch(error => {
-          statusDisplay.textContent = error;
-        });
-        console.log("MIDI Connect");
-      }
-    });
+    // connectButton.addEventListener('click', function() {
+    //   if (port) {
+    //     port.disconnect();
+    //     connectButton.textContent = 'Connect';
+    //     // statusDisplay.textContent = '';
+    //     port = null;
+    //     console.log("WebUSB Connect");
+    //   } else {
+    //     serial.requestPort().then(selectedPort => {
+    //       port = selectedPort;
+    //       connect();
+    //     }).catch(error => {
+    //       // statusDisplay.textContent = error;
+    //     });
+    //     console.log("MIDI Connect");
+    //   }
+    // });
 
     serial.getPorts().then(ports => {
       if (ports.length === 0) {
-        statusDisplay.textContent = 'No device found.';
+        // statusDisplay.textContent = 'No device found.';
+        navigator.requestMIDIAccess({ sysex: true }).then(onMIDISuccess, onMIDIFailure);
       } else {
-        statusDisplay.textContent = 'Connecting...';
+        // statusDisplay.textContent = 'Connecting...';
         port = ports[0];
         usb_webport = port;
         connect();
@@ -98,8 +98,7 @@ function arrayToArrayBuffer (array) {
     });
 
     requestButton.addEventListener('click', function() {
-        let arr = [140, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0];
-        sendWebUSB(arr);
+      refresh();
         // port.send(new TextEncoder("utf-8").encode(arrayToArrayBuffer(arr)));
       });
 
