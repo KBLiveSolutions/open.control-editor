@@ -67,12 +67,12 @@
 
     var statusLabel = document.createElement('label');
     statusLabel.id = "Status Label";
-    statusLabel.innerHTML = "<b><font color=#000000> Please connect open·control </font></b>";
+    statusLabel.innerHTML = "<b><font color=#000000> Please connect open·control </font></b><br><br>";
     options_cell[6].className = "connect_cell";
     options_cell[6].id = "connect_cell";
+    options_cell[6].appendChild(statusLabel)
     options_cell[6].appendChild(connect_button);
     options_cell[6].appendChild(connect_label);
-    options_cell[6].appendChild(statusLabel)
     options_cell[6].setAttribute("rowspan", "2");
     // options_cell[6].appendChild(refresh_button);
     // options_cell[6].appendChild(refresh_label);

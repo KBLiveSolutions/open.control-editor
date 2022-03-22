@@ -73,24 +73,25 @@ function arrayToArrayBuffer (array) {
       if (port) {
         port.disconnect();
         connectButton.textContent = 'Connect';
+        console.log("WebUSB Disconnect");
         // statusDisplay.textContent = '';
         port = null;
-        console.log("WebUSB Connect");
       } else {
         serial.requestPort().then(selectedPort => {
           port = selectedPort;
           connect();
+          console.log("WebUSB Connect");
         }).catch(error => {
+          navigator.requestMIDIAccess({ sysex: true }).then(onMIDISuccess, onMIDIFailure);
+          console.log("MIDI Connect");
           // statusDisplay.textContent = error;
         });
-        console.log("MIDI Connect");
       }
     });
 
     serial.getPorts().then(ports => {
       if (ports.length === 0) {
         // statusDisplay.textContent = 'No device found.';
-        navigator.requestMIDIAccess({ sysex: true }).then(onMIDISuccess, onMIDIFailure);
       } else {
         // statusDisplay.textContent = 'Connecting...';
         port = ports[0];
