@@ -47,7 +47,7 @@
     connect_button.value = "Connect"
     connect_button.id = "connect"
     connect_button.className = "preset"
-    // connect_button.onclick = function() {connect_webusb()}
+    connect_button.onclick = function() {connect_webusb()}
     connect_label = document.createElement('label');
     connect_label.className = "preset"
     connect_label.htmlFor = "connect"
@@ -70,8 +70,8 @@
     statusLabel.innerHTML = "<b><font color=#000000> Please connect open·control </font></b>";
     options_cell[6].className = "connect_cell";
     options_cell[6].id = "connect_cell";
-    // options_cell[6].appendChild(connect_button);
-    // options_cell[6].appendChild(connect_label);
+    options_cell[6].appendChild(connect_button);
+    options_cell[6].appendChild(connect_label);
     options_cell[6].appendChild(statusLabel)
     options_cell[6].setAttribute("rowspan", "2");
     // options_cell[6].appendChild(refresh_button);

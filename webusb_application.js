@@ -38,7 +38,7 @@ function arrayToArrayBuffer (array) {
   'use strict';
 
   document.addEventListener('DOMContentLoaded', event => {
-    // let connectButton = document.querySelector("#connect");
+    let connectButton = document.querySelector("#connect");
     // let requestButton = document.querySelector("#refresh");
     // let statusDisplay = document.querySelector('#status');
     let port;
@@ -47,7 +47,7 @@ function arrayToArrayBuffer (array) {
       port.connect().then(() => {
 
         // statusDisplay.textContent = '';
-        // connectButton.textContent = 'Disconnect';
+        connectButton.textContent = 'Disconnect';
     var requestMessage = [240, 122, 29, 1, 19, 1, 247];
     sendRawSysex(requestMessage);
         let arr = [140, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0];
@@ -69,23 +69,23 @@ function arrayToArrayBuffer (array) {
       });
     }
 
-    // connectButton.addEventListener('click', function() {
-    //   if (port) {
-    //     port.disconnect();
-    //     connectButton.textContent = 'Connect';
-    //     // statusDisplay.textContent = '';
-    //     port = null;
-    //     console.log("WebUSB Connect");
-    //   } else {
-    //     serial.requestPort().then(selectedPort => {
-    //       port = selectedPort;
-    //       connect();
-    //     }).catch(error => {
-    //       // statusDisplay.textContent = error;
-    //     });
-    //     console.log("MIDI Connect");
-    //   }
-    // });
+    connectButton.addEventListener('click', function() {
+      if (port) {
+        port.disconnect();
+        connectButton.textContent = 'Connect';
+        // statusDisplay.textContent = '';
+        port = null;
+        console.log("WebUSB Connect");
+      } else {
+        serial.requestPort().then(selectedPort => {
+          port = selectedPort;
+          connect();
+        }).catch(error => {
+          // statusDisplay.textContent = error;
+        });
+        console.log("MIDI Connect");
+      }
+    });
 
     serial.getPorts().then(ports => {
       if (ports.length === 0) {
