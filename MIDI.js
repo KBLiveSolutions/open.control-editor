@@ -9,6 +9,8 @@
   var open_control_detected = false
   var current_layout = 0
 
+  var detected_maj_ver = 0;
+  var detected_min_ver = 0;
 
   function onMIDIFailure(msg) {
     console.log("Failed to get MIDI access - " + msg);
@@ -88,7 +90,9 @@
   function MIDIMessageEventHandler(event) {
     if (event.data[1] == 122 && event.data[2] == 29 && event.data[3] == 1 && event.data[4] == 19 && event.data[5] == 68) {
         console.log("open control detected");
-        onOpenControlDetectedMIDI(event.data[6], event.data[7]);
+        detected_maj_ver = event.data[6];
+        detected_min_ver = event.data[7];
+        // onOpenControlDetectedMIDI(event.data[6], event.data[7]);
     }
 
     if (event.data[1] == 122 && event.data[2] == 29 && event.data[3] == 1 && event.data[4] == 19 && event.data[5] == 79) {

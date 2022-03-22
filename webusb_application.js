@@ -39,7 +39,7 @@ function arrayToArrayBuffer (array) {
 
   document.addEventListener('DOMContentLoaded', event => {
     // let connectButton = document.querySelector("#connect");
-    let requestButton = document.querySelector("#refresh");
+    // let requestButton = document.querySelector("#refresh");
     // let statusDisplay = document.querySelector('#status');
     let port;
 
@@ -48,9 +48,11 @@ function arrayToArrayBuffer (array) {
 
         // statusDisplay.textContent = '';
         // connectButton.textContent = 'Disconnect';
-        onOpenControlDetected(1, 4);
+    var requestMessage = [240, 122, 29, 1, 19, 1, 247];
+    sendRawSysex(requestMessage);
         let arr = [140, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0];
         sendWebUSB(arr);
+        onOpenControlDetected(detected_maj_ver, detected_min_ver);
 
         port.onReceive = data => {
           let my_array = new Uint8Array(data.buffer);
@@ -97,10 +99,10 @@ function arrayToArrayBuffer (array) {
       }
     });
 
-    requestButton.addEventListener('click', function() {
-      refresh();
-        // port.send(new TextEncoder("utf-8").encode(arrayToArrayBuffer(arr)));
-      });
+    // requestButton.addEventListener('click', function() {
+    //   refresh();
+    //     // port.send(new TextEncoder("utf-8").encode(arrayToArrayBuffer(arr)));
+    //   });
 
 
   });
