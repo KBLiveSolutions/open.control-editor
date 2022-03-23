@@ -182,6 +182,12 @@
   }
 
   function update_button_selects(id, i, _type, _control, _channel, _toggle, _snap=null) {
+    channel[id][current_layout][i] = _channel;
+    control[id][current_layout][i] = _control;
+    type[id][current_layout][i] = _type;
+    toggle[id][current_layout][i] = _toggle;
+
+    console.log(id, i, _type, _control, _channel, _toggle)
     var s = document.getElementById(id + i);
     if (_type == 0 && _channel == 16) s.value = Object.keys(button_actions).indexOf("① MIDI Map 1 (Big Button)");
     else if (_type == 0 && _channel == 15) s.value = Object.keys(button_actions).indexOf("② MIDI Map 2 (Clear)");
@@ -203,6 +209,10 @@
   }
 
   function update_led_selects(id, i, _type, _control, _channel){
+    channel[id][current_layout][i] = _channel;
+    control[id][current_layout][i] = _control;
+    type[id][current_layout][i] = _type;
+
       var s = document.getElementById("led" + i);
       var c = document.getElementById("color_sel" + (i));
       c.style.display = "none";
@@ -217,6 +227,8 @@
   }
 
   function update_select(id, i, _control, _channel){
+    channel[id][current_layout][i] = _channel;
+    control[id][current_layout][i] = _control;
       var s = document.getElementById(id + i);
       value = get_index(_control, actions[id]);
       s.value = value
@@ -275,6 +287,7 @@
       if (_channel == 15) custom_Action = true;
     }
 
+    console.log(id, i, _channel, custom_MIDI)
     if (custom_MIDI) {
       if (is_button) sel_type.style.visibility = "visible";
       sel_cc.style.visibility = "visible";
@@ -408,8 +421,11 @@
     upload_button.onclick = function() {uploadPreset()}
     upload_label = document.createElement('label');
     upload_label.className = "preset"
+    upload_label.id = "upload_label"
     upload_label.htmlFor = "upload"
     upload_label.appendChild(document.createTextNode('Upload'));
+    upload_label.style.visibility = "hidden"
+    upload_button.style.visibility = "hidden"
 
 
     // CSV
@@ -541,11 +557,17 @@ function readSingleFile(e) {
     displayContents(contents);
   };
   reader.readAsText(file);
+
+  var upload_button = document.getElementById("upload");
+  var upload_label = document.getElementById("upload_label");
+  upload_label.style.visibility = "visible"
+  upload_button.style.visibility = "visible"
 }
 var elements
 
 function displayContents(contents) {
   elements = JSON.parse(contents);
+  console.log(elements)
 
 //   on_page_select_loaded(current_layout);
 // }
@@ -618,6 +640,7 @@ var pause = 10;
   control["slider"][current_layout] = elements["control_slider"];
   channel["slider"][current_layout] = elements["channel_slider"];
   control["display"][current_layout] = elements["display"];
+
     for (var i = 0; i < 6; i++) {
     show_receive_message();
    // "button_short"
@@ -666,6 +689,7 @@ sleep(pause)
     id =  "display"
    sendSysex(id_to_sysex[id], current_layout, 1, control[id][current_layout][0], 1, 16);
    request_Live_update()
+
   }
 
   function sleep(milliseconds) {

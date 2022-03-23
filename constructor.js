@@ -78,7 +78,7 @@
     // options_cell[6].appendChild(refresh_label);
 
 
-    options_cell[7].innerHTML = "<span style=vertical-align: middle> <a href=https://kblivesolutions.github.io/open.control/user_manual/ target=_blank><img src=./question_mark.png width=15px></a></span> <a href= http://opencontrol.me><img src=https://kblivesolutions.github.io/open.control/assets/images/logo_big.png  width=110px></a>"
+    options_cell[7].innerHTML = "<span style=vertical-align: middle> <a href=https://kblivesolutions.github.io/open.control/user_manual/ target=_blank><img src=./question_mark.png width=15px></a></span> <a href= http://opencontrol.me><img src=logo_big.png  width=110px></a>"
     options_cell[7].setAttribute("rowspan", "2");
 
     optionsTable_row1.appendChild(options_cell[7]);
