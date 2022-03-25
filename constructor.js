@@ -51,19 +51,24 @@
     connect_label = document.createElement('label');
     connect_label.className = "preset"
     connect_label.htmlFor = "connect"
+    connect_label.id = "connect_label"
     connect_label.appendChild(document.createTextNode('Connect'));
     // Refesh
     var refresh_button =  document.createElement('input');
     refresh_button.type = "button"
     refresh_button.value = "Refesh"
-    refresh_button.id = "refresh"
+    refresh_button.id = "refresh_button"
     refresh_button.className = "preset"
     // refresh_button.onclick = function() {refresh_webusb()}
     refresh_label = document.createElement('label');
     refresh_label.className = "preset"
     refresh_label.htmlFor = "refresh"
+    refresh_label.id = "refresh_label"
     refresh_label.appendChild(document.createTextNode('Refesh'));
 
+
+    refresh_button.style.visibility = "hidden";
+    refresh_label.style.visibility = "hidden";
 
     var statusLabel = document.createElement('label');
     statusLabel.id = "Status Label";
@@ -74,8 +79,8 @@
     options_cell[6].appendChild(connect_button);
     options_cell[6].appendChild(connect_label);
     options_cell[6].setAttribute("rowspan", "2");
-    // options_cell[6].appendChild(refresh_button);
-    // options_cell[6].appendChild(refresh_label);
+    options_cell[6].appendChild(refresh_button);
+    options_cell[6].appendChild(refresh_label);
 
 
     options_cell[7].innerHTML = "<span style=vertical-align: middle> <a href=https://kblivesolutions.github.io/open.control/user_manual/ target=_blank><img src=./question_mark.png width=15px></a></span> <a href= http://opencontrol.me><img src=logo_big.png  width=110px></a>"

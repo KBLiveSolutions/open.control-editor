@@ -77,6 +77,17 @@
         }
   }
 
+  function onOpenControlDisconnected() {
+    statusLabel = document.getElementById("Status Label");
+    statusLabel.style.color = "#000000";
+    var connect_cell = document.getElementById("connect_cell");
+    connect_cell.style.backgroundColor = "red";
+    connect_cell.className = "connect_cell";
+    statusLabel.innerHTML = "<b> Please connect open·control </b>";
+        var connect_cell = document.getElementById("connect_cell");
+        statusLabel.style.color = "#000000";
+  }
+
   function request_Live_update(){
     var requestMessage = [240, 122, 29, 1, 19, 5, 247];
     sendRawSysex(requestMessage);

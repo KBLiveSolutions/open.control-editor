@@ -34,12 +34,24 @@ function arrayToArrayBuffer (array) {
   return buffer;
 }
 
+function update_refresh_button()
+{
+  // let refresh_button = document.getElementById("refresh_button");
+  // let refresh_label = document.getElementById("refresh_label");
+  // refresh_button.style.visibility = "visible";
+  // refresh_label.style.visibility = "visible";
+  let connect_button = document.getElementById("connect");
+  let connect_label = document.getElementById("connect_label");
+  connect_button.style.visibility = "hidden";
+  connect_label.style.visibility = "hidden";
+}
+
 (function() {
   'use strict';
 
   document.addEventListener('DOMContentLoaded', event => {
     let connectButton = document.querySelector("#connect");
-    // let requestButton = document.querySelector("#refresh");
+    let requestButton = document.querySelector("#refresh");
     // let statusDisplay = document.querySelector('#status');
     let port;
 
@@ -47,11 +59,12 @@ function arrayToArrayBuffer (array) {
       port.connect().then(() => {
 
         // statusDisplay.textContent = '';
-        connectButton.textContent = 'Disconnect';
+        // connectButton.textContent = 'Disconnect';
     var requestMessage = [240, 122, 29, 1, 19, 1, 247];
     sendRawSysex(requestMessage);
         let arr = [140, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0];
         sendWebUSB(arr);
+        update_refresh_button();
 
         port.onReceive = data => {
           let my_array = new Uint8Array(data.buffer);
@@ -61,7 +74,8 @@ function arrayToArrayBuffer (array) {
           };
 
         port.onReceiveError = error => {
-          console.error(error);
+          console.error(error); 
+          onOpenControlDisconnected()
         };
       }, error => {
         // statusDisplay.textContent = error;
@@ -99,10 +113,10 @@ function arrayToArrayBuffer (array) {
       }
     });
 
-    // requestButton.addEventListener('click', function() {
-    //   refresh();
-    //     // port.send(new TextEncoder("utf-8").encode(arrayToArrayBuffer(arr)));
-    //   });
+    requestButton.addEventListener('click', function() {
+      refresh();
+        // port.send(new TextEncoder("utf-8").encode(arrayToArrayBuffer(arr)));
+      });
 
 
   });
