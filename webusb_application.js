@@ -52,7 +52,6 @@ function arrayToArrayBuffer (array) {
     sendRawSysex(requestMessage);
         let arr = [140, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0];
         sendWebUSB(arr);
-        onOpenControlDetected(detected_maj_ver, detected_min_ver);
 
         port.onReceive = data => {
           let my_array = new Uint8Array(data.buffer);

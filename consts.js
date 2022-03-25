@@ -11,6 +11,7 @@
     "🎹 Track Name": 1,
     "Ⓛ  Looper Number": 2,
     "⌸  Variation Number / Device": 3,
+    "⟐  Custom Display": 6,
   };
   var button_actions = {
     "Off": 0,

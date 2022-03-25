@@ -90,8 +90,8 @@
   function MIDIMessageEventHandler(event) {
     if (event.data[1] == 122 && event.data[2] == 29 && event.data[3] == 1 && event.data[4] == 19 && event.data[5] == 68) {
         console.log("open control detected");
-        detected_maj_ver = event.data[6];
-        detected_min_ver = event.data[7];
+        maj_ver = event.data[6];
+        min_ver = event.data[7];
         // onOpenControlDetectedMIDI(event.data[6], event.data[7]);
     }
 
@@ -107,6 +107,15 @@
 
 
     function sysexHandler(sysexArray) {
+      console.log(sysexArray)
+      if (sysexArray[1] == 122 && sysexArray[2] == 29 && sysexArray[3] == 1 && sysexArray[4] == 19 && sysexArray[5] == 68) {
+        console.log(sysexArray)
+          console.log("open control detected");
+          detected_maj_ver = sysexArray[6];
+          detected_min_ver = sysexArray[7];
+          onOpenControlDetected(detected_maj_ver, detected_min_ver);
+      }
+  
     if (sysexArray[1] == 122 && sysexArray[2] == 29 && sysexArray[3] == 1 && sysexArray[4] == 20) { // Receiving Data from opencontrol after a Dump request
 
         var sysex_byte = sysexArray[5];
