@@ -7,8 +7,8 @@
   var display_actions = {
     "☲  Scene Name": 0,
     "⌈  Arrangement Marker": 4,
-    "♫  Setlist Song": 5,
     "🎹 Track Name": 1,
+    "♫  Setlist Song": 5,
     "Ⓛ  Looper Number": 2,
     "⌸  Variation Number / Device": 3,
     "⟐  Custom Display": 6,
