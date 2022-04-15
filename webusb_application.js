@@ -57,14 +57,13 @@ function update_refresh_button()
 
     function connect() {
       port.connect().then(() => {
-
-        // statusDisplay.textContent = '';
-        // connectButton.textContent = 'Disconnect';
-    var requestMessage = [240, 122, 29, 1, 19, 1, 247];
-    sendRawSysex(requestMessage);
+        console.log("Connect1");
         let arr = [140, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0];
         sendWebUSB(arr);
+        var requestMessage = [240, 122, 29, 1, 19, 1, 247];
+        sendRawSysex(requestMessage);
         update_refresh_button();
+        console.log("Connect2");
 
         port.onReceive = data => {
           let my_array = new Uint8Array(data.buffer);
@@ -78,6 +77,8 @@ function update_refresh_button()
           onOpenControlDisconnected()
         };
       }, error => {
+        navigator.requestMIDIAccess({ sysex: true }).then(onMIDISuccess, onMIDIFailure);
+        console.log("Error");
         // statusDisplay.textContent = error;
       });
     }
@@ -105,10 +106,12 @@ function update_refresh_button()
     serial.getPorts().then(ports => {
       if (ports.length === 0) {
         // statusDisplay.textContent = 'No device found.';
+          console.log("No device found.");
       } else {
         // statusDisplay.textContent = 'Connecting...';
         port = ports[0];
         usb_webport = port;
+        console.log("Connecting...");
         connect();
       }
     });

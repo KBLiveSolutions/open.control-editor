@@ -47,7 +47,7 @@
     connect_button.value = "Connect"
     connect_button.id = "connect"
     connect_button.className = "preset"
-    connect_button.onclick = function() {connect_webusb()}
+    // connect_button.onclick = function() {connect_webusb()}
     connect_label = document.createElement('label');
     connect_label.className = "preset"
     connect_label.htmlFor = "connect"

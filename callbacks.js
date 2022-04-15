@@ -187,7 +187,7 @@
     type[id][current_layout][i] = _type;
     toggle[id][current_layout][i] = _toggle;
 
-    console.log(id, i, _type, _control, _channel, _toggle)
+    // console.log(id, i, _type, _control, _channel, _toggle)
     var s = document.getElementById(id + i);
     if (_type == 0 && _channel == 16) s.value = Object.keys(button_actions).indexOf("① MIDI Map 1 (Big Button)");
     else if (_type == 0 && _channel == 15) s.value = Object.keys(button_actions).indexOf("② MIDI Map 2 (Clear)");
@@ -287,7 +287,7 @@
       if (_channel == 15) custom_Action = true;
     }
 
-    console.log(id, i, _channel, custom_MIDI)
+    // console.log(id, i, _channel, custom_MIDI)
     if (custom_MIDI) {
       if (is_button) sel_type.style.visibility = "visible";
       sel_cc.style.visibility = "visible";
