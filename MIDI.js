@@ -113,7 +113,7 @@
 
 
     function sysexHandler(sysexArray) {
-      console.log(sysexArray)
+      // console.log(sysexArray)
       if (sysexArray[1] == 122 && sysexArray[2] == 29 && sysexArray[3] == 1 && sysexArray[4] == 19 && sysexArray[5] == 68) {
         console.log(sysexArray)
           console.log("open control detected");

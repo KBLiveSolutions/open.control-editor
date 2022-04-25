@@ -55,6 +55,11 @@
           channel[id][current_layout][num] = 11;
           type[id][current_layout][num] = 0;
       }
+      is_button = (control_type[id] == "button")
+      if(is_button){
+        toggle[id][current_layout][num] = 0;  
+        sendSysex(13, current_layout, num, 0, id_to_toggle[id], 1);
+      }
 
       if (id=="led"){
         if (value==0) channel[id][current_layout][num] = 10;
@@ -198,6 +203,7 @@
     else {
       value = get_index(_control, actions[id]);
       s.value = value
+      
       update_custom_MIDI(id, i, false)
       // update_custom_action(id, i, false)
     }
@@ -245,14 +251,20 @@
     a = ["long", "double"]
     for (_a of a) {
       var s = document.getElementById("button_" + _a + num);
-      var l = document.getElementById("button_" + _a + "_label" + num);
+      var l = document.getElementById("button_" + _a + "_label" + num);    
+      var main_sel = document.getElementById("custom_MIDI_" + "button_" + _a + num);
+      console.log(value)
       if (value == 1) {
         s.style.visibility = "hidden";
         l.style.visibility = "hidden";
+        main_sel.style.visibility = "hidden";
+        console.log("hidden")
       }
       else {
         s.style.visibility = "visible";
         l.style.visibility = "visible";
+        main_sel.style.visibility = "visible";
+        console.log("visible")
       }
     }
   }

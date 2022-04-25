@@ -178,7 +178,7 @@
     display_brightness_label.htmlFor = display_brightness.id
     display_brightness.addEventListener('change', (event) => {
       if (event.target.checked) on_display_brightness_changed(127);
-      else on_display_brightness_changed(80);
+      else on_display_brightness_changed(50);
     })
     // display_brightness_cell = [display_brightness, display_brightness_label];
 
