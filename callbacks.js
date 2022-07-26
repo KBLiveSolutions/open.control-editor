@@ -72,7 +72,7 @@
         sendSysex(id_to_sysex[id], current_layout, num_to_send, cc_to_send, type[id][current_layout][num], channel[id][current_layout][num]);
         sleep(pause)
       }
-      if (id != "led" && id != "display") update_custom_MIDI(id, num, true);
+      if (id != "display") update_custom_MIDI(id, num, true);
       else request_Live_update();
     }
   }
@@ -230,6 +230,7 @@
       }
       else s.value = get_index(_control, led_actions);
       s.style.display = "block";
+      update_custom_MIDI(id, i, false)
   }
 
   function update_select(id, i, _control, _channel){

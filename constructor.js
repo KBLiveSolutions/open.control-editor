@@ -423,7 +423,7 @@
     let main_cell_table = document.createElement('table');
     let row = [];
     let cell = [];
-    for (var j = 0; j < 13; j++) {
+    for (var j = 0; j < 14; j++) {
       row[j] = document.createElement("tr");
       cell[j * 2] = document.createElement('td');
       cell[j * 2 + 1] = document.createElement('td');
@@ -468,18 +468,23 @@
     row[2].appendChild(cell[4]);
     row[2].appendChild(cell[5]);
 
+    cc_table_led = custom_MIDI_constructor(i, "led", "button");
+    cell[26].appendChild(cc_table_led);
+    cc_table_led.style.visibility = "hidden";
+    row[3].appendChild(cell[26]);
+
     cell[6].innerHTML = "<font size=5>" + (i + 1).toString() + "</font>";
     cell[6].classList.add("main_cell_text");
     cell[6].setAttribute("colspan", "2");
-    row[3].appendChild(cell[6]);
+    row[4].appendChild(cell[6]);
 
 
     cell[8].innerHTML = "Short";
     // cell[8].setAttribute("colspan", "2");
     cell[8].classList.add("type5");
     cell[9].classList.add("type5");
-    row[4].appendChild(cell[8]);
-    row[4].appendChild(cell[9]);
+    row[5].appendChild(cell[8]);
+    row[5].appendChild(cell[9]);
 
     sel_button_short = create_sel(i, button_actions, 'button_short', 'block');
     cell[10].appendChild(sel_button_short);
@@ -487,18 +492,18 @@
     snap_checkbox = create_snap(i);
     cell[11].appendChild(snap_checkbox[0]);
     cell[11].appendChild(snap_checkbox[1]);
-    row[5].appendChild(cell[10]);
-    row[5].appendChild(cell[11]);
+    row[6].appendChild(cell[10]);
+    row[6].appendChild(cell[11]);
 
     cc_table_short = custom_MIDI_constructor(i, "button_short", "button");
     cell[12].appendChild(cc_table_short);
     cc_table_short.style.visibility = "hidden";
-    row[6].appendChild(cell[12]);
+    row[7].appendChild(cell[12]);
 
     toggle_short_checkbox = create_toggle(i, "button_short");
     cell[13].appendChild(toggle_short_checkbox);
     toggle_short_checkbox.style.visibility = "hidden";
-    row[6].appendChild(cell[13]);
+    row[7].appendChild(cell[13]);
 
     
     var button_long_label = document.createElement('label');
@@ -509,18 +514,18 @@
     sel_button_long = create_sel(i, button_actions, 'button_long', 'block');
     cell[16].appendChild(sel_button_long);
     // cell[16].setAttribute("colspan", "2");
-    row[7].appendChild(cell[14]);
-    row[8].appendChild(cell[16]);
+    row[8].appendChild(cell[14]);
+    row[9].appendChild(cell[16]);
 
     cc_table_long = custom_MIDI_constructor(i, "button_long", "button");
     cell[18].appendChild(cc_table_long);
     cell[18].style.visibility = "hidden";
-    row[9].appendChild(cell[18]);
+    row[10].appendChild(cell[18]);
 
     toggle_short_checkbox = create_toggle(i, "button_long");
     cell[19].appendChild(toggle_short_checkbox);
     toggle_short_checkbox.style.visibility = "hidden";
-    row[9].appendChild(cell[19]);
+    row[10].appendChild(cell[19]);
 
 
     var button_double_label = document.createElement('label');
@@ -529,21 +534,21 @@
     cell[20].appendChild(button_double_label);
     sel_button_double = create_sel(i, button_actions, 'button_double', 'block');
     cell[22].appendChild(sel_button_double);
-    row[10].appendChild(cell[20]);
-    row[11].appendChild(cell[22]);
+    row[11].appendChild(cell[20]);
+    row[12].appendChild(cell[22]);
 
     cc_table_double = custom_MIDI_constructor(i, "button_double", "button");
     cell[24].appendChild(cc_table_double);
     cell[24].style.visibility = "hidden";
-    row[12].appendChild(cell[24]);
+    row[13].appendChild(cell[24]);
 
     toggle_short_checkbox = create_toggle(i, "button_double");
     cell[25].appendChild(toggle_short_checkbox);
     toggle_short_checkbox.style.visibility = "hidden";
-    row[12].appendChild(cell[25]);
+    row[13].appendChild(cell[25]);
 
 
-    for (var i = 0; i < 13; i++) {
+    for (var i = 0; i < 14; i++) {
       main_cell.appendChild(row[i]);
     }
   }

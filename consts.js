@@ -153,6 +153,9 @@
     "◈ State (LOOPER4)": 80,
     "◈ State (LOOPER5)": 81,
     "◈ State (LOOPER6)": 82,
+    "--- Custom ---": 0,
+    "Custom MIDI": 122,
+    "Page Color": 113
   };
   var slider_actions = {
     "Off": 0,
